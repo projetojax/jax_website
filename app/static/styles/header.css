@@ -1,0 +1,42 @@
+header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: white;
+    color: black;
+    padding: 20px;
+}
+
+#logo {
+    cursor: pointer; 
+    font-size: 2em; 
+    text-align: center; 
+}
+
+#navbar {
+    margin-top: 10px; 
+    transition: max-height 0.3s ease; 
+}
+
+#navbar.hidden {
+    max-height: 0; 
+    overflow: hidden;
+}
+
+#navbar ul {
+    list-style: none; 
+    padding: 0; 
+}
+
+#navbar li {
+    margin: 10px 0; 
+}
+
+#navbar a {
+    text-decoration: none; 
+    color: black; 
+}
+
+#navbar a:hover {
+    text-decoration: underline;
+}
