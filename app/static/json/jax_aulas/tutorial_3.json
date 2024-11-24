@@ -1,0 +1,13 @@
+{
+    "id": 1,
+    "title": "Introdução ao LibreOfficeCalc.",
+    "subtitle": "O que é o LibreOfficeCalc?",
+    "author": "Luiz Esquivel",
+    "theme": "Tecnologia",
+    "subtheme": "Conceitos básicos",
+    "date_published": "2024-11-24",
+    "capa": "libreofficecalc.png",
+    "video": "tutorial_libreofficecalc.mp4",
+    "describe": "O Calc permite criar planilhas para cálculos, gráficos e organização de dados. Ele suporta fórmulas, como SOMA e MÉDIA, para automatizar tarefas. E pronto! Você começou no Calc. Experimente usar outras fórmulas e organizar suas finanças!",
+    "comments": []
+}

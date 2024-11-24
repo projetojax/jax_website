@@ -54,14 +54,14 @@ def documento():
 
 @main.route("/jaxresume")
 def jaxresume():
-    from .utils import load_posts
-    return render_template("jaxresume.html", temas = load_posts(main)[0])
+    from .utils import load_jaxresume
+    return render_template("jaxresume.html", temas = load_jaxresume(main)[0])
 
 @main.route("/jaxresume/<tema>")
 def temas(tema):
-    from .utils import load_posts
+    from .utils import load_jaxresume
     tema = str(tema).capitalize()
-    posts = load_posts(main)[1][tema]
+    posts = load_jaxresume(main)[1][tema]
     if posts is None:
         return render_template("error.html", title="ERROR", error="Tema não encontrado")
     filtered_posts = [post for post in posts if post['theme'].lower() == tema.lower()]
@@ -71,9 +71,9 @@ def temas(tema):
 
 @main.route("/jaxresume/post/<int:post_id>")
 def post(post_id):
-    from .utils import load_posts
+    from .utils import load_jaxresume
     post_id = int(post_id)
-    posts = load_posts(main)[2][post_id]
+    posts = load_jaxresume(main)[2][post_id]
     if posts is None:
         return render_template("error.html", title="ERROR", error="Post não encontrado")
     if post is None:
@@ -81,19 +81,68 @@ def post(post_id):
     return render_template("post_completo.html", post=posts)
 
 @main.route("/jaxresume/post/<post_id>/add_comment", methods=["POST"])
-def add_comment_route(post_id):
+def add_comment_jaxresume(post_id):
     from flask import request
-    from .utils import add_comment, load_posts
+    from .utils import add_comment, load_jaxresume
     author = request.form.get("author")
     text = request.form.get("text")
 
     if not author or not text:
-        return "Erro: Nome e texto do comentário são obrigatórios.", 400
+        author = "anonimo"
 
     try:
-        _ = add_comment(post_id, author, text, main)
-        post_id = int(post_id)
-        posts = load_posts(main)[2][post_id]
-        return render_template("post_completo.html", post=posts)
+        _ = add_comment(post_id, 'jax_resume', author, text, main)
+        return post(post_id)
+    except FileNotFoundError as e:
+        return render_template("error.html", title="ERROR", error=str(e))
+
+@main.route('/jaxaulas')
+def jaxaulas():
+
+    from .utils import load_jaxaulas
+
+    tutorials = load_jaxaulas(main)
+    themes = {tutorial['theme'] for tutorial in tutorials}  # Obter temas únicos
+    return render_template('jaxaulas.html', themes=themes)
+
+@main.route('/jaxaulas/<theme>')
+def jaxaulas_theme(theme):
+
+    from .utils import load_jaxaulas
+
+    tutorials = [t for t in load_jaxaulas(main) if t['theme'].lower() == theme.lower()]
+    if not tutorials:
+        return render_template("error.html", title="ERROR", error="Tutorial nao existe"), 404
+    return render_template('jaxaulas_topicos.html', theme=theme, tutorials=tutorials)
+
+@main.route('/jaxaulas/watch/<int:tutorial_id>')
+def jaxaulas_watch(tutorial_id):
+
+    from .utils import load_jaxaulas
+    tutorials = load_jaxaulas(main)
+    tutorial = next((t for t in tutorials if t['id'] == tutorial_id), None)
+    if not tutorial:
+        return render_template("error.html", title="ERROR", error="Tutorial nao existe"), 404
+    
+    return render_template('jaxaulas_assistir.html', tutorial=tutorial)
+
+@main.route("/jaxaulas/watch/<int:tutorial_id>/add_comment", methods=["POST"])
+def add_comment_jaxaulas(tutorial_id):
+    from flask import request
+    from .utils import load_jaxaulas, add_comment
+    tutorials = load_jaxaulas(main)
+    tutorial = next((t for t in tutorials if t['id'] == tutorial_id), None)
+    if not tutorial:
+        return render_template("error.html", title="ERROR", error="Tutorial nao existe"), 404
+
+    author = request.form.get("author")
+    text = request.form.get("text")
+
+    if not author or not text:
+        author = "anonimo"
+
+    try:
+        _ = add_comment(tutorial_id, 'jax_aulas', author, text, main)
+        return jaxaulas_watch(tutorial_id)
     except FileNotFoundError as e:
         return render_template("error.html", title="ERROR", error=str(e))

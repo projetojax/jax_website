@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='styles/jaxaulas.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="jaxaulas-theme">
+    <h1>Tutoriais sobre {{ theme }}</h1>
+
+    <div class="tutorials">
+        {% for tutorial in tutorials %}
+        <div class="tutorial">
+            <img src="{{ url_for('static', filename='images/jax_aulas/capas/' + tutorial.capa) }}" alt="{{ tutorial.title }}">
+            <div class="meta">
+                <h2>{{ tutorial.title }}</h2>
+                <p>{{ tutorial.subtitle }}</p>
+                <p>Autor: {{ tutorial.author }}</p>
+                <p>Publicado em: {{ tutorial.date_published }}</p>
+            </div>
+            <div class="actions">
+                <button onclick="location.href='/jaxaulas/watch/{{ tutorial.id }}'">Assistir</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

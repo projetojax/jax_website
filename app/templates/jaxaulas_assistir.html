@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='styles/jaxaulas.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="jaxaulas-watch">
+    <h1>{{ tutorial.title }}</h1>
+    <video controls>  
+        <source src="{{ url_for( 'static', filename='images/jax_aulas/tutoriais/' + tutorial.video ) }}" type="video/mp4">
+        Ops ... Algo deu errado, se precisar entre em contato com o suporte do Jax: Jax >> Contato.
+    </video>
+    <p>{{ tutorial.describe }}</p>
+
+    <div class="comments">
+        <h3>Comentários</h3>
+        {% if tutorial.comments %}
+            {% for comment in tutorial.comments %}
+                <div class="comment">
+                    <div class="comment-logo">
+                        <img src="{{ url_for('static', filename='images/logo_jax.jpg') }}" alt="JAX Logo">
+                    </div>
+                    <div class="comment-details">
+                        <p><strong>{{ comment['author'] }}</strong> - {{ comment['date'] }}</p>
+                        <p>{{ comment['text'] }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="comment-details">
+                <p><strong>Sem comentários</strong></p>
+            </div>
+        {% endif %}
+
+        <div class="add-comment">
+            <h3>Deixe seu comentário:</h3>
+            <form action="/jaxaulas/watch/{{ tutorial.id }}/add_comment" method="POST">
+                <label for="author">Nome:</label>
+                <input type="text" id="author" name="author" placeholder="Deixe seu nome (opcional)">
+                <label for="text">Comentário:</label>
+                <textarea id="text" name="text" rows="4" placeholder="Digite o que achou do tutorial" required></textarea>
+                <button type="submit">Enviar</button>
+            </form>
+        </div>
+</div>
+{% endblock %}

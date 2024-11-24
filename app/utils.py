@@ -8,7 +8,20 @@ def create_app():
     app.config.from_object(Config)
     return app
 
-def load_posts(app):
+def load_jaxaulas(app):
+    import json
+    import os
+
+    files_json = os.path.join(app.root_path, 'static', 'json', 'jax_aulas')
+    tutorials = []
+
+    for filename in os.listdir(files_json):
+        if filename.startswith("tutorial_") and filename.endswith(".json"):
+            with open(os.path.join(files_json, filename), "r", encoding='utf-8') as file:
+                tutorials.append(json.load(file))
+    return tutorials
+
+def load_jaxresume(app):
     import os
     import json
     themes = set() 
@@ -34,7 +47,7 @@ def load_posts(app):
         
         return formatted
 
-    json_folder = os.path.join(app.root_path, 'static', 'jsons')  
+    json_folder = os.path.join(app.root_path, 'static', 'json', 'jax_resume')  
 
     for filename in os.listdir(json_folder):
         if filename.endswith('.json'):
@@ -61,14 +74,19 @@ def load_posts(app):
 
     return (sorted(list(themes)), summary_data, detailed_data)
 
-def add_comment(post_id, author, text, app):
+def add_comment(post_id = '', pasta_json = 'jax_resume', author = '', text = '', app = None):
 
     import os
     import json
     from datetime import datetime
 
-    json_folder = os.path.join(app.root_path, 'static', 'jsons')
-    post_file = os.path.join(json_folder, f'post_{post_id}.json')
+    json_folder = os.path.join(app.root_path, 'static', 'json', pasta_json)
+    if pasta_json == 'jax_resume':
+        post_file = os.path.join(json_folder, f'post_{post_id}.json')
+    elif pasta_json == 'jax_aulas':
+        post_file = os.path.join(json_folder, f'tutorial_{post_id}.json')
+    else:
+        raise ValueError("Pasta de conjunto JSON inválida.")
 
     if not os.path.exists(post_file):
         raise FileNotFoundError(f"Post com ID {post_id} não encontrado.")

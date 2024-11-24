@@ -1,4 +1,6 @@
+app/__pycache__/
 __pycache__/
+.vscode/
 off_topics/
 v_jax/
 *.log

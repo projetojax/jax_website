@@ -1,0 +1,13 @@
+{
+    "id": 1,
+    "title": "Introdução ao LibreOfficeWriter.",
+    "subtitle": "O que é o LibreOfficeWriter?",
+    "author": "Luiz Esquivel",
+    "theme": "Tecnologia",
+    "subtheme": "Conceitos básicos",
+    "date_published": "2024-11-24",
+    "capa": "libreofficewriter.png",
+    "video": "tutorial_libreofficewriter.mp4",
+    "describe": "O Writer permite criar e editar textos com formatação avançada, como cabeçalhos, listas e tabelas. Ele suporta estilos automáticos para agilizar o design do documento. E aí está! Você aprendeu a usar o Writer. Até o próximo tutorial!",
+    "comments": []
+}

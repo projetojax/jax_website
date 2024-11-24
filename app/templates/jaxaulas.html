@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='styles/jaxaulas.css') }}">
+{% endblock %}
+
+{% block content %}
+<div id="home_jaxaulas">
+    <div id="titulo_jaxaulas">
+        <h1>
+            JAXAulas
+        </h1>
+        <h2>
+            Qual tema mais te interessa?
+        </h2>
+    </div>
+    <div id="cards_jaxaulas">
+        {% for tema in themes %}
+            <button class="jaxaulas_home" onclick="location.href='/jaxaulas/{{tema.lower()}}'" title="Ir para {{tema}}"> 
+                {{tema}} 
+            </button>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

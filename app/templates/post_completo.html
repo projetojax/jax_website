@@ -51,9 +51,9 @@
                 <h3>Deixe seu comentário:</h3>
                 <form action="/jaxresume/post/{{ post['id'] }}/add_comment" method="POST">
                     <label for="author">Nome:</label>
-                    <input type="text" id="author" name="author" required>
+                    <input type="text" id="author" name="author" placeholder="Deixe seu nome (opcional)">
                     <label for="text">Comentário:</label>
-                    <textarea id="text" name="text" rows="4" required></textarea>
+                    <textarea id="text" name="text" rows="4" placeholder="Digite o que achou do resumo"></textarea>
                     <button type="submit">Enviar</button>
                 </form>
             </div>
