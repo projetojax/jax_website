@@ -4,6 +4,7 @@ __pycache__/
 off_topics/
 v_jax/
 *.log
+*.mp4
 *.tmp
 *.pyc
 .DS_Store
