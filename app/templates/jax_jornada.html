@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='styles/jax_jornada.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<section class="journey-container">
+  <div class="journey-wrapper">
+    
+    <article class="journey-slide active" id="ato1">
+      <h2>O Brasil</h2>
+      <p>Mais de 10,9 milhões de jovens entre 15 e 29 anos não estudavam nem trabalhavam em 2022. Esse é o retrato preocupante do nosso país.</p>
+    </article>
+
+    <article class="journey-slide" id="ato2">
+      <h2>Um olhar para a educação</h2>
+      <p>A educação básica ainda falha em preparar jovens para o mundo real. Muitos saem da escola sem competências essenciais para o mercado.</p>
+    </article>
+
+    <article class="journey-slide" id="ato3">
+      <h2>Jovens e mercado em confusão</h2>
+      <p>O mercado exige experiência, mas ninguém dá oportunidades. Isso prende milhões em um ciclo de exclusão.</p>
+    </article>
+
+    <article class="journey-slide" id="ato4">
+      <h2>Surge o JAX</h2>
+      <p>Em 2022, surge o JAX: uma startup que une educação, tecnologia e inovação para mudar o futuro do jovem brasileiro.</p>
+    </article>
+
+    <article class="journey-slide" id="ato5">
+      <h2>O JAX transforma o Brasil</h2>
+      <p>O JAX oferece aulas, fóruns, bootcamps, cursos e apoio real. <strong>Conheça o projeto completo e faça parte dessa mudança.</strong></p>
+      <a href="{{ url_for('main.documento') }}" class="cta-btn" target="_blank">Ler o documento completo (PDF)</a>
+      <a href="{{ url_for('main.home') }}" class="cta-btn secondary">Ir para a Home Institucional</a>
+    </article>
+
+  </div>
+  <button id="prevBtn">◀</button>
+  <button id="nextBtn">▶</button>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script src="{{ url_for('static', filename='scripts/jax_jornada.js') }}"></script>
+
+{% endblock %}
