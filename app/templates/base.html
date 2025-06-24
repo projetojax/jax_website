@@ -41,9 +41,9 @@
 
             <div class="user-greeting">
                 {% if current_user %}
-                    Olá, {{ current_user }}!
+                    Olá, {{ current_user.username }}!
                 {% else %}
-                    Você não está logado
+                    Entre em sua conta ou crie uma nova conta para acessar recursos exclusivos.
                 {% endif %}
             </div>
 
@@ -52,19 +52,15 @@
             <nav id="navbar" class="navbar hidden">
                 <ul>
                     <li><a href="{{ url_for('main.home') }}">Home</a></li>
-                    <li><a href="{{ url_for('main.jaxresume') }}">Resume</a></li>
-                    <li><a href="{{ url_for('main.jaxaulas') }}">Aulas</a></li>
-                    <li><a href="{{ url_for('main.funcionalidades') }}">Funcionalidades</a></li>
-                    <li><a href="{{ url_for('main.sobre') }}">Sobre</a></li>
-                    <li><a href="{{ url_for('main.galeria') }}">Galeria</a></li>
-                    <li><a href="{{ url_for('main.historia') }}">História</a></li>
-                    <li><a href="{{ url_for('main.contato') }}">Contato</a></li>
 
                     {% if current_user %}
-                        <li><a href="#">Área Privada</a></li>
-                        <li><a href="#">Sair</a></li>
+                        <li><a href="{{ url_for('main.perfil') }}">Meu Perfil</a></li>
+                        {% if current_user.profile == 'admin' %}
+                            <li><a href="{{ url_for('main.usuarios') }}">Gerenciar Usuários</a></li>
+                        {% endif %}
+                        <li><a href="/logout">Sair</a></li>
                     {% else %}
-                        <li><a href="#">Login</a></li>
+                        <li><a href="/login">Login</a></li>
                     {% endif %}
                 </ul>
             </nav>

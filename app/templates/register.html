@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block styles %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='styles/auth.css') }}">
+
+{% endblock %}
+
+{% block content %}
+<main class="form-container">
+    <h2>Criar uma nova conta JAX</h2>
+    <form method="POST" action="{{ url_for('auth.register') }}">
+        {{ form.hidden_tag() }}
+
+        <div class="form-group">
+            {{ form.username.label }}
+            {{ form.username(class="form-control") }}
+        </div>
+
+        <div class="form-group">
+            {{ form.email.label }}
+            {{ form.email(class="form-control") }}
+        </div>
+
+        <div class="form-group">
+            {{ form.password.label }}
+            {{ form.password(class="form-control") }}
+        </div>
+
+        <div class="form-group">
+            {{ form.confirm.label }}
+            {{ form.confirm(class="form-control") }}
+        </div>
+
+        <div class="form-group">
+            {{ form.profile.label }}
+            {{ form.profile(class="form-control") }}
+        </div>
+
+        <div class="form-actions">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+
+        <p>Já tem conta? <a href="{{ url_for('auth.login') }}">Entrar</a></p>
+    </form>
+</main>
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const forms = document.querySelectorAll("form");
+    forms.forEach(form => {
+        form.addEventListener("submit", event => {
+            const inputs = form.querySelectorAll("input[required]");
+            let valid = true;
+            inputs.forEach(input => {
+                if (!input.value.trim()) {
+                    valid = false;
+                    input.style.borderColor = "red";
+                } else {
+                    input.style.borderColor = "#ccc";
+                }
+            });
+            if (!valid) {
+                event.preventDefault();
+                alert("Por favor, preencha todos os campos obrigatórios.");
+            }
+        });
+    });
+});
+</script>
+
+{% endblock %}

@@ -1,11 +1,25 @@
+from flask_login import LoginManager
+
+login_manager = LoginManager()
+login_manager.login_view = 'auth.login'
+
 
 def create_app():
     from flask import Flask
     from .routes import main
+    from .models import User, db
     from config import Config
+    from .auth.routes import auth
     app = Flask(__name__)
-    app.register_blueprint(main)
     app.config.from_object(Config)
+    db.init_app(app)
+    app.register_blueprint(main)
+    app.register_blueprint(auth)
+    with app.app_context():
+        db.create_all()
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
     return app
 
 def load_jaxaulas(app):

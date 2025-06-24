@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+<style>
+    :root {
+        --primary: #28a745;
+        --danger: #c00;
+        --danger-light: #f8d7da;
+        --success-light: #d4edda;
+        --text-danger: #721c24;
+        --text-success: #155724;
+        --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        --bg: #f9f9f9;
+        --border-radius: 8px;
+        --box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    body {
+        font-family: var(--font);
+        background: var(--bg);
+        margin: 0;
+        padding: 2rem;
+        display: flex;
+        justify-content: center;
+    }
+
+    .container {
+        max-width: 600px;
+        width: 100%;
+        background: white;
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    label {
+        font-weight: bold;
+        margin-bottom: 0.2rem;
+    }
+
+    input {
+        padding: 0.75rem;
+        font-size: 1rem;
+        border: 1px solid #ccc;
+        border-radius: var(--border-radius);
+        transition: border-color 0.3s ease;
+    }
+
+    input:focus {
+        border-color: var(--primary);
+        outline: none;
+    }
+
+    button {
+        padding: 0.9rem;
+        font-size: 1rem;
+        font-weight: bold;
+        border-radius: var(--border-radius);
+        transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    button:hover {
+        transform: scale(1.02);
+    }
+
+    .success {
+        background: var(--primary);
+        color: white;
+        border: none;
+    }
+
+    .danger {
+        background: var(--danger);
+        color: white;
+        border: none;
+    }
+
+    .message {
+        margin-bottom: 1.2rem;
+        padding: 0.9rem;
+        border-radius: var(--border-radius);
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+
+    .message.success {
+        background: var(--success-light);
+        color: var(--text-success);
+        border: 1px solid #c3e6cb;
+    }
+
+    .message.danger {
+        background: var(--danger-light);
+        color: var(--text-danger);
+        border: 1px solid #f5c6cb;
+    }
+
+    hr {
+        margin: 2rem 0;
+        border: none;
+        border-top: 1px solid #ddd;
+    }
+
+    @media (max-width: 600px) {
+        body {
+            padding: 1rem;
+        }
+
+        .container {
+            padding: 1.5rem;
+        }
+
+        button {
+            font-size: 1rem;
+        }
+    }
+
+    @media (max-width: 400px) {
+        input, button {
+            font-size: 0.95rem;
+            padding: 0.7rem;
+        }
+    }
+</style>
+
+{% block content %}
+<div class="container">
+    <h1>Meu Perfil</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="message {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('main.perfil') }}">
+        <div>
+            <label for="username">Nome de usuário</label>
+            <input type="text" name="username" id="username" value="{{ usuario.username }}" required />
+        </div>
+
+        <div>
+            <label for="email">E-mail</label>
+            <input type="email" name="email" id="email" value="{{ usuario.email }}" required />
+        </div>
+
+        <div>
+            <label for="password">Senha (deixe em branco para não alterar)</label>
+            <input type="password" name="password" id="password" placeholder="Nova senha" />
+        </div>
+
+        <button type="submit" class="success">Atualizar Dados</button>
+    </form>
+
+    <hr />
+
+    <form method="POST" action="{{ url_for('main.remover_proprio_usuario') }}" onsubmit="return confirm('Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita!');">
+        <button type="submit" class="danger">Excluir Minha Conta</button>
+    </form>
+</div>
+{% endblock %}

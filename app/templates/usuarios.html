@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+
+<style>
+    :root {
+        --primary-color: #007bff;
+        --danger-color: #dc3545;
+        --success-bg: #d4edda;
+        --success-text: #155724;
+        --danger-bg: #f8d7da;
+        --danger-text: #721c24;
+        --table-border: #e0e0e0;
+        --bg-light: #f9f9f9;
+        --shadow: rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 2rem auto;
+        padding: 0 1rem;
+        max-width: 1000px;
+        color: #333;
+        background-color: #ffffff;
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 2rem;
+        font-size: 2rem;
+    }
+
+    .message {
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        border-radius: 6px;
+        box-shadow: 0 2px 6px var(--shadow);
+    }
+
+    .message.success {
+        background-color: var(--success-bg);
+        color: var(--success-text);
+    }
+
+    .message.danger {
+        background-color: var(--danger-bg);
+        color: var(--danger-text);
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #fff;
+        box-shadow: 0 2px 10px var(--shadow);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    th, td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--table-border);
+        text-align: left;
+        font-size: 0.95rem;
+    }
+
+    th {
+        background-color: var(--bg-light);
+        font-weight: bold;
+    }
+
+    tr:last-child td {
+        border-bottom: none;
+    }
+
+    .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    button {
+        cursor: pointer;
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+        border: none;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+
+    .edit-btn {
+        background-color: var(--primary-color);
+        color: #fff;
+    }
+
+    .edit-btn:hover {
+        background-color: #0056b3;
+    }
+
+    .delete-btn {
+        background-color: var(--danger-color);
+        color: #fff;
+    }
+
+    .delete-btn:hover {
+        background-color: #b0212b;
+    }
+
+    @media (max-width: 768px) {
+        table, thead, tbody, th, td, tr {
+            display: block;
+        }
+
+        thead {
+            display: none;
+        }
+
+        tr {
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px var(--shadow);
+            border-radius: 6px;
+            padding: 1rem;
+            background-color: #fff;
+        }
+
+        td {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border: none;
+            border-bottom: 1px solid var(--table-border);
+        }
+
+        td:last-child {
+            border-bottom: none;
+        }
+
+        td::before {
+            content: attr(data-label);
+            font-weight: bold;
+            color: #666;
+        }
+
+        .actions {
+            justify-content: flex-end;
+        }
+    }
+</style>
+
+{% block content %}
+    <h1>Usuários cadastrados</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="message {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Usuário</th>
+                <th>E-mail</th>
+                <th>Perfil</th>
+                <th>Criado em</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in usuarios %}
+            <tr>
+                <td data-label="ID">{{ u.id }}</td>
+                <td data-label="Usuário">{{ u.username }}</td>
+                <td data-label="E-mail">{{ u.email }}</td>
+                <td data-label="Perfil">{{ u.profile }}</td>
+                <td data-label="Criado em">{{ u.date_created }}</td>
+                <td data-label="Ações" class="actions">
+                    <a href="{{ url_for('main.editar', user_id=u.id) }}">
+                        <button class="edit-btn">Editar</button>
+                    </a>
+                    <form method="POST" action="{{ url_for('main.remover', user_id=u.id) }}"
+                          style="display:inline;" onsubmit="return confirm('Confirma a remoção do usuário {{ u.username }}?');">
+                        <button type="submit" class="delete-btn">Remover</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

@@ -6,10 +6,20 @@
         <h1 class="hero-title">JAX: Transformando a Realidade dos Jovens</h1>
         <p class="hero-subtitle">Educação, Inovação e Tecnologia a serviço da sua jornada.</p>
         <div class="hero-buttons">
-            <a href="#" class="hero-btn">Acessar Área Privada</a>
-            <a href="/jaxresume" class="hero-btn">Quero Ler Resumos</a>
-            <a href="/jaxaulas" class="hero-btn">Quero Ver Aulas</a>
-            <a href="/jax_jornada" class="hero-btn">Como o JAX muda o Brasil?</a>
+            {% if current_user %}
+
+                <a href="/perfil" class="hero-btn">Meu Perfil</a>
+
+                {% if current_user.profile == 'admin' %}
+                    <a href="/usuarios" class="hero-btn">Gerenciar Usuários</a>
+                {% endif %}
+
+                <a href="/jaxresume" class="hero-btn">Quero Ler Resumos</a>
+                <a href="/jaxaulas" class="hero-btn">Quero Ver Aulas</a>
+            {% else %}
+                <a href="/login" class="hero-btn">Acessar Área Privada</a>
+            {% endif %}
+                <a href="/jax_jornada" class="hero-btn">Como o JAX muda o Brasil?</a>
         </div>
     </div>
 </section>
