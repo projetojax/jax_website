@@ -2,6 +2,36 @@
 
 {% block styles %}
 <link rel="stylesheet" href="{{ url_for('static', filename='styles/jax_jornada.css') }}">
+
+<style>
+
+.journey-slide#ato1 {
+  background: url("{{ url_for('static', filename='images/jax_jornada/image1.jpg') }}") no-repeat center center;
+  background-size: cover;
+}
+
+.journey-slide#ato2 {
+  background: url("{{ url_for('static', filename='images/jax_jornada/image2.jpg') }}") no-repeat center center;
+  background-size: cover;
+}
+
+.journey-slide#ato3 {
+  background: url("{{ url_for('static', filename='images/jax_jornada/image3.jpg') }}") no-repeat center center;
+  background-size: cover;
+}
+
+.journey-slide#ato4 {
+  background: url("{{ url_for('static', filename='images/jax_jornada/image4.jpg') }}") no-repeat center center;
+  background-size: cover;
+}
+
+.journey-slide#ato5 {
+  background: url("{{ url_for('static', filename='images/jax_jornada/image5.jpg') }}") no-repeat center center;
+  background-size: cover;
+}
+
+</style>
+
 {% endblock %}
 
 {% block content %}
@@ -37,8 +67,8 @@
     </article>
 
   </div>
-  <button id="prevBtn">◀</button>
-  <button id="nextBtn">▶</button>
+  <button id="prevBtn" aria-label="Slide anterior">◀</button>
+  <button id="nextBtn" aria-label="Próximo slide">▶</button>
 </section>
 
 {% endblock %}
