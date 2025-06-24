@@ -54,6 +54,10 @@
                     <li><a href="{{ url_for('main.home') }}">Home</a></li>
 
                     {% if current_user %}
+
+                        <a href="/jaxresume" class="hero-btn">Resumos</a>
+                        <a href="/jaxaulas" class="hero-btn">Aulas</a>
+
                         <li><a href="{{ url_for('main.perfil') }}">Meu Perfil</a></li>
                         {% if current_user.profile == 'admin' %}
                             <li><a href="{{ url_for('main.usuarios') }}">Gerenciar Usuários</a></li>
