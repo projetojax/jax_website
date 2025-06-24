@@ -12,5 +12,5 @@ class RegisterForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Senha', validators=[DataRequired()])
     confirm = PasswordField('Confirmar Senha', validators=[DataRequired(), EqualTo('password')])
-    profile = SelectField('Perfil', choices=[('curioso', 'Curioso'), ('aluno', 'Aluno'), ('funcionario', 'Funcionário'), ('admin', 'Administrador')])
+    profile = SelectField('Perfil', choices=[('curioso', 'Curioso'), ('aluno', 'Aluno'), ('funcionario', 'Funcionário')])
     submit = SubmitField('Cadastrar')
