@@ -1,0 +1,119 @@
+:root {
+    --primary: #4f46e5;
+    --danger: #ef4444;
+    --bg: #f3f4f6;
+    --white: #fff;
+    --text-dark: #111827;
+    --text-light: #6b7280;
+    --radius: 10px;
+    --font: 'Inter', 'Segoe UI', Tahoma, sans-serif;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    --transition: 0.25s ease-in-out;
+}
+
+
+.container {
+    background: var(--white);
+    padding: 2rem;
+    max-width: 600px;
+    width: 100%;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+
+h1 {
+    font-size: 1.8rem;
+    color: var(--text-dark);
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+label {
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 0.3rem;
+}
+
+input, select {
+    padding: 0.8rem 1rem;
+    border-radius: var(--radius);
+    border: 1px solid #d1d5db;
+    font-size: 1rem;
+    background-color: #f9fafb;
+    transition: var(--transition);
+}
+
+input:focus, select:focus {
+    border-color: var(--primary);
+    outline: none;
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+}
+
+button {
+    padding: 0.9rem;
+    border: none;
+    border-radius: var(--radius);
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    background-color: var(--primary);
+    color: white;
+    transition: var(--transition);
+}
+
+button:hover {
+    background-color: #4338ca;
+}
+
+.message {
+    padding: 0.8rem 1rem;
+    border-radius: var(--radius);
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.message.success {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.message.danger {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+a {
+    display: inline-block;
+    margin-top: 1.5rem;
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease-in-out;
+}
+
+a:hover {
+    color: #3730a3;
+}
+
+@media (max-width: 600px) {
+    .container {
+        padding: 1.5rem;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    input, select, button {
+        font-size: 0.95rem;
+        padding: 0.7rem;
+    }
+}

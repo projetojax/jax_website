@@ -42,6 +42,10 @@
             <div class="user-greeting">
                 {% if current_user %}
                     Olá, {{ current_user.username }}!
+                {% elif usuario %}
+                    Olá, {{ usuario.username }}!
+                {% elif usuario_logado %}
+                    Olá, {{ usuario_logado.username }}!
                 {% else %}
                     Você não está logado.
                 {% endif %}
@@ -58,9 +62,9 @@
                         <a href="/jaxresume" class="hero-btn">Resumos</a>
                         <a href="/jaxaulas" class="hero-btn">Aulas</a>
 
-                        <a href="{{ url_for('main.perfil') }}" class="hero-btn">Meu Perfil</a>
+                        <a href="/perfil" class="hero-btn">Meu Perfil</a>
                         {% if current_user.profile == 'admin' %}
-                            <a href="{{ url_for('main.usuarios') }}" class="hero-btn">Gerenciar Usuários</a>
+                            <a href="/usuarios" class="hero-btn">Gerenciar Usuários</a>
                         {% endif %}
                         <a href="/logout" class="hero-btn">Sair</a>
                     {% else %}
@@ -76,7 +80,7 @@
     </main>
 
     <footer>
-        <div class="container">
+        <div class="footer-container">
             <p>&copy; {{ year }} | Projeto JAX. Todos os direitos reservados.</p>
         </div>
     </footer>
