@@ -43,7 +43,7 @@
                 {% if current_user %}
                     Olá, {{ current_user.username }}!
                 {% else %}
-                    Entre em sua conta ou crie uma nova conta para acessar recursos exclusivos.
+                    Você não está logado.
                 {% endif %}
             </div>
 
@@ -51,20 +51,20 @@
 
             <nav id="navbar" class="navbar hidden">
                 <ul>
-                    <li><a href="{{ url_for('main.home') }}">Home</a></li>
+                    <a href="{{ url_for('main.home') }}" class="hero-btn">Home</a>
 
                     {% if current_user %}
 
                         <a href="/jaxresume" class="hero-btn">Resumos</a>
                         <a href="/jaxaulas" class="hero-btn">Aulas</a>
 
-                        <li><a href="{{ url_for('main.perfil') }}">Meu Perfil</a></li>
+                        <a href="{{ url_for('main.perfil') }}" class="hero-btn">Meu Perfil</a>
                         {% if current_user.profile == 'admin' %}
-                            <li><a href="{{ url_for('main.usuarios') }}">Gerenciar Usuários</a></li>
+                            <a href="{{ url_for('main.usuarios') }}" class="hero-btn">Gerenciar Usuários</a>
                         {% endif %}
-                        <li><a href="/logout">Sair</a></li>
+                        <a href="/logout" class="hero-btn">Sair</a>
                     {% else %}
-                        <li><a href="/login">Login</a></li>
+                        <a href="/login" class="hero-btn">Login</a> 
                     {% endif %}
                 </ul>
             </nav>

@@ -252,7 +252,7 @@ def remover_proprio_usuario():
     if sucesso:
         flash("Conta excluída com sucesso.", "info")
         session.clear()
-        return redirect(url_for('home'))
+        return render_template('home.html', title='Home', year=current_year)
     else:
         flash(mensagem, "danger")
         return redirect(url_for('perfil'))
@@ -270,6 +270,8 @@ def usuarios():
 def editar(user_id):
 
     if request.method == 'POST':
+        usuarios = listar_usuarios()
+        usuario = session['usuario']
         username = request.form.get('username')
         email = request.form.get('email')
         password = request.form.get('password')  # opcional
@@ -282,20 +284,23 @@ def editar(user_id):
         else:
             flash(mensagem, 'danger')
 
-        return redirect(url_for('usuarios'))
+        return render_template('usuarios.html', usuarios=usuarios, year=current_year, current_user=usuario)
 
     usuario = detalhar_usuario(user_id)
     if not usuario:
         flash("Usuário não encontrado.", "danger")
-        return redirect(url_for('usuarios'))
+        return render_template('usuarios.html', usuarios=usuarios, year=current_year, current_user=usuario)
 
-    return render_template('editar_usuario.html', usuario=usuario)
+    return render_template('editar.html', usuario=usuario)
 
 
 @main.route('/<int:user_id>/remover', methods=['POST'])
 def remover(user_id):
 
+    usuarios = listar_usuarios()
+    usuario = session['usuario']
+
     sucesso, mensagem = remover_usuario(user_id)
     flash(mensagem, "success" if sucesso else "danger")
-    return redirect(url_for('usuarios'))
+    return render_template('usuarios.html', usuarios=usuarios, year=current_year, current_user=usuario)
 
