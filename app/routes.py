@@ -1,5 +1,7 @@
 from flask import Blueprint, render_template, Flask, redirect, request, session, flash, url_for
 from datetime import datetime
+import os
+import json
 from .auth.utils import (
     detalhar_usuario,
     listar_usuarios,
@@ -303,4 +305,49 @@ def remover(user_id):
     sucesso, mensagem = remover_usuario(user_id)
     flash(mensagem, "success" if sucesso else "danger")
     return render_template('usuarios.html', usuarios=usuarios, year=current_year, current_user=usuario)
+
+@main.route('/jaxresume/novo', methods=['GET', 'POST'])
+def novo_resumo():
+    from .uploads.jax_resumos import salvar_json, resumo_novo_id
+
+    if 'usuario' not in session:
+        flash('Você precisa estar logado para criar um resumo.', 'warning')
+        return redirect(url_for('auth.login'))
+
+    current_user = session['usuario']
+
+    if request.method == 'POST':
+        try:
+            # Chama a função salvar_json passando os dados do formulário, arquivos e o usuário atual
+            novo_id = salvar_json(request.form, request.files, current_user['username'])
+
+            flash(f'Resumo criado com sucesso! ID: {novo_id}', 'success')
+            return render_template('novo_resumo.html', title="Novo Resumo", year=current_year, current_user=current_user)
+
+        except Exception as e:
+            flash(f'Ocorreu um erro ao salvar o resumo: {e}', 'danger')
+            return render_template('novo_resumo.html', title="Novo Resumo", year=current_year, current_user=current_user)
+
+    return render_template('novo_resumo.html', title="Novo Resumo", year=current_year, current_user=current_user)
+
+@main.route('/jaxaulas/novo', methods=['GET', 'POST'])
+def nova_aula():
+    from .uploads.jax_aulas import aulas_novo_id, salvar_json_jaxaulas
+
+    if 'usuario' not in session:
+        flash('Você precisa estar logado para criar um resumo.', 'warning')
+        return redirect(url_for('auth.login'))
+
+    current_user = session['usuario']
+
+    if request.method == 'POST':
+        try:
+            salvar_json_jaxaulas(request.form, request.files, current_user['username'], aulas_novo_id)
+            flash('Aula criada com sucesso!', 'success')
+            return render_template('nova_aula.html', title="Nova Aula", year=current_year, current_user=current_user)
+        except Exception as e:
+            flash(f"Ocorreu um erro ao salvar a aula: {e}", 'danger')
+            return render_template('nova_aula.html', title="Nova Aula", year=current_year, current_user=current_user)
+
+    return render_template('nova_aula.html', title="Nova Aula", year=current_year, current_user=current_user)
 

@@ -1,0 +1,75 @@
+#nova-aula-form {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 30px;
+  background: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #333;
+}
+
+#nova-aula-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+#nova-aula-fields label {
+  font-weight: bold;
+  color: #333;
+}
+
+#nova-aula-fields input,
+#nova-aula-fields textarea {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+#nova-aula-submit {
+  margin-top: 20px;
+  padding: 12px 20px;
+  background-color: #0057a3;
+  color: white;
+  font-size: 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+#nova-aula-submit:hover {
+  background-color: #004080;
+}
+
+/* Flash message styling */
+#nova-aula-flash-container {
+  margin-top: 20px;
+}
+
+.nova-aula-flash {
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.nova-aula-flash.success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.nova-aula-flash.error {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+.nova-aula-flash.warning {
+  background-color: #fff3cd;
+  color: #856404;
+}

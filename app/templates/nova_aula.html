@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}Nova Aula{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='styles/nova_aula.css') }}">
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='scripts/nova_aula.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div id="nova-aula-flash-container">
+      {% for category, message in messages %}
+        <div class="nova-aula-flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<form id="nova-aula-form" method="POST" enctype="multipart/form-data">
+
+    <h2> Criar nova aula </h2>
+
+    <div id="nova-aula-fields">
+    <label for="title">Título:</label>
+    <input type="text" id="nova-aula-title" name="title" required>
+
+    <label for="subtitle">Subtítulo:</label>
+    <input type="text" id="nova-aula-subtitle" name="subtitle" required>
+
+    <label for="author">Autor:</label>
+    <input type="text" id="nova-aula-author" name="author" required>
+
+    <label for="theme">Tema:</label>
+    <select name="theme" id="theme" required>
+        <option value="">Selecione um tema</option>
+        <option value="Educação">Educação</option>
+        <option value="Inovação">Inovação</option>
+        <option value="Tecnologia">Tecnologia</option>
+    </select>
+
+    <label for="subtheme">Subtema:</label>
+    <input type="text" id="nova-aula-subtheme" name="subtheme" required>
+
+    <label for="date_published">Data de Publicação:</label>
+    <input type="date" id="nova-aula-date" name="date_published" required>
+
+    <label for="capa">Capa (Imagem):</label>
+    <input type="file" id="nova-aula-capa" name="capa" accept="image/*" required>
+
+    <label for="video">Vídeo Tutorial (MP4):</label>
+    <input type="file" id="nova-aula-video" name="video" accept="video/mp4" required>
+
+    <label for="describe">Descrição:</label>
+    <textarea id="nova-aula-describe" name="describe" rows="6" required></textarea>
+  </div>
+
+  <button type="submit" id="nova-aula-submit">Publicar Aula</button>
+</form>
+
+{% endblock %}

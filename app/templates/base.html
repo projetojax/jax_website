@@ -66,6 +66,10 @@
                         {% if current_user.profile == 'admin' %}
                             <a href="/usuarios" class="hero-btn">Gerenciar Usuários</a>
                         {% endif %}
+                        {% if current_user.profile in ['admin', 'profissional'] %}
+                            <a href="/jaxresume/novo" class="hero-btn">Criar Resumo</a>
+                            <a href="/jaxaulas/novo" class="hero-btn">Criar Aula</a>
+                        {% endif %}
                         <a href="/logout" class="hero-btn">Sair</a>
                     {% else %}
                         <a href="/login" class="hero-btn">Login</a> 
