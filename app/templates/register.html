@@ -32,6 +32,11 @@
             {{ form.confirm(class="form-control") }}
         </div>
 
+        <div class="form-group" id="matricula-group" style="display: none;">
+            <label for="matricula">Matrícula</label>
+            <input type="text" id="matricula" name="matricula" class="form-control">
+        </div>
+
         <div class="form-group">
             {{ form.profile.label }}
             {{ form.profile(class="form-control") }}
@@ -47,29 +52,59 @@
 {% endblock %}
 
 {% block scripts %}
-
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-    const forms = document.querySelectorAll("form");
-    forms.forEach(form => {
-        form.addEventListener("submit", event => {
-            const inputs = form.querySelectorAll("input[required]");
-            let valid = true;
-            inputs.forEach(input => {
-                if (!input.value.trim()) {
-                    valid = false;
-                    input.style.borderColor = "red";
-                } else {
-                    input.style.borderColor = "#ccc";
-                }
-            });
-            if (!valid) {
-                event.preventDefault();
-                alert("Por favor, preencha todos os campos obrigatórios.");
+    const form = document.querySelector("form");
+    const profileSelect = document.getElementById("profile");
+    const matriculaGroup = document.getElementById("matricula-group");
+    const matriculaInput = document.getElementById("matricula");
+
+    function updateMatriculaVisibility() {
+        const perfil = profileSelect.value;
+        if (perfil === "aluno" || perfil === "funcionario") {
+            matriculaGroup.style.display = "block";
+        } else {
+            matriculaGroup.style.display = "none";
+            matriculaInput.value = "";  // Limpa se esconder
+        }
+    }
+
+    profileSelect.addEventListener("change", updateMatriculaVisibility);
+    updateMatriculaVisibility(); // Executa ao carregar página
+
+    form.addEventListener("submit", event => {
+        const inputs = form.querySelectorAll("input[required]");
+        let valid = true;
+
+        inputs.forEach(input => {
+            if (!input.value.trim()) {
+                valid = false;
+                input.style.borderColor = "red";
+            } else {
+                input.style.borderColor = "#ccc";
             }
         });
+
+        const perfil = profileSelect.value;
+        const matricula = matriculaInput.value.trim();
+
+        if ((perfil === "aluno" || perfil === "funcionario") && matriculaGroup.style.display !== "none") {
+            const pattern = perfil === "aluno" ? /^275\d{3}$/ : /^255\d{3}$/;
+            if (!pattern.test(matricula)) {
+                valid = false;
+                matriculaInput.style.borderColor = "red";
+                alert("Matrícula inválida! Favor inserir a matrícula correta.");
+            } else {
+                matriculaInput.style.borderColor = "#ccc";
+            }
+        }
+
+        if (!valid) {
+            event.preventDefault();
+            alert("Por favor, corrija os erros antes de enviar.");
+        }
     });
 });
 </script>
-
 {% endblock %}
+
