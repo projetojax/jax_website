@@ -14,29 +14,34 @@
 - SQL / .dbnative -> DataLake
 
 ## Estrutura de Diretórios
+
+```markdown
 project-jax/
 │
 ├── app.py                -> Arquivo principal para iniciar o Flask
 ├── config.py             -> Configurações globais
 ├── requirements.txt      -> Dependências
 ├── Procfile              -> Arquivo para o Render
+│
 ├── app/                  -> Pasta do aplicativo (onde ficam módulos e rotas)
-│   ├── __init__.py       -> Arquivo de inicialização do app Flask
+│   ├── **init**.py       -> Arquivo de inicialização do app Flask
 │   ├── routes.py         -> Definição das rotas
 │   ├── models.py         -> Definição dos modelos (caso seja necessário no futuro)
 │   └── modules/          -> Módulos de funcionalidades extras
 │       └── example.py    -> Exemplo de módulo
 │
-|   ├── static/           -> Arquivos estáticos (CSS, JS, imagens)
-│       ├── styles/
-│           └── Arquivos CSS
-│       ├── scripts/
-│           └── Arquivos JS
-│       └── images/
-│           └── Arquivos de Imagens
+│   ├── static/           -> Arquivos estáticos (CSS, JS, imagens)
+│   │   ├── styles/
+│   │   │   └── Arquivos CSS
+│   │   ├── scripts/
+│   │   │   └── Arquivos JS
+│   │   └── images/
+│   │       └── Arquivos de Imagens
 │
 │   ├── templates/        -> Templates HTML
-└──     └── Arquivos HTML
+│   │   └── Arquivos HTML
+
+```
 
 ## Estrura de rotas
 
