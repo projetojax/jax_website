@@ -11,6 +11,8 @@
 
 - Python / Flask -> BackEnd
 
+- SQL / .dbnative -> DataLake
+
 ## Estrutura de Diretórios
 project-jax/
 │
