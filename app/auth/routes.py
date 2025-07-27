@@ -89,7 +89,7 @@ def gerenciar_matriculas():
         sucesso, mensagem = criar_matricula(nome, email, numero_matricula)
         if sucesso:
             flash(f"{mensagem} Número: {numero_matricula}", "success")
-            return redirect(url_for('gerenciar_matriculas'))
+            return redirect(url_for('/admin/matriculas'))
         else:
             flash(mensagem, "danger")
 
