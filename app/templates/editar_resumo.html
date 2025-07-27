@@ -27,47 +27,51 @@
     <form method="POST" enctype="multipart/form-data">
         <div class="form-group">
             <label for="title">Título</label>
-            <input type="text" name="title" id="title" required>
+            <input type="text" name="title" id="title" required value="{{ resumo.title if resumo else '' }}">
         </div>
 
         <div class="form-group">
             <label for="subtitle">Subtítulo</label>
-            <input type="text" name="subtitle" id="subtitle">
+            <input type="text" name="subtitle" id="subtitle" value="{{ resumo.subtitle if resumo else '' }}">
         </div>
 
         <div class="form-group">
             <label for="author">Autor</label>
-            <input type="text" name="author" id="author" required>
+            <input type="text" name="author" id="author" required value="{{ resumo.author if resumo else '' }}">
         </div>
 
         <div class="form-group">
             <label for="theme">Tema</label>
             <select name="theme" id="theme" required>
-                <option value="">Selecione um tema</option>
-                <option value="Educação">Educação</option>
-                <option value="Inovação">Inovação</option>
-                <option value="Tecnologia">Tecnologia</option>
+                <option {% if resumo and resumo.theme == '' %} selected {% endif %} value="">Selecione um tema</option>
+                <option {% if resumo and resumo.theme == 'Educação' %} selected {% endif %} value="Educação">Educação</option>
+                <option {% if resumo and resumo.theme == 'Inovação' %} selected {% endif %} value="Inovação">Inovação</option>
+                <option {% if resumo and resumo.theme == 'Tecnologia' %} selected {% endif %} value="Tecnologia">Tecnologia</option>
             </select>
         </div>
 
         <div class="form-group">
             <label for="subtheme">Subtema</label>
-            <input type="text" name="subtheme" id="subtheme">
+            <input type="text" name="subtheme" id="subtheme" value="{{ resumo.subtheme if resumo else '' }}">
         </div>
 
         <div class="form-group">
             <label for="date_published">Data de Publicação</label>
-            <input type="date" name="date_published" id="date_published">
+            <input type="date" name="date_published" id="date_published" value="{{ resumo.date_published if resumo else '' }}">
         </div>
 
         <div class="form-group">
             <label for="image">Imagem de Capa</label>
             <input type="file" name="image" id="image" accept="image/*">
+            {% if resumo and resumo.image %}
+                <p>Imagem Atual:</p>
+                <img src="{{ url_for('static', filename='images/jax_resume/' + resumo.image) }}" alt="Cover Image" class="cover-image" width="200" height="auto">
+            {% endif %}
         </div>
 
         <div class="form-group">
             <label for="content">Conteúdo</label>
-            <textarea name="content" id="content" rows="8" required></textarea>
+            <textarea name="content" id="content" rows="8" required>{{ resumo.content if resumo else '' }}</textarea>
         </div>
 
         <button type="submit" class="submit-btn">Salvar Resumo</button>

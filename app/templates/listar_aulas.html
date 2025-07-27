@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Aulas{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='styles/listar_aulas.css') }}">
+{% endblock %}
+
+{% block content %}
+<h2>Lista de Aulas</h2>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div id="flash-messages">
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<ul>
+  {% for aula in aulas %}
+    <li>
+      <strong>{{ aula.title }}</strong> - {{ aula.subtitle }}
+      <div>
+        <a href="{{ url_for('main.editar_aula', aula_id=aula.id) }}">Editar</a>
+        <form action="{{ url_for('main.remover_aula', aula_id=aula.id) }}" method="post" style="display:inline;">
+          <button type="submit" onclick="return confirm('Tem certeza que deseja remover esta aula?');">Remover</button>
+        </form>
+      </div>
+    </li>
+  {% endfor %}
+</ul>
+
+<a href="/jaxaulas/novo">Criar Nova Aula</a>
+
+{% endblock %}

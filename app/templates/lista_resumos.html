@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Lista de Resumos{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='styles/lista_resumos.css') }}">
+{% endblock %}
+
+{% block content %}
+<h2>Resumos Criados</h2>
+<ul>
+    {% for resumo in resumos %}
+    <li>
+        <strong>{{ resumo.title }}</strong> (ID: {{ resumo.id }}) <br>
+        <a href="{{ url_for('main.editar_resumo', id=resumo.id) }}">Editar</a>
+        <form action="{{ url_for('main.remover_resumo', id=resumo.id) }}" method="POST" style="display:inline;">
+            <button type="submit" onclick="return confirm('Tem certeza que deseja remover?')">Remover</button>
+        </form>
+    </li>
+    {% endfor %}
+</ul>
+<a href="{{ url_for('main.novo_resumo') }}" class="btn-criar">+ Novo Resumo</a>
+{% endblock %}

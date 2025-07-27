@@ -325,13 +325,13 @@ def novo_resumo():
             novo_id = salvar_json(request.form, request.files, current_user['username'])
 
             flash(f'Resumo criado com sucesso! ID: {novo_id}', 'success')
-            return render_template('novo_resumo.html', title="Novo Resumo", year=current_year, current_user=current_user)
+            return render_template('editar_resumo.html', title="Novo Resumo", year=current_year, current_user=current_user)
 
         except Exception as e:
             flash(f'Ocorreu um erro ao salvar o resumo: {e}', 'danger')
-            return render_template('novo_resumo.html', title="Novo Resumo", year=current_year, current_user=current_user)
+            return render_template('editar_resumo.html', title="Novo Resumo", year=current_year, current_user=current_user)
 
-    return render_template('novo_resumo.html', title="Novo Resumo", year=current_year, current_user=current_user)
+    return render_template('editar_resumo.html', title="Novo Resumo", year=current_year, current_user=current_user)
 
 @main.route('/jaxaulas/novo', methods=['GET', 'POST'])
 def nova_aula():
@@ -347,10 +347,143 @@ def nova_aula():
         try:
             salvar_json_jaxaulas(request.form, request.files, current_user['username'], aulas_novo_id)
             flash('Aula criada com sucesso!', 'success')
-            return render_template('nova_aula.html', title="Nova Aula", year=current_year, current_user=current_user)
+            return render_template('editar_aula.html', title="Nova Aula", year=current_year, current_user=current_user, aula={})
         except Exception as e:
             flash(f"Ocorreu um erro ao salvar a aula: {e}", 'danger')
-            return render_template('nova_aula.html', title="Nova Aula", year=current_year, current_user=current_user)
+            return render_template('editar_aula.html', title="Nova Aula", year=current_year, current_user=current_user, aula={})
 
-    return render_template('nova_aula.html', title="Nova Aula", year=current_year, current_user=current_user)
+    return render_template('editar_aula.html', title="Nova Aula", year=current_year, current_user=current_user, aula={})
+
+@main.route('/jaxresume/lista')
+def lista_resumos():
+    from .uploads.jax_resumos import listar_resumos
+    if 'usuario' not in session:
+        return redirect(url_for('auth.login'))
+
+    resumos = listar_resumos()
+    return render_template('lista_resumos.html', resumos=resumos, year=current_year, current_user=session['usuario'])
+
+
+@main.route('/jaxresume/editar/<int:id>', methods=['GET', 'POST'])
+def editar_resumo(id):
+    from .uploads.jax_resumos import carregar_resumo_por_id, salvar_resumo_existente, listar_resumos
+    resumos = listar_resumos()
+
+    if 'usuario' not in session:
+        return redirect(url_for('auth.login'))
+
+    current_user = session['usuario']
+    resumo = carregar_resumo_por_id(id)
+
+    if not resumo:
+        flash("Resumo não encontrado.", "danger")
+        return render_template('lista_resumos.html', resumos=resumos, year=current_year, current_user=session['usuario'])
+
+    if request.method == 'POST':
+        try:
+            salvar_resumo_existente(id, request.form, request.files, current_user['username'])
+            flash("Resumo atualizado com sucesso!", "success")
+            render_template('lista_resumos.html', resumos=resumos, year=current_year, current_user=session['usuario'])
+        except Exception as e:
+            flash(f"Erro ao atualizar: {e}", "danger")
+
+    return render_template('editar_resumo.html', resumo=resumo, title="Editar Resumo", year=current_year, current_user=current_user)
+
+
+@main.route('/jaxresume/remover/<int:id>', methods=['POST'])
+def remover_resumo(id):
+    from .uploads.jax_resumos import remover_resumo_por_id, listar_resumos
+    resumos = listar_resumos()
+
+    if 'usuario' not in session:
+        return redirect(url_for('auth.login'))
+
+    try:
+        remover_resumo_por_id(id)
+        flash("Resumo removido com sucesso.", "success")
+    except Exception as e:
+        flash(f"Erro ao remover resumo: {e}", "danger")
+
+    render_template('lista_resumos.html', resumos=resumos, year=current_year, current_user=session['usuario'])
+
+@main.route('/jaxaulas/listar')
+def listar_aulas():
+    if 'usuario' not in session:
+        flash('Você precisa estar logado para acessar as aulas.', 'warning')
+        return redirect(url_for('auth.login'))
+
+    current_user = session['usuario']
+    aulas = []
+
+    from app.uploads.variables import path_app_static_json_jaxaulas as jaxaulas_json_path
+    import os, json
+
+    for arquivo in os.listdir(jaxaulas_json_path):
+        if arquivo.endswith('.json'):
+            with open(os.path.join(jaxaulas_json_path, arquivo), encoding='utf-8') as f:
+                try:
+                    aulas.append(json.load(f))
+                except:
+                    continue
+
+    return render_template('listar_aulas.html', title="Aulas", year=current_year, current_user=current_user, aulas=aulas)
+
+@main.route('/jaxaulas/editar/<int:aula_id>', methods=['GET', 'POST'])
+def editar_aula(aula_id):
+    if 'usuario' not in session:
+        flash('Você precisa estar logado para editar aulas.', 'warning')
+        return redirect(url_for('auth.login'))
+
+    current_user = session['usuario']
+    import os, json
+    from app.uploads.variables import path_app_static_json_jaxaulas as jaxaulas_json_path
+
+    json_path = os.path.join(jaxaulas_json_path, f"tutorial_{aula_id}.json")
+
+    if not os.path.exists(json_path):
+        flash('Aula não encontrada.', 'danger')
+        return redirect(url_for('main.listar_aulas'))
+
+    with open(json_path, encoding='utf-8') as f:
+        aula = json.load(f)
+
+    if request.method == 'POST':
+        try:
+            aula['title'] = request.form['title']
+            aula['subtitle'] = request.form['subtitle']
+            aula['theme'] = request.form['theme']
+            aula['subtheme'] = request.form['subtheme']
+            aula['describe'] = request.form['describe']
+
+            with open(json_path, 'w', encoding='utf-8') as f:
+                json.dump(aula, f, indent=4, ensure_ascii=False)
+
+            flash('Aula atualizada com sucesso!', 'success')
+        except Exception as e:
+            flash(f'Erro ao editar a aula: {e}', 'danger')
+
+    return render_template('editar_aula.html', title="Editar Aula", year=current_year, current_user=current_user, aula=aula)
+
+@main.route('/jaxaulas/remover/<int:aula_id>', methods=['POST'])
+def remover_aula(aula_id):
+    if 'usuario' not in session:
+        flash('Você precisa estar logado para remover aulas.', 'warning')
+        return redirect(url_for('auth.login'))
+
+    current_user = session['usuario']
+    import os
+    from app.uploads.variables import path_app_static_json_jaxaulas as jaxaulas_json_path
+
+    json_path = os.path.join(jaxaulas_json_path, f"tutorial_{aula_id}.json")
+
+    try:
+        if os.path.exists(json_path):
+            os.remove(json_path)
+            flash('Aula removida com sucesso!', 'success')
+        else:
+            flash('Aula não encontrada.', 'danger')
+    except Exception as e:
+        flash(f'Erro ao remover a aula: {e}', 'danger')
+
+    return redirect(url_for('main.listar_aulas'))
 

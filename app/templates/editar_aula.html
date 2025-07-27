@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='styles/nova_aula.css') }}">
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='scripts/nova_aula.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div id="nova-aula-flash-container">
+      {% for category, message in messages %}
+        <div class="nova-aula-flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<form method="POST" enctype="multipart/form-data">
+  <label for="title">Título:</label>
+  <input type="text" id="title" name="title" value="{{ aula.title if aula else '' }}" required>
+
+  <label for="subtitle">Subtítulo:</label>
+  <input type="text" id="subtitle" name="subtitle" value="{{ aula.subtitle if aula else '' }}" required>
+
+  <label for="author">Autor:</label>
+  <input type="text" id="author" name="author" value="{{ aula.author if aula else current_user.username }}" required>
+
+  <label for="theme">Tema:</label>
+  <select name="theme" id="theme" required>
+    <option value="">Selecione</option>
+    <option value="Educação" {% if aula and aula.theme == 'Educação' %}selected{% endif %}>Educação</option>
+    <option value="Inovação" {% if aula and aula.theme == 'Inovação' %}selected{% endif %}>Inovação</option>
+    <option value="Tecnologia" {% if aula and aula.theme == 'Tecnologia' %}selected{% endif %}>Tecnologia</option>
+  </select>
+
+  <label for="subtheme">Subtema:</label>
+  <input type="text" id="subtheme" name="subtheme" value="{{ aula.subtheme if aula else '' }}" required>
+
+  <label for="date_published">Data de Publicação:</label>
+  <input type="date" id="date_published" name="date_published"
+         value="{{ aula.date_published if aula else '' }}" required>
+
+  <label for="capa">Capa (Imagem):</label>
+  <input type="file" id="capa" name="capa" accept="image/*" {% if not aula %}required{% endif %}>
+  {% if aula and aula.capa %}
+  <div class="capa-preview-container">
+    <label for="capa-preview">Pré-visualização da Capa:</label>
+    <img src="{{ url_for('static', filename='images/jax_aulas/capas/' + aula.capa) }}" alt="Capa da Aula" class="capa-preview" width="200">
+  </div>
+  {% endif %}
+
+  <label for="video">Vídeo Tutorial (MP4):</label>
+  <input type="file" id="video" name="video" accept="video/mp4" {% if not aula %}required{% endif %}>
+  {% if aula and aula.video %}
+  <div class="video-preview-container">
+    <label for="video-preview">Pré-visualização do Vídeo:</label>
+    <video controls class="video-preview">
+      <source src="{{ url_for('static', filename='images/jax_aulas/tutoriais/' + aula.video) }}" type="video/mp4">
+      Seu navegador não suporta o elemento de vídeo.
+    </video>
+  </div>
+  {% endif %}
+
+  <label for="describe">Descrição:</label>
+  <textarea id="describe" name="describe" rows="6" required>{{ aula.describe if aula else '' }}</textarea>
+
+  <button type="submit">
+    {% if aula %}Salvar Alterações{% else %}Publicar Aula{% endif %}
+  </button>
+</form>
+
+{% endblock %}

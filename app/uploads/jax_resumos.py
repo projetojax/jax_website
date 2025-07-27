@@ -61,3 +61,57 @@ def salvar_json(form_data, files, autor):
         json.dump(data, json_file, indent=4, ensure_ascii=False)
 
     return novo_id
+
+def listar_resumos():
+    resumos = []
+    for filename in os.listdir(jaxresume_json_path):
+        if filename.endswith('.json'):
+            with open(os.path.join(jaxresume_json_path, filename), 'r', encoding='utf-8') as f:
+                resumos.append(json.load(f))
+    return sorted(resumos, key=lambda r: r['id'])
+
+
+def carregar_resumo_por_id(resumo_id):
+    path = os.path.join(jaxresume_json_path, f"post_{resumo_id}.json")
+    if os.path.exists(path):
+        with open(path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    return None
+
+
+def salvar_resumo_existente(resumo_id, form_data, files, autor):
+    path = os.path.join(jaxresume_json_path, f"post_{resumo_id}.json")
+    if not os.path.exists(path):
+        raise FileNotFoundError("Resumo não encontrado.")
+
+    with open(path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+
+    data.update({
+        "title": form_data['title'],
+        "subtitle": form_data.get('subtitle', ''),
+        "author": autor,
+        "theme": form_data.get('theme', ''),
+        "subtheme": form_data.get('subtheme', ''),
+        "date_published": form_data.get('date_published', data['date_published']),
+        "content": form_data['content'],
+    })
+
+    # Atualizar imagem se nova enviada
+    if 'image' in files and files['image'].filename != '':
+        capa = files['image']
+        nome_imagem = secure_filename(capa.filename)
+        capa.save(os.path.join(jaxresume_path, nome_imagem))
+        data['image'] = nome_imagem
+
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
+
+
+def remover_resumo_por_id(resumo_id):
+    path = os.path.join(jaxresume_json_path, f"post_{resumo_id}.json")
+    if os.path.exists(path):
+        os.remove(path)
+    else:
+        raise FileNotFoundError("Resumo não encontrado.")
+
