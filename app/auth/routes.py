@@ -62,20 +62,6 @@ def logout():
 @auth.route('/matricula', methods=['POST'])
 def criar_matricula_api():
     if session.get("usuario", {}).get("profile") != "admin":
-        return jsonify({"erro": "Acesso negado"}), 403
-    
-    dados = request.json
-    nome = dados.get("nome_completo")
-    email = dados.get("email")
-    tipo = dados.get("tipo")
-
-    sucesso, mensagem = criar_matricula(nome, email, gerar_matricula_personalizada(tipo))
-    status_code = 200 if sucesso else 400
-    return jsonify({"mensagem": mensagem}), status_code
-
-@auth.route('/admin/matriculas', methods=['GET', 'POST'])
-def gerenciar_matriculas():
-    if session.get("usuario", {}).get("profile") != "admin":
         flash("Acesso restrito.", "danger")
         return redirect(url_for('main.home'))
 
@@ -85,13 +71,53 @@ def gerenciar_matriculas():
         email = form.email.data.strip()
         tipo = form.tipo.data.strip()
 
+        print(f"Tipo de matrícula: {tipo}")
+        print(f"Nome: {nome}, Email: {email}")
+
         numero_matricula = gerar_matricula_personalizada(tipo)
+        print(f"Número de matrícula gerado: {numero_matricula}")
         sucesso, mensagem = criar_matricula(nome, email, numero_matricula)
+        print(f"Resultado da criação: {sucesso}, Mensagem: {mensagem}")
         if sucesso:
             flash(f"{mensagem} Número: {numero_matricula}", "success")
+            registros = listar_matriculas()
             return render_template('admin_matriculas.html', form=form, matriculas=registros, year=current_year, current_user=usuario)
         else:
             flash(mensagem, "danger")
+
+    registros = listar_matriculas()
+    usuario = session['usuario']
+    return render_template('admin_matriculas.html', form=form, matriculas=registros, year=current_year, current_user=usuario)
+
+@auth.route('/admin/matriculas', methods=['GET', 'POST'])
+def gerenciar_matriculas():
+    if session.get("usuario", {}).get("profile") != "admin":
+        flash("Acesso restrito.", "danger")
+        return redirect(url_for('main.home'))
+
+    form = CriarMatriculaForm()
+    form_valid = form.validate_on_submit()
+    if form_valid:
+        nome = form.nome_completo.data.strip()
+        email = form.email.data.strip()
+        tipo = form.tipo.data.strip()
+
+        print(f"Tipo de matrícula: {tipo}")
+        print(f"Nome: {nome}, Email: {email}")
+
+        numero_matricula = gerar_matricula_personalizada(tipo)
+        print(f"Número de matrícula gerado: {numero_matricula}")
+        sucesso, mensagem = criar_matricula(nome, email, numero_matricula)
+        print(f"Resultado da criação: {sucesso}, Mensagem: {mensagem}")
+        if sucesso:
+            flash(f"{mensagem} Número: {numero_matricula}", "success")
+            registros = listar_matriculas()
+            usuario = session['usuario']
+            return render_template('admin_matriculas.html', form=form, matriculas=registros, year=current_year, current_user=usuario)
+        else:
+            flash(mensagem, "danger")
+    else:
+        flash("Erro ao validar o formulário. Verifique os dados inseridos.", "danger")
 
     registros = listar_matriculas()
     usuario = session['usuario']

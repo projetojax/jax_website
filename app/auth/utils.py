@@ -1,3 +1,4 @@
+import re
 import sqlite3
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -242,9 +243,6 @@ def confirmar_matricula(matricula: str) -> None:
     conn.close()
 
 def gerar_matricula_personalizada(tipo: str) -> str:
-    """
-    Gera número de matrícula do tipo 275XXX (aluno) ou 255XXX (funcionário)
-    """
     prefixo = "275" if tipo == "aluno" else "255"
     conn = sqlite3.connect(PATH_DB)
     cursor = conn.cursor()
@@ -253,9 +251,15 @@ def gerar_matricula_personalizada(tipo: str) -> str:
     ultimo = cursor.fetchone()
     conn.close()
 
-    ultimo_num = int(ultimo[0][-3:]) if ultimo else 0
+    if ultimo:
+        match = re.search(r"(\d{3})$", str(ultimo[0]))
+        ultimo_num = int(match.group(1)) if match else 0
+    else:
+        ultimo_num = 0
+
     novo_num = ultimo_num + 1
     return f"{prefixo}{novo_num:03d}"
+
 
 def criar_matricula(nome_completo: str, email: str, matricula_id: str) -> tuple[bool, str]:
     conn = sqlite3.connect(PATH_DB)
