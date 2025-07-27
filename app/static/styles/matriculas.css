@@ -1,0 +1,131 @@
+/* Container principal */
+.form-container {
+    max-width: 700px;
+    margin: 2em auto;
+    padding: 2em;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Títulos */
+.form-container h2,
+.form-container h3 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 1em;
+}
+
+/* Formulário */
+.form-group {
+    margin-bottom: 1.2em;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.4em;
+    color: #444;
+    font-weight: 500;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75em;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1em;
+    transition: border-color 0.3s;
+}
+
+.form-control:focus {
+    border-color: #0066cc;
+    outline: none;
+}
+
+/* Botões */
+.form-actions {
+    text-align: center;
+    margin-top: 1.5em;
+}
+
+.btn-primary {
+    background-color: #0066cc;
+    color: white;
+    padding: 0.75em 2em;
+    border: none;
+    border-radius: 6px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: #004d99;
+}
+
+/* Flash Messages */
+.flash-messages {
+    margin-bottom: 1em;
+}
+
+.alert {
+    padding: 1em;
+    border-radius: 6px;
+    margin-bottom: 0.5em;
+    font-weight: 500;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+/* Tabela */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1.5em;
+    font-size: 0.95em;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+thead {
+    background-color: #0066cc;
+    color: white;
+}
+
+th, td {
+    padding: 0.75em 1em;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+tbody tr:hover {
+    background-color: #eef6ff;
+}
+
+@media (max-width: 768px) {
+    .form-container {
+        padding: 1em;
+    }
+
+    table {
+        font-size: 0.9em;
+    }
+
+    th, td {
+        padding: 0.5em;
+    }
+}

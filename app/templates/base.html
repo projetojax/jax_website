@@ -65,6 +65,7 @@
                         <a href="/perfil" class="hero-btn">Meu Perfil</a>
                         {% if current_user.profile == 'admin' %}
                             <a href="/usuarios" class="hero-btn">Gerenciar Usuários</a>
+                            <a href="/admin/matriculas" class="hero-btn">Gerenciar Matrículas</a>
                         {% endif %}
                         {% if current_user.profile in ['admin', 'profissional'] %}
                             <a href="/jaxresume/novo" class="hero-btn">Criar Resumo</a>

@@ -230,9 +230,11 @@ def perfil():
 
     if request.method == 'POST':
         username = request.form.get('username')
+        nome_completo = request.form.get('nome_completo')
         email = request.form.get('email')
         password = request.form.get('password')  # opcional
-        sucesso, mensagem = atualizar_usuario(user_id, username, email, password)
+        profile = detalhar_usuario(user_id).get('profile', 'curioso')  # Pega o perfil atual
+        sucesso, mensagem = atualizar_usuario(user_id, username, nome_completo, email, password, profile)
 
         if sucesso:
             flash(mensagem, 'success')
@@ -275,11 +277,12 @@ def editar(user_id):
         usuarios = listar_usuarios()
         usuario = session['usuario']
         username = request.form.get('username')
+        nome_completo = request.form.get('nome_completo')
         email = request.form.get('email')
         password = request.form.get('password')  # opcional
         profile = request.form.get('profile')
 
-        sucesso, mensagem = atualizar_usuario(user_id, username, email, password, profile)
+        sucesso, mensagem = atualizar_usuario(user_id, username, nome_completo, email, password, profile)
 
         if sucesso:
             flash(mensagem, 'success')

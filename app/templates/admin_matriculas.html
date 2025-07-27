@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='styles/matriculas.css') }}">
+{% endblock %}
+
+{% block content %}
+<main class="form-container">
+    <h2>Gerenciar Matrículas</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="flash-messages">
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+        </div>
+    {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+        {{ form.hidden_tag() }}
+
+        <div class="form-group">
+            {{ form.nome_completo.label }}
+            {{ form.nome_completo(class="form-control") }}
+        </div>
+
+        <div class="form-group">
+            {{ form.email.label }}
+            {{ form.email(class="form-control") }}
+        </div>
+
+        <div class="form-group">
+            {{ form.tipo.label }}
+            {{ form.tipo(class="form-control") }}
+        </div>
+
+        <div class="form-actions">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
+
+    <h3 style="margin-top: 2em;">Matrículas Existentes</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Nº Matrícula</th>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Data</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in matriculas %}
+            <tr>
+                <td>{{ m.id }}</td>
+                <td>{{ m.nome_completo }}</td>
+                <td>{{ m.email }}</td>
+                <td>{{ m.status }}</td>
+                <td>{{ m.data_criacao }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</main>
+{% endblock %}

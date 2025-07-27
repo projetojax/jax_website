@@ -18,6 +18,11 @@
         </div>
 
         <div class="form-group">
+            {{ form.nome_completo.label }}
+            {{ form.nome_completo(class="form-control") }}
+        </div>
+
+        <div class="form-group">
             {{ form.email.label }}
             {{ form.email(class="form-control") }}
         </div>

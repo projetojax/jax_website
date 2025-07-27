@@ -47,7 +47,7 @@ def detalhar_usuario(user_id: int) -> dict:
     conn = sqlite3.connect(PATH_DB)
     cursor = conn.cursor()
 
-    cursor.execute("SELECT id, username, email, profile, date_created FROM users WHERE id = ?", (user_id,))
+    cursor.execute("SELECT id, username, email, profile, date_created, nome_completo FROM users WHERE id = ?", (user_id,))
     user = cursor.fetchone()
     conn.close()
 
@@ -57,12 +57,13 @@ def detalhar_usuario(user_id: int) -> dict:
             "username": user[1],
             "email": user[2],
             "profile": user[3],
-            "date_created": user[4]
+            "date_created": user[4],
+            "nome_completo": user[5]
         }
 
     return None
 
-def criar_conta(username: str, email: str, password: str, profile: str = 'curioso') -> tuple[bool, str]:
+def criar_conta(username: str, nome_completo: str, email: str, password: str, profile: str = 'curioso') -> tuple[bool, str]:
     """
     Cria nova conta no banco. Retorna (True, 'mensagem') em caso de sucesso ou (False, 'erro') caso contrário.
     """
@@ -78,9 +79,9 @@ def criar_conta(username: str, email: str, password: str, profile: str = 'curios
         date_created = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 
         cursor.execute("""
-            INSERT INTO users (username, email, password_hash, profile, date_created)
-            VALUES (?, ?, ?, ?, ?)
-        """, (username, email, password_hash, profile, date_created))
+            INSERT INTO users (username, email, password_hash, profile, date_created, nome_completo)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (username, email, password_hash, profile, date_created, nome_completo))
 
         conn.commit()
         return True, "Conta criada com sucesso."
@@ -98,7 +99,7 @@ def listar_usuarios() -> list[dict]:
     conn = sqlite3.connect(PATH_DB)
     cursor = conn.cursor()
 
-    cursor.execute("SELECT id, username, email, profile, date_created FROM users ORDER BY id ASC")
+    cursor.execute("SELECT id, username, email, profile, date_created, nome_completo FROM users ORDER BY id ASC")
     usuarios = cursor.fetchall()
     conn.close()
 
@@ -108,28 +109,31 @@ def listar_usuarios() -> list[dict]:
             "username": u[1],
             "email": u[2],
             "profile": u[3],
-            "date_created": u[4]
+            "date_created": u[4],
+            "nome_completo": u[5]
         }
         for u in usuarios
     ]
 
-def atualizar_usuario(user_id: int, username: str = None, email: str = None, password: str = None, profile: str = None) -> tuple[bool, str]:
+def atualizar_usuario(user_id: int, username: str = None, nome_completo: str = None, email: str = None, password: str = None, profile: str = None) -> tuple[bool, str]:
     """
     Atualiza os dados de um usuário específico. Retorna (True, 'mensagem') em caso de sucesso ou (False, 'erro').
     """
+
     conn = sqlite3.connect(PATH_DB)
     cursor = conn.cursor()
 
     try:
         # Coleta atual
-        cursor.execute("SELECT username, email, profile FROM users WHERE id = ?", (user_id,))
+        cursor.execute("SELECT username, nome_completo, email, profile FROM users WHERE id = ?", (user_id,))
         user = cursor.fetchone()
         if not user:
             return False, "Usuário não encontrado."
 
         # Preenche campos que não foram passados
-        current_username, current_email, current_profile = user
+        current_username, current_nome_completo, current_email, current_profile = user
         username = username or current_username
+        nome_completo = nome_completo or current_nome_completo
         email = email or current_email
         profile = profile or current_profile
 
@@ -152,9 +156,9 @@ def atualizar_usuario(user_id: int, username: str = None, email: str = None, pas
         else:
             cursor.execute("""
                 UPDATE users 
-                SET username = ?, email = ?, profile = ?
+                SET username = ?, email = ?, profile = ?, nome_completo = ?
                 WHERE id = ?
-            """, (username, email, profile, user_id))
+            """, (username, email, profile, nome_completo, user_id))
 
         conn.commit()
         return True, "Dados atualizados com sucesso."
@@ -184,5 +188,91 @@ def remover_usuario(user_id: int) -> tuple[bool, str]:
     except sqlite3.Error as e:
         return False, f"Erro ao remover: {str(e)}"
 
+    finally:
+        conn.close()
+
+def listar_matriculas() -> list[dict]:
+    """
+    Retorna todas as matrículas cadastradas.
+    """
+    conn = sqlite3.connect(PATH_DB)
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT id, nome_completo, email, status, data_criacao FROM matriculas ORDER BY id DESC")
+    registros = cursor.fetchall()
+    conn.close()
+
+    return [
+        {
+            "id": r[0],
+            "nome_completo": r[1],
+            "email": r[2],
+            "status": r[3],
+            "data_criacao": r[4]
+        }
+        for r in registros
+    ]
+
+def validar_matricula(matricula: str, perfil: str) -> bool:
+    """
+    Valida se a matrícula existe e corresponde ao perfil.
+    """
+    if perfil == "aluno" and not matricula.startswith("275"):
+        return False
+    if perfil == "funcionario" and not matricula.startswith("255"):
+        return False
+
+    conn = sqlite3.connect(PATH_DB)
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT 1 FROM matriculas WHERE id = ? AND status = 'pendente'", (matricula,))
+    resultado = cursor.fetchone()
+    conn.close()
+
+    return resultado is not None
+
+def confirmar_matricula(matricula: str) -> None:
+    """
+    Atualiza o status da matrícula para 'confirmado'.
+    """
+    conn = sqlite3.connect(PATH_DB)
+    cursor = conn.cursor()
+    cursor.execute("UPDATE matriculas SET status = 'confirmado' WHERE id = ?", (matricula,))
+    conn.commit()
+    conn.close()
+
+def gerar_matricula_personalizada(tipo: str) -> str:
+    """
+    Gera número de matrícula do tipo 275XXX (aluno) ou 255XXX (funcionário)
+    """
+    prefixo = "275" if tipo == "aluno" else "255"
+    conn = sqlite3.connect(PATH_DB)
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT id FROM matriculas WHERE id LIKE ? ORDER BY id DESC LIMIT 1", (f"{prefixo}%",))
+    ultimo = cursor.fetchone()
+    conn.close()
+
+    ultimo_num = int(ultimo[0][-3:]) if ultimo else 0
+    novo_num = ultimo_num + 1
+    return f"{prefixo}{novo_num:03d}"
+
+def criar_matricula(nome_completo: str, email: str, matricula_id: str) -> tuple[bool, str]:
+    conn = sqlite3.connect(PATH_DB)
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT 1 FROM matriculas WHERE email = ? OR id = ?", (email, matricula_id))
+        if cursor.fetchone():
+            return False, "Já existe uma matrícula com esse e-mail ou número."
+
+        data_criacao = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        cursor.execute("""
+            INSERT INTO matriculas (id, nome_completo, email, status, data_criacao)
+            VALUES (?, ?, ?, ?, ?)
+        """, (matricula_id, nome_completo, email, 'pendente', data_criacao))
+        conn.commit()
+        return True, "Matrícula criada com sucesso."
+    except sqlite3.Error as e:
+        return False, f"Erro ao criar matrícula: {str(e)}"
     finally:
         conn.close()
