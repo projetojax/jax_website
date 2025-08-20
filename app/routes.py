@@ -311,27 +311,22 @@ def remover(user_id):
 
 @main.route('/jaxresume/novo', methods=['GET', 'POST'])
 def novo_resumo():
-    from .uploads.jax_resumos import salvar_json, resumo_novo_id
-
+    from .uploads.jax_resumos import salvar_json
     if 'usuario' not in session:
         flash('Você precisa estar logado para criar um resumo.', 'warning')
-        return redirect(url_for('auth.login'))
+        return render_template('login.html')
 
     current_user = session['usuario']
+    post = None
 
     if request.method == 'POST':
         try:
-            # Chama a função salvar_json passando os dados do formulário, arquivos e o usuário atual
             novo_id = salvar_json(request.form, request.files, current_user['username'])
-
             flash(f'Resumo criado com sucesso! ID: {novo_id}', 'success')
-            return render_template('editar_resumo.html', title="Novo Resumo", year=current_year, current_user=current_user)
-
         except Exception as e:
             flash(f'Ocorreu um erro ao salvar o resumo: {e}', 'danger')
-            return render_template('editar_resumo.html', title="Novo Resumo", year=current_year, current_user=current_user)
 
-    return render_template('editar_resumo.html', title="Novo Resumo", year=current_year, current_user=current_user)
+    return render_template('editar_resumo.html', title="Novo Resumo", year=current_year, current_user=current_user, post=post)
 
 @main.route('/jaxaulas/novo', methods=['GET', 'POST'])
 def nova_aula():
@@ -364,31 +359,29 @@ def lista_resumos():
     return render_template('lista_resumos.html', resumos=resumos, year=current_year, current_user=session['usuario'])
 
 
-@main.route('/jaxresume/editar/<int:id>', methods=['GET', 'POST'])
-def editar_resumo(id):
-    from .uploads.jax_resumos import carregar_resumo_por_id, salvar_resumo_existente, listar_resumos
-    resumos = listar_resumos()
-
+@main.route('/jaxresume/editar/<int:post_id>', methods=['GET', 'POST'])
+def editar_resumo(post_id):
+    from .utils import load_jaxresume
     if 'usuario' not in session:
-        return redirect(url_for('auth.login'))
+        flash('Você precisa estar logado para editar.', 'warning')
+        return render_template('login.html')
+
+    from .uploads.jax_resumos import salvar_json, resumo_novo_id
 
     current_user = session['usuario']
-    resumo = carregar_resumo_por_id(id)
-
-    if not resumo:
-        flash("Resumo não encontrado.", "danger")
-        return render_template('lista_resumos.html', resumos=resumos, year=current_year, current_user=session['usuario'])
+    post = load_jaxresume(main)[2][post_id]
 
     if request.method == 'POST':
         try:
-            salvar_resumo_existente(id, request.form, request.files, current_user['username'])
-            flash("Resumo atualizado com sucesso!", "success")
-            render_template('lista_resumos.html', resumos=resumos, year=current_year, current_user=session['usuario'])
+            print("Requisicao post recebida")
+            print(request.form, request.files, current_user['username'])
+            salvar_json(request.form, request.files, current_user['username'], post_id=post_id)
+            flash('Resumo atualizado com sucesso!', 'success')
         except Exception as e:
-            flash(f"Erro ao atualizar: {e}", "danger")
+            print("Erro ao atualizar resumo:", e)
+            flash(f'Ocorreu um erro ao atualizar: {e}', 'danger')
 
-    return render_template('editar_resumo.html', resumo=resumo, title="Editar Resumo", year=current_year, current_user=current_user)
-
+    return render_template('editar_resumo.html', title="Editar Resumo", year=current_year, current_user=current_user, post=post)
 
 @main.route('/jaxresume/remover/<int:id>', methods=['POST'])
 def remover_resumo(id):
@@ -404,7 +397,7 @@ def remover_resumo(id):
     except Exception as e:
         flash(f"Erro ao remover resumo: {e}", "danger")
 
-    render_template('lista_resumos.html', resumos=resumos, year=current_year, current_user=session['usuario'])
+    return render_template('lista_resumos.html', resumos=resumos, year=current_year, current_user=session['usuario'])
 
 @main.route('/jaxaulas/listar')
 def listar_aulas():

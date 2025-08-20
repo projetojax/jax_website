@@ -32,35 +32,57 @@ def resumo_novo_id(prefixo: str):
     # Retorna o maior ID encontrado + 1
     return max(ids) + 1 if ids else 1
 
-def salvar_json(form_data, files, autor):
-    # Gera o ID único para o novo resumo
-    novo_id = resumo_novo_id('jaxresume')
+def salvar_json(form_data, files, autor, post_id=None):
+    """
+    Salva ou atualiza um JAXResume.
+    - post_id: se fornecido, atualiza o post existente; caso contrário, cria um novo.
+    """
+    from datetime import datetime
 
-    # Salva a imagem de capa
-    capa = files['image']
-    nome_imagem = secure_filename(capa.filename)  # Garante que o nome seja seguro
-    capa.save(os.path.join(jaxresume_path, nome_imagem))  # Salva a imagem no diretório
+    # Diretórios
+    image_dir = jaxresume_path
+    os.makedirs(image_dir, exist_ok=True)
 
-    # Cria os dados que serão salvos no JSON
+    # Define o ID do post
+    if post_id is None:
+        post_id = resumo_novo_id('jaxresume')  # Cria novo ID se não tiver
+    else:
+        post_id = int(post_id)  # Converte para int caso venha como string
+
+    # Verifica se imagem será mantida, removida ou substituída
+    current_image = form_data.get('current_image', '')
+    remove_image = form_data.get('remove_image')
+    capa = files.get('image')
+
+    if remove_image:
+        nome_imagem = ''  # Remove imagem
+    elif capa and capa.filename.strip():
+        nome_imagem = secure_filename(capa.filename)
+        capa.save(os.path.join(image_dir, nome_imagem))
+    else:
+        nome_imagem = current_image  # Mantém imagem antiga
+
+    # Monta dados do JSON
     data = {
-        "id": novo_id,
+        "id": post_id,
         "title": form_data['title'],
-        "subtitle": form_data.get('subtitle', ''),  # Subtítulo pode ser vazio
+        "subtitle": form_data.get('subtitle', ''),
         "author": autor,
         "theme": form_data.get('theme', ''),
         "subtheme": form_data.get('subtheme', ''),
         "date_published": form_data.get('date_published', datetime.now().strftime("%Y-%m-%d")),
-        "image": nome_imagem,  # O nome da imagem salva
+        "image": nome_imagem,
         "content": form_data['content'],
-        "comments": []  # Comentários podem ser uma lista vazia inicialmente
+        "comments": []  # Pode manter comentários existentes se quiser
     }
 
-    # Salva o JSON no diretório específico
-    json_path = os.path.join(jaxresume_json_path, f"post_{novo_id}.json")
+    # Salva JSON no diretório específico
+    json_path = os.path.join(jaxresume_json_path, f"post_{post_id}.json")
     with open(json_path, 'w', encoding='utf-8') as json_file:
         json.dump(data, json_file, indent=4, ensure_ascii=False)
 
-    return novo_id
+    return post_id
+
 
 def listar_resumos():
     resumos = []

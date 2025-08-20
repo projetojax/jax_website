@@ -1,80 +1,95 @@
 {% extends 'base.html' %}
 
-{% block title %}Novo Resumo{% endblock %}
-
 {% block styles %}
-<link rel="stylesheet" href="{{ url_for('static', filename='styles/novo_resumo.css') }}">
-{% endblock %}
-
-{% block scripts %}
-<script src="{{ url_for('static', filename='scripts/novo_resumo.js') }}"></script>
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='styles/jaxresume_editor.css') }}">
 {% endblock %}
 
 {% block content %}
-<div class="container-form">
+<div id="jaxresume-container">
+    <h1 id="jaxresume-title">Edite o seu JAXResume</h1>
 
-    <h2>Criar Novo Resumo</h2>
-
-    {% with messages = get_flashed_messages() %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             <div class="flash-messages">
-                {% for message in messages %}
-                    <div class="flash">{{ message }}</div>
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
                 {% endfor %}
             </div>
         {% endif %}
     {% endwith %}
-    <form method="POST" enctype="multipart/form-data">
-        <div class="form-group">
-            <label for="title">Título</label>
-            <input type="text" name="title" id="title" required value="{{ resumo.title if resumo else '' }}">
+
+
+    <form id="jaxresume-form" method="POST" enctype="multipart/form-data" class="modern-form">
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="title" class="form-label">Título</label>
+                <input type="text" name="title" id="title" class="form-input"
+                    value="{{ post.title if post else '' }}" required>
+            </div>
+            <div class="form-group">
+                <label for="subtitle" class="form-label">Subtítulo</label>
+                <input type="text" name="subtitle" id="subtitle" class="form-input"
+                    value="{{ post.subtitle if post else '' }}">
+            </div>
+            <div class="form-group">
+                <label for="image" class="form-label">Imagem</label>
+                {% if post and post.image %}
+                    <div class="current-image">
+                        <img src="{{ url_for('static', filename='images/jax_resume/' ~ post.image) }}" alt="Imagem atual" style="max-width: 200px;">
+                        <label>
+                            <input type="checkbox" name="remove_image" value="1"> Remover imagem
+                        </label>
+                    </div>
+                    <!-- Campo oculto para manter imagem antiga -->
+                    <input type="hidden" name="current_image" value="{{ post.image }}">
+                {% endif %}
+                <input type="file" name="image" id="image" class="form-input-file">
+                <small class="hint">Se não selecionar nada, a imagem atual será mantida.</small>
+            </div>
+            <div class="form-group">
+                <label for="theme" class="form-label">Tema</label>
+                <input type="text" name="theme" id="theme" class="form-input"
+                    value="{{ post.theme if post else '' }}">
+            </div>
+            <div class="form-group">
+                <label for="subtheme" class="form-label">Subtema</label>
+                <input type="text" name="subtheme" id="subtheme" class="form-input"
+                    value="{{ post.subtheme if post else '' }}">
+            </div>
         </div>
 
-        <div class="form-group">
-            <label for="subtitle">Subtítulo</label>
-            <input type="text" name="subtitle" id="subtitle" value="{{ resumo.subtitle if resumo else '' }}">
+        <div id="editor-preview-container">
+            <div class="editor-section">
+                <h2 class="section-title">Editor</h2>
+                <div id="editor" class="editor-box">{{ post.content|safe if post else '' }}</div>
+                <input type="hidden" name="content" id="hiddenContent">
+            </div>
+            <div class="preview-section">
+                <h2 class="section-title">Pré-visualização</h2>
+                <div id="preview" class="preview-box"></div>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label for="author">Autor</label>
-            <input type="text" name="author" id="author" required value="{{ resumo.author if resumo else '' }}">
-        </div>
+    <div class="button-wrapper">
+        <button type="submit" id="save-button" class="btn-primary">Salvar Resumo</button>
+        <a href="{{ url_for('main.lista_resumos') }}" class="btn-secondary">Ver Lista de JAXResumes</a>
+    </div>
 
-        <div class="form-group">
-            <label for="theme">Tema</label>
-            <select name="theme" id="theme" required>
-                <option {% if resumo and resumo.theme == '' %} selected {% endif %} value="">Selecione um tema</option>
-                <option {% if resumo and resumo.theme == 'Educação' %} selected {% endif %} value="Educação">Educação</option>
-                <option {% if resumo and resumo.theme == 'Inovação' %} selected {% endif %} value="Inovação">Inovação</option>
-                <option {% if resumo and resumo.theme == 'Tecnologia' %} selected {% endif %} value="Tecnologia">Tecnologia</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="subtheme">Subtema</label>
-            <input type="text" name="subtheme" id="subtheme" value="{{ resumo.subtheme if resumo else '' }}">
-        </div>
-
-        <div class="form-group">
-            <label for="date_published">Data de Publicação</label>
-            <input type="date" name="date_published" id="date_published" value="{{ resumo.date_published if resumo else '' }}">
-        </div>
-
-        <div class="form-group">
-            <label for="image">Imagem de Capa</label>
-            <input type="file" name="image" id="image" accept="image/*">
-            {% if resumo and resumo.image %}
-                <p>Imagem Atual:</p>
-                <img src="{{ url_for('static', filename='images/jax_resume/' + resumo.image) }}" alt="Cover Image" class="cover-image" width="200" height="auto">
-            {% endif %}
-        </div>
-
-        <div class="form-group">
-            <label for="content">Conteúdo</label>
-            <textarea name="content" id="content" rows="8" required>{{ resumo.content if resumo else '' }}</textarea>
-        </div>
-
-        <button type="submit" class="submit-btn">Salvar Resumo</button>
     </form>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+<script>
+    var quill = new Quill('#editor', { theme: 'snow' });
+    document.getElementById('jaxresume-form').onsubmit = function() {
+        document.getElementById('hiddenContent').value = quill.root.innerHTML;
+    };
+    quill.on('text-change', function() {
+        document.getElementById('preview').innerHTML = quill.root.innerHTML;
+    });
+    document.getElementById('preview').innerHTML = quill.root.innerHTML;
+</script>
 {% endblock %}

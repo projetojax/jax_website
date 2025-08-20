@@ -53,7 +53,7 @@
 
             <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">☰</button>
 
-            <nav id="navbar" class="navbar hidden">
+            <nav id="navbar" class="navbar hidden" style="overflow: scroll; height: 200px; margin-left: 10px;">
                 <ul>
                     <a href="{{ url_for('main.home') }}" class="hero-btn">Home</a>
 
@@ -63,13 +63,13 @@
                         <a href="/jaxaulas" class="hero-btn">Aulas</a>
 
                         <a href="/perfil" class="hero-btn">Meu Perfil</a>
-                        {% if current_user.profile == 'admin' %}
+                        {% if current_user.profile in ['admin', 'profissional'] %}
                             <a href="/usuarios" class="hero-btn">Gerenciar Usuários</a>
                             <a href="/admin/matriculas" class="hero-btn">Gerenciar Matrículas</a>
-                        {% endif %}
-                        {% if current_user.profile in ['admin', 'profissional'] %}
                             <a href="/jaxaulas/listar" class="hero-btn">Gerenciar Aulas</a>
                             <a href="/jaxaulas/novo" class="hero-btn">Criar Aula</a>
+                            <a href="/jaxresume/lista" class="hero-btn">Gerenciar Resumos</a>
+                            <a href="/jaxresume/novo" class="hero-btn">Criar Resumo</a>
                         {% endif %}
                         <a href="/logout" class="hero-btn">Sair</a>
                     {% else %}

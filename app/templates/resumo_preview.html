@@ -1,0 +1,20 @@
+<div class="post-full">
+    <div id="titulo_jaxresume">
+        <h1>JAXResume</h1>
+        <h2>{{ post['title'] }}</h2>
+        {% if post['subtitle'] %}
+            <h3>{{ post['subtitle'] }}</h3>
+        {% endif %}
+    </div>
+    <div class="post-meta">
+        <p><strong>Autor:</strong> {{ post['author'] }} | <strong>Tema:</strong> {{ post['theme'] }} 
+        {% if post['subtheme'] %} | <strong>Sub-tema:</strong> {{ post['subtheme'] }}{% endif %}
+        | <strong>Publicado em:</strong> {{ post['date_published'] }}</p>
+    </div>
+    <div class="post-image">
+        <img src="{{ url_for('static', filename='images/jax_resume/default.jpg') }}" alt="{{ post['title'] }}" style="max-width: 100%;">
+    </div>
+    <div class="post-content">
+        {{ post['content'] | safe }}
+    </div>
+</div>
