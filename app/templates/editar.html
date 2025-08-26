@@ -42,7 +42,8 @@
             <select name="profile" id="profile" required>
                 <option value="curioso" {% if usuario.profile == 'curioso' %}selected{% endif %}>Curioso</option>
                 <option value="admin" {% if usuario.profile == 'admin' %}selected{% endif %}>Admin</option>
-                <option value="usuario" {% if usuario.profile == 'usuario' %}selected{% endif %}>Usuário</option>
+                <option value="aluno" {% if usuario.profile == 'aluno' %}selected{% endif %}>Aluno</option>
+                <option value="funcionario" {% if usuario.profile == 'funcionario' %}selected{% endif %}>Funcionário</option>
             </select>
         </div>
 

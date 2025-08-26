@@ -7,8 +7,9 @@
         <p class="hero-subtitle">Educação, Inovação e Tecnologia a serviço da sua jornada.</p>
         <div class="hero-buttons">
             {% if current_user %}
-
-                <a href="/perfil" class="hero-btn">Meu Perfil</a>
+            
+            <a href="/perfil" class="hero-btn">Meu Perfil</a>
+            <a href="/jaxresume" class="hero-btn">Quero Ler Resumos</a>
 
                 {% if current_user.profile == 'admin' %}
                     <a href="/usuarios" class="hero-btn">Gerenciar Usuários</a>
@@ -17,10 +18,10 @@
                     <a href="/jaxresume/lista" class="hero-btn">Gerenciar Resumos</a>
                 {% endif %}
 
-                <a href="/jaxresume" class="hero-btn">Quero Ler Resumos</a>
                 <a href="/jaxaulas" class="hero-btn">Quero Ver Aulas</a>
             {% else %}
                 <a href="/login" class="hero-btn">Acessar Área Privada</a>
+                <a href="/jaxresume" class="hero-btn">Quero Ler Resumos</a>
             {% endif %}
                 <a href="/jax_jornada" class="hero-btn">Como o JAX muda o Brasil?</a>
         </div>

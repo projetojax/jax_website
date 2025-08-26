@@ -130,6 +130,7 @@ def temas(tema):
 @main.route("/jaxresume/post/<int:post_id>")
 def post(post_id):
     from .utils import load_jaxresume
+    from .uploads.jax_resumos import usuario_tem_acesso
     post_id = int(post_id)
     posts = load_jaxresume(main)[2][post_id]
     if posts is None:
@@ -139,7 +140,14 @@ def post(post_id):
 
     if 'usuario' in session:
         usuario = session['usuario']
+        resumo = load_jaxresume(main)[2].get(post_id)
+        if not usuario_tem_acesso(usuario, resumo):
+                return render_template("error.html", title="ERROR", error="Você não tem permissão para acessar este resumo.", year=current_year)
         return render_template("post_completo.html", post=posts, year=current_year, current_user=usuario)
+    else:
+        resumo = load_jaxresume(main)[2].get(post_id)
+        if resumo.get('visibility', 'aberta') != 'aberta':
+            return render_template("error.html", title="ERROR", error="Você precisa estar logado para acessar este resumo.", year=current_year)
 
     return render_template("post_completo.html", post=posts, year=current_year)
 

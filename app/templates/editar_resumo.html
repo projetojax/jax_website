@@ -59,6 +59,20 @@
             </div>
         </div>
 
+    <div class="form-group">
+        <label for="visibility" class="form-label">Visibilidade</label>
+        <select name="visibility" id="visibility" class="form-input">
+            <option value="aberta" 
+                {% if post and post.visibility == 'aberta' %}selected{% endif %}>Aberta (público geral)</option>
+            <option value="fechada_nativa" 
+                {% if post and post.visibility == 'fechada_nativa' %}selected{% endif %}>Fechada - Nativa (qualquer usuário cadastrado)</option>
+            <option value="fechada_aluno" 
+                {% if post and post.visibility == 'fechada_aluno' %}selected{% endif %}>Fechada - Aluno (aluno, admin ou funcionário)</option>
+            <option value="fechada_interna" 
+                {% if post and post.visibility == 'fechada_interna' %}selected{% endif %}>Fechada - Interna (somente admin ou funcionário)</option>
+        </select>
+    </div>
+
         <div id="editor-preview-container">
             <div class="editor-section">
                 <h2 class="section-title">Editor</h2>

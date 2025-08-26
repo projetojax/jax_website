@@ -19,6 +19,14 @@
 }
 
 /* ===== Formulário ===== */
+select.form-input {
+    appearance: none;
+    background: #fafafa url("data:image/svg+xml;utf8,<svg fill='%23333' height='24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>") no-repeat right 12px center;
+    background-size: 18px;
+    padding-right: 40px;
+    cursor: pointer;
+}
+
 .modern-form .form-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));

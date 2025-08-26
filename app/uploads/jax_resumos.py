@@ -5,6 +5,28 @@ import json
 from werkzeug.utils import secure_filename
 from datetime import datetime
 
+def usuario_tem_acesso(usuario, resumo):
+    vis = resumo.get("visibility", "aberta")
+
+    if vis == "aberta":
+        return True
+
+    if not usuario:
+        return False
+
+    role = usuario.get("role", "curioso")  # ex: aluno, funcionario, admin, curioso
+
+    if vis == "fechada_nativa":
+        return True  # qualquer logado
+
+    if vis == "fechada_aluno":
+        return role in ["aluno", "admin", "funcionario"]
+
+    if vis == "fechada_interna":
+        return role in ["admin", "funcionario"]
+
+    return False
+
 def resumo_novo_id(prefixo: str):
     """
     Gera um novo ID baseado nos arquivos JSON existentes no diretório de jaxaulas.
@@ -73,6 +95,7 @@ def salvar_json(form_data, files, autor, post_id=None):
         "date_published": form_data.get('date_published', datetime.now().strftime("%Y-%m-%d")),
         "image": nome_imagem,
         "content": form_data['content'],
+        "visibility": form_data.get('visibility', 'aberta'),
         "comments": []  # Pode manter comentários existentes se quiser
     }
 
@@ -116,6 +139,7 @@ def salvar_resumo_existente(resumo_id, form_data, files, autor):
         "theme": form_data.get('theme', ''),
         "subtheme": form_data.get('subtheme', ''),
         "date_published": form_data.get('date_published', data['date_published']),
+        "visibility": form_data.get('visibility', data.get('visibility', 'aberta')),
         "content": form_data['content'],
     })
 
