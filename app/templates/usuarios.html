@@ -37,10 +37,10 @@
                 <td data-label="Perfil">{{ u.profile }}</td>
                 <td data-label="Criado em">{{ u.date_created }}</td>
                 <td data-label="Ações" class="actions">
-                    <a href="{{ url_for('main.editar', user_id=u.id) }}">
+                    <a href="/{{ u.id }}/editar">
                         <button class="edit-btn">Editar</button>
                     </a>
-                    <form method="POST" action="{{ url_for('main.remover', user_id=u.id) }}"
+                    <form method="POST" action="/{{ u.id }}/remover"
                           style="display:inline;" onsubmit="return confirm('Confirma a remoção do usuário {{ u.username }}?');">
                         <button type="submit" class="delete-btn">Remover</button>
                     </form>

@@ -23,8 +23,8 @@
     <li>
       <strong>{{ aula.title }}</strong> - {{ aula.subtitle }}
       <div>
-        <a href="{{ url_for('main.editar_aula', aula_id=aula.id) }}">Editar</a>
-        <form action="{{ url_for('main.remover_aula', aula_id=aula.id) }}" method="post" style="display:inline;">
+        <a href="{{ url_for('aulas.editar_aula', aula_id=aula.id) }}">Editar</a>
+        <form action="{{ url_for('aulas.remover_aula', aula_id=aula.id) }}" method="post" style="display:inline;">
           <button type="submit" onclick="return confirm('Tem certeza que deseja remover esta aula?');">Remover</button>
         </form>
       </div>

@@ -15,7 +15,7 @@ def login():
             session.permanent = True  # ativa controle por tempo
             session['usuario'] = dados_usuario  # guarda dados básicos
             flash(f"Bem-vindo(a), {dados_usuario['username']}!", "success")
-            return redirect(url_for('main.home'))
+            return redirect(url_for('public.home'))
         else:
             flash("Credenciais inválidas. Tente novamente.", "danger")
     return render_template('login.html', form=form, year=current_year)
@@ -57,13 +57,13 @@ def logout():
         nome = session['usuario'].get('username', 'usuário')
         realizar_logout(session)
         flash(f"Logout realizado com sucesso, {nome}.", "info")
-    return redirect(url_for('main.home'))
+    return redirect(url_for('public.home'))
 
 @auth.route('/matricula', methods=['POST'])
 def criar_matricula_api():
     if session.get("usuario", {}).get("profile") != "admin":
         flash("Acesso restrito.", "danger")
-        return redirect(url_for('main.home'))
+        return redirect(url_for('public.home'))
 
     form = CriarMatriculaForm()
     if form.validate_on_submit():
@@ -93,7 +93,7 @@ def criar_matricula_api():
 def gerenciar_matriculas():
     if session.get("usuario", {}).get("profile") != "admin":
         flash("Acesso restrito.", "danger")
-        return redirect(url_for('main.home'))
+        return redirect(url_for('public.home'))
 
     form = CriarMatriculaForm()
     form_valid = form.validate_on_submit()

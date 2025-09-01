@@ -37,7 +37,7 @@
 
     <header class="jax-header">
         <div class="header-container">
-            <a href="{{ url_for('main.home') }}" id="logo">JAX</a>
+            <a href="/home" id="logo">JAX</a>
 
             <div class="user-greeting">
                 {% if current_user %}
@@ -55,7 +55,7 @@
 
             <nav id="navbar" class="navbar hidden" style="overflow: scroll; height: 200px; margin-left: 10px;">
                 <ul>
-                    <a href="{{ url_for('main.home') }}" class="hero-btn">Home</a>
+                    <a href="/home" class="hero-btn">Home</a>
                     <a href="/jaxresume" class="hero-btn">Resumos</a>
 
                     {% if current_user %}

@@ -1,20 +1,58 @@
 from flask_login import LoginManager
+import os
 
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
 
+root_path = os.path.dirname(os.path.abspath(__file__))
+
+def usuario_tem_acesso(usuario, post):
+    """
+    Retorna True se o usuário tiver acesso ao post, conforme a visibilidade.
+    """
+    vis = post.get("visibility", "aberta")
+
+    # Sempre aberto
+    if vis == "aberta":
+        return True
+
+    # Se não está logado, só vê os abertos
+    if not usuario:
+        return False
+
+    papel = usuario.get("papel", "").lower()  # ex: 'aluno', 'admin', 'funcionario', 'nativo'
+
+    if vis == "fechada_nativa":
+        # qualquer usuário logado
+        return True
+
+    if vis == "fechada_aluno":
+        # alunos, admins ou funcionários
+        return papel in ["aluno", "admin", "funcionario"]
+
+    if vis == "fechada_interna":
+        # somente admins ou funcionários
+        return papel in ["admin", "funcionario"]
+
+    return False
 
 def create_app():
     from flask import Flask
-    from .routes import main
+    from app.routes.public import public_routes
+    from app.routes.jax_resume import resume_routes
+    from app.routes.jax_aulas import jax_aulas_routes
+    from app.routes.users import user_routes
     from .models import User, db
     from config import Config
     from .auth.routes import auth
     app = Flask(__name__)
     app.config.from_object(Config)
     db.init_app(app)
-    app.register_blueprint(main)
-    app.register_blueprint(auth)
+    app.register_blueprint(public_routes, url_prefix='')
+    app.register_blueprint(resume_routes, url_prefix='')
+    app.register_blueprint(jax_aulas_routes, url_prefix='')
+    app.register_blueprint(user_routes, url_prefix='')
+    app.register_blueprint(auth, url_prefix='')
     with app.app_context():
         db.create_all()
     @login_manager.user_loader
@@ -26,7 +64,7 @@ def load_jaxaulas(app):
     import json
     import os
 
-    files_json = os.path.join(app.root_path, 'static', 'json', 'jax_aulas')
+    files_json = os.path.join(root_path, 'static', 'json', 'jax_aulas')
     tutorials = []
 
     for filename in os.listdir(files_json):
@@ -61,7 +99,7 @@ def load_jaxresume(app):
         
         return formatted
 
-    json_folder = os.path.join(app.root_path, 'static', 'json', 'jax_resume')  
+    json_folder = os.path.join(root_path, 'static', 'json', 'jax_resume')  
 
     for filename in os.listdir(json_folder):
         if filename.endswith('.json'):
@@ -94,7 +132,7 @@ def add_comment(post_id = '', pasta_json = 'jax_resume', author = '', text = '',
     import json
     from datetime import datetime
 
-    json_folder = os.path.join(app.root_path, 'static', 'json', pasta_json)
+    json_folder = os.path.join(root_path, 'static', 'json', pasta_json)
     if pasta_json == 'jax_resume':
         post_file = os.path.join(json_folder, f'post_{post_id}.json')
     elif pasta_json == 'jax_aulas':

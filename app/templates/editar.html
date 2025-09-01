@@ -16,7 +16,7 @@
       {% endif %}
     {% endwith %}
 
-    <form method="POST" action="{{ url_for('main.editar', user_id=usuario.id) }}">
+    <form method="POST" action="/{{ usuario.id }}/editar">
         <div>
             <label for="username">Nome de usuário</label>
             <input type="text" name="username" id="username" value="{{ usuario.username }}" required />

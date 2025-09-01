@@ -16,7 +16,7 @@
       {% endif %}
     {% endwith %}
 
-    <form method="POST" action="{{ url_for('main.perfil') }}">
+    <form method="POST" action="/perfil">
         <div>
             <label for="username">Nome de usuário</label>
             <input type="text" name="username" id="username" value="{{ usuario.username }}" required />
@@ -42,7 +42,7 @@
 
     <hr />
 
-    <form method="POST" action="{{ url_for('main.remover_proprio_usuario') }}" onsubmit="return confirm('Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita!');">
+    <form method="POST" action="/remover_proprio_usuario" onsubmit="return confirm('Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita!');">
         <button type="submit" class="danger">Excluir Minha Conta</button>
     </form>
 </div>
