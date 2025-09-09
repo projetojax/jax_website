@@ -137,3 +137,17 @@ button {
         margin-top: 0.5rem;
     }
 }
+
+.add-btn {
+    background-color: #28a745;
+    color: white;
+    padding: 0.6em 1.5em;
+    border: none;
+    border-radius: 6px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.add-btn:hover {
+    background-color: #1e7e34;
+}

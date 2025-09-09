@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='styles/users/novo_usuario.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Criar Novo Usuário</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="message {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+        <div>
+            <label for="username">Nome de usuário</label>
+            <input type="text" name="username" id="username" required />
+        </div>
+
+        <div>
+            <label for="nome_completo">Nome Completo</label>
+            <input type="text" name="nome_completo" id="nome_completo" required />
+        </div>
+
+        <div>
+            <label for="email">E-mail</label>
+            <input type="email" name="email" id="email" required />
+        </div>
+
+        <div>
+            <label for="profile">Perfil</label>
+            <select name="profile" id="profile" required>
+                <option value="curioso">Curioso</option>
+                <option value="admin">Admin</option>
+                <option value="aluno">Aluno</option>
+                <option value="funcionario">Funcionário</option>
+            </select>
+        </div>
+
+        <button type="submit">Criar Usuário</button>
+    </form>
+
+    <p><a href="{{ url_for('users.usuarios') }}">← Voltar para lista de usuários</a></p>
+</div>
+{% endblock %}

@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 
 {% block styles %}
-<link rel="stylesheet" href="{{ url_for('static', filename='styles/perfil.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='styles/users/editar_usuario.css') }}">
 {% endblock %}
 
 {% block content %}
 <div class="container">
-    <h1>Meu Perfil</h1>
+    <h1>Editar Usuário: {{ usuario.username }}</h1>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
@@ -16,7 +16,7 @@
       {% endif %}
     {% endwith %}
 
-    <form method="POST" action="/perfil">
+    <form method="POST" action="/{{ usuario.id }}/editar">
         <div>
             <label for="username">Nome de usuário</label>
             <input type="text" name="username" id="username" value="{{ usuario.username }}" required />
@@ -37,13 +37,19 @@
             <input type="password" name="password" id="password" placeholder="Nova senha" />
         </div>
 
-        <button type="submit" class="success">Atualizar Dados</button>
+        <div>
+            <label for="profile">Perfil</label>
+            <select name="profile" id="profile" required>
+                <option value="curioso" {% if usuario.profile == 'curioso' %}selected{% endif %}>Curioso</option>
+                <option value="admin" {% if usuario.profile == 'admin' %}selected{% endif %}>Admin</option>
+                <option value="aluno" {% if usuario.profile == 'aluno' %}selected{% endif %}>Aluno</option>
+                <option value="funcionario" {% if usuario.profile == 'funcionario' %}selected{% endif %}>Funcionário</option>
+            </select>
+        </div>
+
+        <button type="submit">Salvar Alterações</button>
     </form>
 
-    <hr />
-
-    <form method="POST" action="/remover_proprio_usuario" onsubmit="return confirm('Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita!');">
-        <button type="submit" class="danger">Excluir Minha Conta</button>
-    </form>
+    <p><a href="/usuarios">← Voltar para lista de usuários</a></p>
 </div>
 {% endblock %}

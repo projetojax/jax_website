@@ -129,3 +129,20 @@ tbody tr:hover {
         padding: 0.5em;
     }
 }
+
+/* Botão de ação */
+.btn-danger {
+    background-color: #cc0000;
+    color: white;
+    padding: 0.5em 1.2em;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-danger:hover {
+    background-color: #990000;
+}
+

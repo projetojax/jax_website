@@ -1,7 +1,7 @@
 from datetime import datetime
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session, jsonify
 from .forms import LoginForm, RegisterForm, CriarMatriculaForm
-from .utils import realizar_login, realizar_logout, criar_conta, criar_matricula, validar_matricula, confirmar_matricula, gerar_matricula_personalizada, listar_matriculas, detalhar_usuario
+from .utils import realizar_login, realizar_logout, criar_conta, criar_matricula, validar_matricula, confirmar_matricula, gerar_matricula_personalizada, listar_matriculas, detalhar_usuario, excluir_matricula
 
 auth = Blueprint('auth', __name__)
 current_year = datetime.now().year
@@ -18,7 +18,7 @@ def login():
             return redirect(url_for('public.home'))
         else:
             flash("Credenciais inválidas. Tente novamente.", "danger")
-    return render_template('login.html', form=form, year=current_year)
+    return render_template('auth/login.html', form=form, year=current_year)
 
 
 @auth.route('/register', methods=['GET', 'POST'])
@@ -31,7 +31,7 @@ def register():
         if perfil in ["aluno", "funcionario"]:
             if not validar_matricula(matricula, perfil):
                 flash("Matrícula inválida ou não encontrada para esse perfil.", "danger")
-                return render_template('register.html', form=form, year=current_year)
+                return render_template('auth/register.html', form=form, year=current_year)
 
         sucesso, mensagem = criar_conta(
             username=form.username.data,
@@ -49,7 +49,7 @@ def register():
         else:
             flash(mensagem, "danger")
 
-    return render_template('register.html', form=form, year=current_year)
+    return render_template('auth/register.html', form=form, year=current_year)
 
 @auth.route('/logout')
 def logout():
@@ -81,13 +81,13 @@ def criar_matricula_api():
         if sucesso:
             flash(f"{mensagem} Número: {numero_matricula}", "success")
             registros = listar_matriculas()
-            return render_template('admin_matriculas.html', form=form, matriculas=registros, year=current_year, current_user=usuario)
+            return render_template('auth/admin_matriculas.html', form=form, matriculas=registros, year=current_year, current_user=usuario)
         else:
             flash(mensagem, "danger")
 
     registros = listar_matriculas()
     usuario = session['usuario']
-    return render_template('admin_matriculas.html', form=form, matriculas=registros, year=current_year, current_user=usuario)
+    return render_template('auth/admin_matriculas.html', form=form, matriculas=registros, year=current_year, current_user=usuario)
 
 @auth.route('/admin/matriculas', methods=['GET', 'POST'])
 def gerenciar_matriculas():
@@ -113,7 +113,7 @@ def gerenciar_matriculas():
             flash(f"{mensagem} Número: {numero_matricula}", "success")
             registros = listar_matriculas()
             usuario = session['usuario']
-            return render_template('admin_matriculas.html', form=form, matriculas=registros, year=current_year, current_user=usuario)
+            return render_template('auth/admin_matriculas.html', form=form, matriculas=registros, year=current_year, current_user=usuario)
         else:
             flash(mensagem, "danger")
     else:
@@ -121,4 +121,19 @@ def gerenciar_matriculas():
 
     registros = listar_matriculas()
     usuario = session['usuario']
-    return render_template('admin_matriculas.html', form=form, matriculas=registros, year=current_year, current_user=usuario)
+    return render_template('auth/admin_matriculas.html', form=form, matriculas=registros, year=current_year, current_user=usuario)
+
+@auth.route('/admin/matriculas/delete/<int:matricula_id>', methods=['POST'])
+def deletar_matricula(matricula_id):
+    if session.get("usuario", {}).get("profile") != "admin":
+        flash("Acesso restrito.", "danger")
+        return redirect(url_for('public.home'))
+
+    sucesso, mensagem = excluir_matricula(matricula_id)  # função que você vai criar no model/serviço
+    if sucesso:
+        flash("Matrícula excluída com sucesso.", "success")
+    else:
+        flash(mensagem or "Erro ao excluir matrícula.", "danger")
+
+    return redirect(url_for('auth.gerenciar_matriculas'))
+

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block styles %}
-<link rel="stylesheet" href="{{ url_for('static', filename='styles/usuarios.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='styles/users/usuarios.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -49,4 +49,11 @@
             {% endfor %}
         </tbody>
     </table>
+
+    <p>
+        <a href="{{ url_for('users.novo_usuario') }}">
+            <button class="add-btn">+ Novo Usuário</button>
+        </a>
+    </p>
+
 {% endblock %}

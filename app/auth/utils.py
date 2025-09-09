@@ -280,3 +280,15 @@ def criar_matricula(nome_completo: str, email: str, matricula_id: str) -> tuple[
         return False, f"Erro ao criar matrícula: {str(e)}"
     finally:
         conn.close()
+
+def excluir_matricula(matricula_id):
+    try:
+        conn = sqlite3.connect(PATH_DB)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM matriculas WHERE id = ?", (matricula_id,))
+        conn.commit()
+        conn.close()
+        return True, None
+    except Exception as e:
+        return False, str(e)
+

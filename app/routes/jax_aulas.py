@@ -18,9 +18,9 @@ def jaxaulas():
 
     if 'usuario' in session:
         usuario = session['usuario']
-        return render_template('jaxaulas.html', themes=themes, year=current_year, current_user=usuario)
+        return render_template('aulas/jaxaulas.html', themes=themes, year=current_year, current_user=usuario)
 
-    return render_template('jaxaulas.html', themes=themes, year=current_year)
+    return render_template('aulas/jaxaulas.html', themes=themes, year=current_year)
 
 @jax_aulas_routes.route('/jaxaulas/<theme>')
 def jaxaulas_theme(theme):
@@ -29,13 +29,13 @@ def jaxaulas_theme(theme):
 
     tutorials = [t for t in load_jaxaulas(jax_aulas_routes) if t['theme'].lower() == theme.lower()]
     if not tutorials:
-        return render_template("error.html", title="ERROR", error="Tutorial nao existe", year=current_year), 404
+        return render_template("public/error.html", title="ERROR", error="Tutorial nao existe", year=current_year), 404
 
     if 'usuario' in session:
         usuario = session['usuario']
-        return render_template('jaxaulas_topicos.html', theme=theme, tutorials=tutorials, year=current_year, current_user=usuario)
+        return render_template('aulas/jaxaulas_topicos.html', theme=theme, tutorials=tutorials, year=current_year, current_user=usuario)
 
-    return render_template('jaxaulas_topicos.html', theme=theme, tutorials=tutorials, year=current_year)
+    return render_template('aulas/jaxaulas_topicos.html', theme=theme, tutorials=tutorials, year=current_year)
 
 @jax_aulas_routes.route('/jaxaulas/watch/<int:tutorial_id>')
 def jaxaulas_watch(tutorial_id):
@@ -48,9 +48,9 @@ def jaxaulas_watch(tutorial_id):
 
     if 'usuario' in session:
         usuario = session['usuario']
-        return render_template('jaxaulas_assistir.html', tutorial=tutorial, year=current_year, current_user=usuario)
+        return render_template('aulas/jaxaulas_assistir.html', tutorial=tutorial, year=current_year, current_user=usuario)
 
-    return render_template('jaxaulas_assistir.html', tutorial=tutorial, year=current_year)
+    return render_template('aulas/jaxaulas_assistir.html', tutorial=tutorial, year=current_year)
 
 @jax_aulas_routes.route("/jaxaulas/watch/<int:tutorial_id>/add_comment", methods=["POST"])
 def add_comment_jaxaulas(tutorial_id):
@@ -59,7 +59,7 @@ def add_comment_jaxaulas(tutorial_id):
     tutorials = load_jaxaulas(jax_aulas_routes)
     tutorial = next((t for t in tutorials if t['id'] == tutorial_id), None)
     if not tutorial:
-        return render_template("error.html", title="ERROR", error="Tutorial nao existe", year=current_year), 404
+        return render_template("public/error.html", title="ERROR", error="Tutorial nao existe", year=current_year), 404
 
     author = request.form.get("author")
     text = request.form.get("text")
@@ -71,7 +71,7 @@ def add_comment_jaxaulas(tutorial_id):
         _ = add_comment(tutorial_id, 'jax_aulas', author, text, jax_aulas_routes)
         return jaxaulas_watch(tutorial_id)
     except FileNotFoundError as e:
-        return render_template("error.html", title="ERROR", error=str(e), year=current_year)
+        return render_template("public/error.html", title="ERROR", error=str(e), year=current_year)
 
 @jax_aulas_routes.route('/jaxaulas/novo', methods=['GET', 'POST'])
 def nova_aula():
@@ -87,12 +87,12 @@ def nova_aula():
         try:
             salvar_json_jaxaulas(request.form, request.files, current_user['username'], aulas_novo_id)
             flash('Aula criada com sucesso!', 'success')
-            return render_template('editar_aula.html', title="Nova Aula", year=current_year, current_user=current_user, aula={})
+            return render_template('aulas/editar_aula.html', title="Nova Aula", year=current_year, current_user=current_user, aula={})
         except Exception as e:
             flash(f"Ocorreu um erro ao salvar a aula: {e}", 'danger')
-            return render_template('editar_aula.html', title="Nova Aula", year=current_year, current_user=current_user, aula={})
+            return render_template('aulas/editar_aula.html', title="Nova Aula", year=current_year, current_user=current_user, aula={})
 
-    return render_template('editar_aula.html', title="Nova Aula", year=current_year, current_user=current_user, aula={})
+    return render_template('aulas/editar_aula.html', title="Nova Aula", year=current_year, current_user=current_user, aula={})
 
 
 @jax_aulas_routes.route('/jaxaulas/listar')
@@ -115,7 +115,7 @@ def listar_aulas():
                 except:
                     continue
 
-    return render_template('listar_aulas.html', title="Aulas", year=current_year, current_user=current_user, aulas=aulas)
+    return render_template('aulas/listar_aulas.html', title="Aulas", year=current_year, current_user=current_user, aulas=aulas)
 
 @jax_aulas_routes.route('/jaxaulas/editar/<int:aula_id>', methods=['GET', 'POST'])
 def editar_aula(aula_id):
@@ -131,7 +131,7 @@ def editar_aula(aula_id):
 
     if not os.path.exists(json_path):
         flash('Aula não encontrada.', 'danger')
-        return redirect(url_for('listar_aulas'))
+        return redirect(url_for('aulas.listar_aulas'))
 
     with open(json_path, encoding='utf-8') as f:
         aula = json.load(f)
@@ -151,7 +151,7 @@ def editar_aula(aula_id):
         except Exception as e:
             flash(f'Erro ao editar a aula: {e}', 'danger')
 
-    return render_template('editar_aula.html', title="Editar Aula", year=current_year, current_user=current_user, aula=aula)
+    return render_template('aulas/editar_aula.html', title="Editar Aula", year=current_year, current_user=current_user, aula=aula)
 
 @jax_aulas_routes.route('/jaxaulas/remover/<int:aula_id>', methods=['POST'])
 def remover_aula(aula_id):
@@ -174,4 +174,4 @@ def remover_aula(aula_id):
     except Exception as e:
         flash(f'Erro ao remover a aula: {e}', 'danger')
 
-    return redirect(url_for('listar_aulas'))
+    return redirect(url_for('aulas.listar_aulas'))
