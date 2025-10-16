@@ -92,3 +92,26 @@ def jax_jornada():
         usuario = session['usuario']
         return render_template('public/jax_jornada.html', title='Jornada', year=current_year, current_user=usuario)
     return render_template('public/jax_jornada.html', title='Jornada', year=current_year)
+
+@public_routes.route('/educacional')
+def educacional():
+    if 'usuario' in session:
+        usuario = session['usuario']
+        return render_template('public/educacional.html', title='Educacional', year=current_year, current_user=usuario)
+    return render_template('public/educacional.html', title='Educacional', year=current_year)
+
+
+@public_routes.route('/entretenimento')
+def entretenimento():
+    if 'usuario' in session:
+        usuario = session['usuario']
+        return render_template('public/entretenimento.html', title='Entretenimento', year=current_year, current_user=usuario)
+    return render_template('public/entretenimento.html', title='Entretenimento', year=current_year)
+
+
+@public_routes.route('/empresarial')
+def empresarial():
+    if 'usuario' in session:
+        usuario = session['usuario']
+        return render_template('public/empresarial.html', title='Empresarial', year=current_year, current_user=usuario)
+    return render_template('public/empresarial.html', title='Empresarial', year=current_year)

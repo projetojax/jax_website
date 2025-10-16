@@ -1,0 +1,266 @@
+{% extends 'base.html' %}
+{% block title %}Educacional - JAX (Campus RPG){% endblock %}
+
+{% block content %}
+<div class="edu-container">
+  <header class="edu-top">
+    <h1>Campus JAX — Mundo Educacional</h1>
+    <div class="edu-actions">
+      <button id="btnFull" class="btn">🕹️ Tela Cheia</button>
+      <button id="btnMute" class="btn">🔊 Som</button>
+      <div class="hint">Use WASD ou setas para se mover — clique no personagem para focar</div>
+    </div>
+  </header>
+
+  <div class="game-wrap">
+    <div id="viewport" class="viewport">
+      <div id="map" class="map">
+
+        <!-- camadas de fundo -->
+        <div class="layer bg far" style="background-image:url('{{ url_for('static', filename='img/campus/corredor.jpg') }}');"></div>
+        <div class="layer bg mid" style="background-image:url('{{ url_for('static', filename='img/campus/corredor.jpg') }}'); opacity:0.9;"></div>
+
+        <!-- zonas interativas -->
+
+        <div class="zone zone-classroom" data-zone="classroom" data-allowed="true" title="Sala de Aula">
+          <img src="{{ url_for('static', filename='img/campus/sala-aula.jpg') }}" alt="Sala de Aula">
+          <div class="zone-label">Sala de Aula</div>
+        </div>
+
+        <div class="zone zone-mural" data-zone="mural" data-allowed="{{ 'true' if (current_user and current_user.profile in ['aluno','admin','funcionario']) else 'false' }}" title="Mural Oficial">
+          <img src="{{ url_for('static', filename='img/campus/mural_projetos.jpg') }}" alt="Mural">
+          <div class="zone-label">Mural Oficial</div>
+        </div>
+
+        <div class="zone zone-director" data-zone="director" data-allowed="{{ 'true' if (current_user and current_user.profile in ['admin','funcionario']) else 'false' }}" title="Diretoria">
+          <img src="{{ url_for('static', filename='img/campus/diretoria.jpg') }}" alt="Diretoria">
+          <div class="zone-label">Sala da Diretoria</div>
+        </div>
+
+        <!-- NPC -->
+        <img class="decor npc npc-1" src="{{ url_for('static', filename='img/campus/npc.png') }}" alt="NPC">
+
+        <!-- personagem -->
+        <div id="player" class="player" tabindex="0" aria-label="Personagem">
+          <img id="playerSprite" src="{{ url_for('static', filename='img/campus/personagem.jpg') }}" alt="Personagem">
+        </div>
+
+      </div>
+    </div>
+
+    <!-- painel lateral -->
+    <aside class="panel">
+      <div class="panel-block">
+        <h3>Localização</h3>
+        <div id="location">Pátio</div>
+      </div>
+
+      <div class="panel-block">
+        <h3>Ações rápidas</h3>
+        <button class="tele" data-target="park">Ir ao Parque</button>
+        <button class="tele" data-target="classroom">Ir à Sala</button>
+        <button class="tele" data-target="mural" data-allowed="{{ 'true' if (current_user and current_user.profile in ['aluno','admin','funcionario']) else 'false' }}">Ir ao Mural</button>
+        <button class="tele" data-target="director" data-allowed="{{ 'true' if (current_user and current_user.profile in ['admin','funcionario']) else 'false' }}">Ir à Diretoria</button>
+      </div>
+
+      <div class="panel-block">
+        <h3>Status</h3>
+        <div id="statusMsg">Bem-vindo ao campus.</div>
+        <div class="small">Seu acesso: 
+          {% if current_user %}
+            {{ current_user.profile }}
+          {% else %}
+            visitante
+          {% endif %}
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<style>
+:root{
+  --bg:#e6f0ff; --panel:#ffffff; --accent:#0b6efd;
+  --map-w:2200px; --map-h:1200px;
+  font-family: Inter, system-ui, -apple-system, Roboto, sans-serif;
+}
+
+.edu-container{padding:1rem 1.25rem}
+.edu-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem}
+.edu-top h1{font-size:1.2rem;margin:0}
+.edu-actions{display:flex;align-items:center;gap:.6rem}
+.btn{padding:.45rem .65rem;border-radius:8px;border:0;background:var(--panel);box-shadow:0 6px 18px rgba(12,40,80,0.06);cursor:pointer}
+
+.game-wrap{display:flex;gap:1rem;align-items:flex-start}
+.viewport{width:1000px;height:600px;border-radius:12px;overflow:hidden;border:1px solid rgba(15,23,36,0.06);background:linear-gradient(180deg,#bfe0ff,#eaf6ff);position:relative}
+.map{width:var(--map-w);height:var(--map-h);position:relative;transform-origin:0 0}
+
+.layer.bg{position:absolute;inset:0;background-size:cover;background-position:center;will-change:transform}
+.layer.far{filter:brightness(.95) saturate(.95);transform:translateZ(-1px) scale(1.05)}
+.layer.mid{opacity:.95}
+
+.zone{position:absolute;border-radius:12px;overflow:hidden;border:2px solid rgba(255,255,255,0.5);box-shadow:0 16px 40px rgba(6,20,60,0.06);display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end}
+.zone img{width:100%;height:100%;object-fit:cover;display:block}
+.zone-label{background:linear-gradient(90deg,rgba(255,255,255,0.95),rgba(255,255,255,0.85));padding:.35rem .6rem;border-radius:10px;margin:8px;font-weight:700;font-size:.9rem;color:#0f1724;box-shadow:0 6px 18px rgba(12,40,80,0.04)}
+
+.zone-park{left:140px;top:120px;width:620px;height:360px}
+.zone-classroom{left:820px;top:110px;width:640px;height:360px}
+.zone-mural{left:140px;top:520px;width:640px;height:360px}
+.zone-director{left:820px;top:520px;width:620px;height:260px}
+
+.player{position:absolute;width:64px;height:80px;left:600px;top:400px;transform:translate(-50%,-50%);z-index:40;outline:none}
+.player img{width:64px;height:80px;display:block;pointer-events:none;user-select:none}
+
+.npc{position:absolute;width:110px;height:150px;left:700px;top:420px;z-index:30;border-radius:6px;object-fit:cover;box-shadow:0 8px 30px rgba(6,20,60,0.06)}
+
+.panel{width:280px;display:flex;flex-direction:column;gap:.7rem}
+.panel-block{background:var(--panel);padding:.7rem;border-radius:10px;box-shadow:0 8px 24px rgba(12,40,80,0.05)}
+
+.hint{font-size:.85rem;color:#475569;margin-left:.4rem}
+.small{font-size:.85rem;color:#64748b;margin-top:.4rem}
+
+:fullscreen .viewport{width:100vw;height:100vh;border-radius:0}
+:fullscreen body{background:#09121a}
+</style>
+
+<script>
+const PERMS = {
+  park: true,
+  classroom: true,
+  mural: {{ 'true' if (current_user and current_user.profile in ['aluno','admin','funcionario']) else 'false' }},
+  director: {{ 'true' if (current_user and current_user.profile in ['admin','funcionario']) else 'false' }}
+};
+
+(function(){
+  const viewport = document.getElementById('viewport');
+  const map = document.getElementById('map');
+  const player = document.getElementById('player');
+  const playerSprite = document.getElementById('playerSprite');
+  const zones = Array.from(document.querySelectorAll('.zone'));
+  const locationBox = document.getElementById('location');
+  const statusBox = document.getElementById('statusMsg');
+
+  const MAP_W = parseInt(getComputedStyle(map).width);
+  const MAP_H = parseInt(getComputedStyle(map).height);
+  let cam = {x: 0, y: 0};
+  const VIEW_W = viewport.clientWidth;
+  const VIEW_H = viewport.clientHeight;
+
+  const speed = 3.6;
+  let pos = {x:600, y:400};
+  let dir = 'down';
+  let keys = {};
+
+  const SPRITES = {
+    idle_down: '{{ url_for("static", filename="img/campus/personagem.jpg") }}',
+    walk: '{{ url_for("static", filename="img/campus/personagem.jpg") }}'
+  };
+
+  playerSprite.src = SPRITES.idle_down;
+
+  function clamp(n,a,b){return Math.max(a,Math.min(b,n));}
+  function updateCamera(){
+    cam.x = clamp(pos.x - VIEW_W/2,0,MAP_W-VIEW_W);
+    cam.y = clamp(pos.y - VIEW_H/2,0,MAP_H-VIEW_H);
+    map.style.transform = `translate(${-cam.x}px,${-cam.y}px)`;
+    const far = document.querySelector('.layer.far');
+    const mid = document.querySelector('.layer.mid');
+    if(far) far.style.transform = `translate(${(-cam.x*0.12)}px,${(-cam.y*0.06)}px)`;
+    if(mid) mid.style.transform = `translate(${(-cam.x*0.25)}px,${(-cam.y*0.12)}px)`;
+  }
+
+  function updatePlayerDOM(){
+    player.style.left = pos.x+'px';
+    player.style.top = pos.y+'px';
+  }
+
+  function detectZone(){
+    const pRect = {left:pos.x-24, top:pos.y-40, right:pos.x+24, bottom:pos.y+40};
+    let found = null;
+    zones.forEach(z=>{
+      const rect = z.getBoundingClientRect();
+      const mapRect = map.getBoundingClientRect();
+      const zleft = rect.left - mapRect.left + cam.x;
+      const ztop = rect.top - mapRect.top + cam.y;
+      const zright = zleft + rect.width;
+      const zbottom = ztop + rect.height;
+      if(!(pRect.right<zleft || pRect.left>zright || pRect.bottom<ztop || pRect.top>zbottom)){
+        found = z.dataset.zone;
+      }
+    });
+    return found;
+  }
+
+  function enterZone(zone){
+    if(!zone){locationBox.innerText='Pátio'; return;}
+    locationBox.innerText = zone.charAt(0).toUpperCase()+zone.slice(1);
+    const allowed = PERMS[zone]===true||PERMS[zone]==='true'||PERMS[zone]==='True';
+    if(!allowed){
+      statusBox.innerText = `Acesso negado a ${locationBox.innerText}.`;
+      if(dir==='left') pos.x+=60;
+      if(dir==='right') pos.x-=60;
+      if(dir==='up') pos.y+=60;
+      if(dir==='down') pos.y-=60;
+      updatePlayerDOM();
+      updateCamera();
+    } else {
+      statusBox.innerText = `Acesso permitido a ${locationBox.innerText}.`;
+    }
+  }
+
+  window.addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(['arrowup','arrowdown','arrowleft','arrowright'].includes(e.key.toLowerCase())) e.preventDefault();});
+  window.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
+
+  document.querySelectorAll('.tele').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const target = btn.dataset.target;
+      const allowedAttr = btn.dataset.allowed;
+      const allowed = typeof allowedAttr!=='undefined'?allowedAttr==='true':PERMS[target]===true||PERMS[target]==='true';
+      if(!allowed){statusBox.innerText=`Acesso negado à ${target}.`; return;}
+      const zoneEl = document.querySelector(`.zone-${target}`);
+      if(zoneEl){
+        const mapRect = map.getBoundingClientRect();
+        const zRect = zoneEl.getBoundingClientRect();
+        const centerX = (zRect.left - mapRect.left)+zRect.width/2+cam.x;
+        const centerY = (zRect.top - mapRect.top)+zRect.height/2+cam.y;
+        pos.x = clamp(centerX,30,MAP_W-30);
+        pos.y = clamp(centerY,40,MAP_H-40);
+        updatePlayerDOM();
+        updateCamera();
+        statusBox.innerText = `Teletransportado para ${target}.`;
+        enterZone(target);
+      }
+    });
+  });
+
+  document.getElementById('btnFull').addEventListener('click',()=>{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();});
+  let muted=false;
+  document.getElementById('btnMute').addEventListener('click',()=>{muted=!muted;document.getElementById('btnMute').innerText=muted?'🔇 Som':'🔊 Som';});
+
+  function loop(){
+    let moved=false;
+    if(keys['a']||keys['arrowleft']){pos.x-=speed; dir='left'; moved=true;}
+    if(keys['d']||keys['arrowright']){pos.x+=speed; dir='right'; moved=true;}
+    if(keys['w']||keys['arrowup']){pos.y-=speed; dir='up'; moved=true;}
+    if(keys['s']||keys['arrowdown']){pos.y+=speed; dir='down'; moved=true;}
+
+    pos.x=clamp(pos.x,24,MAP_W-24);
+    pos.y=clamp(pos.y,40,MAP_H-40);
+
+    playerSprite.src=moved?SPRITES.walk:SPRITES.idle_down;
+
+    updatePlayerDOM();
+    updateCamera();
+    enterZone(detectZone());
+
+    requestAnimationFrame(loop);
+  }
+
+  updatePlayerDOM();
+  updateCamera();
+  loop();
+  player.addEventListener('click',()=>player.focus());
+
+})();
+</script>
+{% endblock %}
