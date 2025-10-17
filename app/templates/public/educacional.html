@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Educacional - JAX (Campus RPG){% endblock %}
+{% block title %}Educacional - JAX{% endblock %}
 
 {% block content %}
 <div class="edu-container">
@@ -21,6 +21,10 @@
         <div class="layer bg mid" style="background-image:url('{{ url_for('static', filename='img/campus/corredor.jpg') }}'); opacity:0.9;"></div>
 
         <!-- zonas interativas -->
+        <div class="zone zone-park" data-zone="park" data-allowed="true" title="Entrada">
+          <img src="{{ url_for('static', filename='img/campus/entrada.jpg') }}" alt="Entrada">
+          <div class="zone-label">Entrada</div>
+        </div>
 
         <div class="zone zone-classroom" data-zone="classroom" data-allowed="true" title="Sala de Aula">
           <img src="{{ url_for('static', filename='img/campus/sala-aula.jpg') }}" alt="Sala de Aula">
@@ -35,6 +39,11 @@
         <div class="zone zone-director" data-zone="director" data-allowed="{{ 'true' if (current_user and current_user.profile in ['admin','funcionario']) else 'false' }}" title="Diretoria">
           <img src="{{ url_for('static', filename='img/campus/diretoria.jpg') }}" alt="Diretoria">
           <div class="zone-label">Sala da Diretoria</div>
+        </div>
+
+        <div class="zone zone-teachers" data-zone="teachers" data-allowed="{{ 'true' if (current_user and current_user.profile in ['admin','funcionario']) else 'false' }}" title="Sala dos Professores">
+          <img src="{{ url_for('static', filename='img/campus/sala-professores.png') }}" alt="Sala dos Professores">
+          <div class="zone-label">Sala dos Professores</div>
         </div>
 
         <!-- NPC -->
@@ -61,12 +70,13 @@
         <button class="tele" data-target="classroom">Ir à Sala</button>
         <button class="tele" data-target="mural" data-allowed="{{ 'true' if (current_user and current_user.profile in ['aluno','admin','funcionario']) else 'false' }}">Ir ao Mural</button>
         <button class="tele" data-target="director" data-allowed="{{ 'true' if (current_user and current_user.profile in ['admin','funcionario']) else 'false' }}">Ir à Diretoria</button>
+        <button class="tele" data-target="teachers" data-allowed="{{ 'true' if (current_user and current_user.profile in ['admin','funcionario']) else 'false' }}">Ir à Sala dos Professores</button>
       </div>
 
       <div class="panel-block">
         <h3>Status</h3>
         <div id="statusMsg">Bem-vindo ao campus.</div>
-        <div class="small">Seu acesso: 
+        <div class="small">Seu acesso:
           {% if current_user %}
             {{ current_user.profile }}
           {% else %}
@@ -78,10 +88,46 @@
   </div>
 </div>
 
+<!-- 🔥 MODAL DE BOAS-VINDAS -->
+<div id="modalMPC" class="modal hidden">
+  <div class="modal-content">
+    <h2>🎓 Bem-vindo!</h2>
+    <p>Seja bem-vindo ao Universo Educacional do JAX! Aqui você irá aprender tudo para se capacitar ao mercado e à cidadania contemporânea.</p>
+    <button id="closeModal" class="btn">Entrar no Campus</button>
+  </div>
+</div>
+
 <style>
+/* estilo do modal */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:1000;
+  transition: opacity .3s ease;
+}
+.modal.hidden {opacity:0;pointer-events:none;}
+.modal-content {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 14px;
+  max-width: 520px;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+  animation: popIn .4s ease;
+}
+.modal-content h2 {color:#0b6efd;margin-bottom:.5rem;font-size:1.5rem;}
+.modal-content p {font-size:1rem;color:#334155;margin-bottom:1.2rem;}
+.modal-content .btn {background:#0b6efd;color:#fff;padding:.5rem 1rem;border-radius:8px;border:none;cursor:pointer;font-weight:600;}
+@keyframes popIn {from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+
+{% raw %}
 :root{
   --bg:#e6f0ff; --panel:#ffffff; --accent:#0b6efd;
-  --map-w:2200px; --map-h:1200px;
+  --map-w:2600px; --map-h:1400px;
   font-family: Inter, system-ui, -apple-system, Roboto, sans-serif;
 }
 
@@ -107,6 +153,7 @@
 .zone-classroom{left:820px;top:110px;width:640px;height:360px}
 .zone-mural{left:140px;top:520px;width:640px;height:360px}
 .zone-director{left:820px;top:520px;width:620px;height:260px}
+.zone-teachers{left:1550px;top:520px;width:620px;height:300px}
 
 .player{position:absolute;width:64px;height:80px;left:600px;top:400px;transform:translate(-50%,-50%);z-index:40;outline:none}
 .player img{width:64px;height:80px;display:block;pointer-events:none;user-select:none}
@@ -121,6 +168,7 @@
 
 :fullscreen .viewport{width:100vw;height:100vh;border-radius:0}
 :fullscreen body{background:#09121a}
+{% endraw %}
 </style>
 
 <script>
@@ -128,7 +176,8 @@ const PERMS = {
   park: true,
   classroom: true,
   mural: {{ 'true' if (current_user and current_user.profile in ['aluno','admin','funcionario']) else 'false' }},
-  director: {{ 'true' if (current_user and current_user.profile in ['admin','funcionario']) else 'false' }}
+  director: {{ 'true' if (current_user and current_user.profile in ['admin','funcionario']) else 'false' }},
+  teachers: {{ 'true' if (current_user and current_user.profile in ['admin','funcionario']) else 'false' }}
 };
 
 (function(){
@@ -139,6 +188,11 @@ const PERMS = {
   const zones = Array.from(document.querySelectorAll('.zone'));
   const locationBox = document.getElementById('location');
   const statusBox = document.getElementById('statusMsg');
+  const modal = document.getElementById('modalMPC');
+  const closeModal = document.getElementById('closeModal');
+
+  let modalShown = false;
+  closeModal.addEventListener('click',()=>modal.classList.add('hidden'));
 
   const MAP_W = parseInt(getComputedStyle(map).width);
   const MAP_H = parseInt(getComputedStyle(map).height);
@@ -156,24 +210,16 @@ const PERMS = {
     walk: '{{ url_for("static", filename="img/campus/personagem.jpg") }}'
   };
 
-  playerSprite.src = SPRITES.idle_down;
-
   function clamp(n,a,b){return Math.max(a,Math.min(b,n));}
   function updateCamera(){
     cam.x = clamp(pos.x - VIEW_W/2,0,MAP_W-VIEW_W);
     cam.y = clamp(pos.y - VIEW_H/2,0,MAP_H-VIEW_H);
     map.style.transform = `translate(${-cam.x}px,${-cam.y}px)`;
-    const far = document.querySelector('.layer.far');
-    const mid = document.querySelector('.layer.mid');
-    if(far) far.style.transform = `translate(${(-cam.x*0.12)}px,${(-cam.y*0.06)}px)`;
-    if(mid) mid.style.transform = `translate(${(-cam.x*0.25)}px,${(-cam.y*0.12)}px)`;
   }
-
   function updatePlayerDOM(){
     player.style.left = pos.x+'px';
     player.style.top = pos.y+'px';
   }
-
   function detectZone(){
     const pRect = {left:pos.x-24, top:pos.y-40, right:pos.x+24, bottom:pos.y+40};
     let found = null;
@@ -192,46 +238,22 @@ const PERMS = {
   }
 
   function enterZone(zone){
-    if(!zone){locationBox.innerText='Pátio'; return;}
+    if(!zone){locationBox.innerText='Pátio';return;}
     locationBox.innerText = zone.charAt(0).toUpperCase()+zone.slice(1);
-    const allowed = PERMS[zone]===true||PERMS[zone]==='true'||PERMS[zone]==='True';
+    const allowed = PERMS[zone]===true||PERMS[zone]==='true';
     if(!allowed){
       statusBox.innerText = `Acesso negado a ${locationBox.innerText}.`;
-      if(dir==='left') pos.x+=60;
-      if(dir==='right') pos.x-=60;
-      if(dir==='up') pos.y+=60;
-      if(dir==='down') pos.y-=60;
-      updatePlayerDOM();
-      updateCamera();
     } else {
       statusBox.innerText = `Acesso permitido a ${locationBox.innerText}.`;
+      if(zone==='park' && !modalShown){
+        modal.classList.remove('hidden');
+        modalShown = true;
+      }
     }
   }
 
-  window.addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(['arrowup','arrowdown','arrowleft','arrowright'].includes(e.key.toLowerCase())) e.preventDefault();});
+  window.addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(['arrowup','arrowdown','arrowleft','arrowright'].includes(e.key.toLowerCase()))e.preventDefault();});
   window.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
-
-  document.querySelectorAll('.tele').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      const target = btn.dataset.target;
-      const allowedAttr = btn.dataset.allowed;
-      const allowed = typeof allowedAttr!=='undefined'?allowedAttr==='true':PERMS[target]===true||PERMS[target]==='true';
-      if(!allowed){statusBox.innerText=`Acesso negado à ${target}.`; return;}
-      const zoneEl = document.querySelector(`.zone-${target}`);
-      if(zoneEl){
-        const mapRect = map.getBoundingClientRect();
-        const zRect = zoneEl.getBoundingClientRect();
-        const centerX = (zRect.left - mapRect.left)+zRect.width/2+cam.x;
-        const centerY = (zRect.top - mapRect.top)+zRect.height/2+cam.y;
-        pos.x = clamp(centerX,30,MAP_W-30);
-        pos.y = clamp(centerY,40,MAP_H-40);
-        updatePlayerDOM();
-        updateCamera();
-        statusBox.innerText = `Teletransportado para ${target}.`;
-        enterZone(target);
-      }
-    });
-  });
 
   document.getElementById('btnFull').addEventListener('click',()=>{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();});
   let muted=false;
@@ -239,28 +261,22 @@ const PERMS = {
 
   function loop(){
     let moved=false;
-    if(keys['a']||keys['arrowleft']){pos.x-=speed; dir='left'; moved=true;}
-    if(keys['d']||keys['arrowright']){pos.x+=speed; dir='right'; moved=true;}
-    if(keys['w']||keys['arrowup']){pos.y-=speed; dir='up'; moved=true;}
-    if(keys['s']||keys['arrowdown']){pos.y+=speed; dir='down'; moved=true;}
-
+    if(keys['a']||keys['arrowleft']){pos.x-=speed;dir='left';moved=true;}
+    if(keys['d']||keys['arrowright']){pos.x+=speed;dir='right';moved=true;}
+    if(keys['w']||keys['arrowup']){pos.y-=speed;dir='up';moved=true;}
+    if(keys['s']||keys['arrowdown']){pos.y+=speed;dir='down';moved=true;}
     pos.x=clamp(pos.x,24,MAP_W-24);
     pos.y=clamp(pos.y,40,MAP_H-40);
-
     playerSprite.src=moved?SPRITES.walk:SPRITES.idle_down;
-
     updatePlayerDOM();
     updateCamera();
     enterZone(detectZone());
-
     requestAnimationFrame(loop);
   }
 
   updatePlayerDOM();
   updateCamera();
   loop();
-  player.addEventListener('click',()=>player.focus());
-
 })();
 </script>
 {% endblock %}

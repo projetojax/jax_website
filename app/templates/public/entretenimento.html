@@ -1,13 +1,224 @@
 {% extends 'base.html' %}
+{% block title %}Entretenimento - JAX{% endblock %}
+
 {% block content %}
-<section class="section">
-  <div class="hero-container">
-    <h1>JAX Entretenimento</h1>
-    <p>Conteúdos leves, vídeos e interações da comunidade JAX.</p>
-    <div class="hero-buttons">
-      <a href="/galeria" class="hero-btn">Galeria</a>
-      <a href="/jax_jornada" class="hero-btn">Jornada JAX</a>
+<div class="edu-container">
+  <header class="edu-top">
+    <h1>Parque Municipal — Universo Entretenimento JAX</h1>
+    <div class="edu-actions">
+      <button id="btnFull" class="btn">🕹️ Tela Cheia</button>
+      <button id="btnMute" class="btn">🔊 Som</button>
+      <div class="hint">Use WASD ou setas para se mover — clique no personagem para focar</div>
     </div>
+  </header>
+
+  <div class="game-wrap">
+    <div id="viewport" class="viewport">
+      <div id="map" class="map">
+
+        <!-- camadas de fundo -->
+        <div class="layer bg far" style="background-image:url('{{ url_for('static', filename='img/parque/parque_municipal.jpeg') }}');"></div>
+        <div class="layer bg mid" style="background-image:url('{{ url_for('static', filename='img/parque/parque_municipal.jpeg') }}'); opacity:0.9;"></div>
+
+        <!-- zonas interativas -->
+        <div class="zone zone-entry" data-zone="entry" data-allowed="true" title="Entrada do Parque">
+          <img src="{{ url_for('static', filename='img/parque/entrada_parque-municipal.jpeg') }}" alt="Entrada do Parque">
+          <div class="zone-label">Entrada</div>
+        </div>
+
+        <div class="zone zone-lake" data-zone="lake" data-allowed="true" title="Lago Central">
+          <img src="{{ url_for('static', filename='img/parque/lago-central.jpeg') }}" alt="Lago Central">
+          <div class="zone-label">Lago Central</div>
+        </div>
+
+        <div class="zone zone-sport" data-zone="sport" data-allowed="true" title="Espaço Esporte">
+          <img src="{{ url_for('static', filename='img/parque/espaco-esporte.jpeg') }}" alt="Espaço Esporte">
+          <div class="zone-label">Espaço Esporte</div>
+        </div>
+
+        <div class="zone zone-culture" data-zone="culture" data-allowed="true" title="Espaço Cultura">
+          <img src="{{ url_for('static', filename='img/parque/espaco-cultura.jpg') }}" alt="Espaço Cultura">
+          <div class="zone-label">Espaço Cultura</div>
+        </div>
+
+        <div class="zone zone-nerd" data-zone="nerd" data-allowed="true" title="Espaço Nerd">
+          <img src="{{ url_for('static', filename='img/parque/espaco-nerd.jpg') }}" alt="Espaço Nerd">
+          <div class="zone-label">Espaço Nerd</div>
+        </div>
+
+        <!-- NPC -->
+        <img class="decor npc npc-1" src="{{ url_for('static', filename='img/parque/npc.png') }}" alt="NPC">
+
+        <!-- personagem -->
+        <div id="player" class="player" tabindex="0" aria-label="Personagem">
+          <img id="playerSprite" src="{{ url_for('static', filename='img/parque/personagem.jpg') }}" alt="Personagem">
+        </div>
+      </div>
+    </div>
+
+    <!-- painel lateral -->
+    <aside class="panel">
+      <div class="panel-block">
+        <h3>Localização</h3>
+        <div id="location">Entrada</div>
+      </div>
+
+      <div class="panel-block">
+        <h3>Explorar</h3>
+        <button class="tele" data-target="entry">Ir à Entrada</button>
+        <button class="tele" data-target="lake">Ir ao Lago Central</button>
+        <button class="tele" data-target="sport">Ir ao Espaço Esporte</button>
+        <button class="tele" data-target="culture">Ir ao Espaço Cultura</button>
+        <button class="tele" data-target="nerd">Ir ao Espaço Nerd</button>
+      </div>
+
+      <div class="panel-block">
+        <h3>Status</h3>
+        <div id="statusMsg">Bem-vindo ao parque.</div>
+        <div class="small">Seu acesso:
+          {% if current_user %}
+            {{ current_user.profile }}
+          {% else %}
+            visitante
+          {% endif %}
+        </div>
+      </div>
+    </aside>
   </div>
-</section>
+</div>
+
+<!-- 🪴 MODAL DE BOAS-VINDAS -->
+<div id="modalMPC" class="modal hidden">
+  <div class="modal-content">
+    <h2>🎡 Bem-vindo!</h2>
+    <p>Seja bem-vindo ao Universo Entretenimento do JAX! Aqui você irá descontrair e lidar com sua saúde mental.</p>
+    <button id="closeModal" class="btn">Entrar no Parque</button>
+  </div>
+</div>
+
+<style>
+{% raw %}
+:root{
+  --bg:#dfffee; --panel:#ffffff; --accent:#16a34a;
+  --map-w:2600px; --map-h:1400px;
+  font-family: Inter, system-ui, -apple-system, Roboto, sans-serif;
+}
+.edu-container{padding:1rem 1.25rem}
+.edu-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem}
+.edu-top h1{font-size:1.2rem;margin:0;color:#065f46}
+.edu-actions{display:flex;align-items:center;gap:.6rem}
+.btn{padding:.45rem .65rem;border-radius:8px;border:0;background:var(--panel);box-shadow:0 6px 18px rgba(12,40,80,0.06);cursor:pointer}
+
+.game-wrap{display:flex;gap:1rem;align-items:flex-start}
+.viewport{width:1000px;height:600px;border-radius:12px;overflow:hidden;border:1px solid rgba(15,23,36,0.06);background:linear-gradient(180deg,#a7f3d0,#dcfce7);position:relative}
+.map{width:var(--map-w);height:var(--map-h);position:relative;transform-origin:0 0}
+.layer.bg{position:absolute;inset:0;background-size:cover;background-position:center;will-change:transform}
+.layer.far{filter:brightness(.95) saturate(.95);transform:translateZ(-1px) scale(1.05)}
+.layer.mid{opacity:.95}
+.zone{position:absolute;border-radius:12px;overflow:hidden;border:2px solid rgba(255,255,255,0.5);box-shadow:0 16px 40px rgba(6,20,60,0.06);display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end}
+.zone img{width:100%;height:100%;object-fit:cover;display:block}
+.zone-label{background:linear-gradient(90deg,rgba(255,255,255,0.95),rgba(255,255,255,0.85));padding:.35rem .6rem;border-radius:10px;margin:8px;font-weight:700;font-size:.9rem;color:#064e3b;box-shadow:0 6px 18px rgba(12,40,80,0.04)}
+
+.zone-entry{left:140px;top:120px;width:620px;height:360px}
+.zone-lake{left:820px;top:110px;width:640px;height:360px}
+.zone-sport{left:140px;top:520px;width:640px;height:360px}
+.zone-culture{left:820px;top:520px;width:620px;height:260px}
+.zone-nerd{left:1550px;top:520px;width:620px;height:300px}
+
+.player{position:absolute;width:64px;height:80px;left:600px;top:400px;transform:translate(-50%,-50%);z-index:40;outline:none}
+.player img{width:64px;height:80px;display:block;pointer-events:none;user-select:none}
+.npc{position:absolute;width:110px;height:150px;left:700px;top:420px;z-index:30;border-radius:6px;object-fit:cover;box-shadow:0 8px 30px rgba(6,20,60,0.06)}
+
+.panel{width:280px;display:flex;flex-direction:column;gap:.7rem}
+.panel-block{background:var(--panel);padding:.7rem;border-radius:10px;box-shadow:0 8px 24px rgba(12,40,80,0.05)}
+
+.hint{font-size:.85rem;color:#475569;margin-left:.4rem}
+.small{font-size:.85rem;color:#64748b;margin-top:.4rem}
+
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;z-index:1000;transition:opacity .3s ease}
+.modal.hidden{opacity:0;pointer-events:none}
+.modal-content{background:#fff;padding:2rem;border-radius:14px;max-width:520px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,0.25);animation:popIn .4s ease}
+.modal-content h2{color:#16a34a;margin-bottom:.5rem;font-size:1.5rem}
+.modal-content p{font-size:1rem;color:#334155;margin-bottom:1.2rem}
+.modal-content .btn{background:#16a34a;color:#fff;padding:.5rem 1rem;border-radius:8px;border:none;cursor:pointer;font-weight:600}
+@keyframes popIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1)}
+:fullscreen .viewport{width:100vw;height:100vh;border-radius:0}
+{% endraw %}
+</style>
+
+<script>
+(function(){
+  const viewport=document.getElementById('viewport');
+  const map=document.getElementById('map');
+  const player=document.getElementById('player');
+  const playerSprite=document.getElementById('playerSprite');
+  const zones=Array.from(document.querySelectorAll('.zone'));
+  const locationBox=document.getElementById('location');
+  const statusBox=document.getElementById('statusMsg');
+  const modal=document.getElementById('modalMPC');
+  const closeModal=document.getElementById('closeModal');
+
+  // ✅ Mostra o modal assim que a página carrega
+  modal.classList.remove('hidden');
+
+  closeModal.addEventListener('click',()=>modal.classList.add('hidden'));
+
+  const MAP_W=parseInt(getComputedStyle(map).width);
+  const MAP_H=parseInt(getComputedStyle(map).height);
+  const VIEW_W=viewport.clientWidth;
+  const VIEW_H=viewport.clientHeight;
+  let pos={x:600,y:400},cam={x:0,y:0};
+  let keys={};
+  const speed=3.5;
+
+  const SPRITES={
+    idle:"{{ url_for('static', filename='img/parque/personagem.jpg') }}",
+    walk:"{{ url_for('static', filename='img/parque/personagem.jpg') }}"
+  };
+
+  function clamp(n,a,b){return Math.max(a,Math.min(b,n));}
+  function updateCamera(){
+    cam.x=clamp(pos.x-VIEW_W/2,0,MAP_W-VIEW_W);
+    cam.y=clamp(pos.y-VIEW_H/2,0,MAP_H-VIEW_H);
+    map.style.transform=`translate(${-cam.x}px,${-cam.y}px)`;
+  }
+  function updatePlayer(){player.style.left=pos.x+'px';player.style.top=pos.y+'px';}
+  function detectZone(){
+    const pRect={left:pos.x-24,top:pos.y-40,right:pos.x+24,bottom:pos.y+40};
+    let found=null;
+    zones.forEach(z=>{
+      const rect=z.getBoundingClientRect(),mapRect=map.getBoundingClientRect();
+      const zl=rect.left-mapRect.left+cam.x,zt=rect.top-mapRect.top+cam.y;
+      const zr=zl+rect.width,zb=zt+rect.height;
+      if(!(pRect.right<zl||pRect.left>zr||pRect.bottom<zt||pRect.top>zb))found=z.dataset.zone;
+    });
+    return found;
+  }
+  function enterZone(zone){
+    if(!zone){locationBox.innerText='Entrada';return;}
+    locationBox.innerText=zone.charAt(0).toUpperCase()+zone.slice(1);
+    statusBox.innerText=`Explorando ${locationBox.innerText}.`;
+  }
+
+  window.addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(['arrowup','arrowdown','arrowleft','arrowright'].includes(e.key.toLowerCase()))e.preventDefault();});
+  window.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
+
+  document.getElementById('btnFull').addEventListener('click',()=>{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();});
+  let muted=false;document.getElementById('btnMute').addEventListener('click',()=>{muted=!muted;document.getElementById('btnMute').innerText=muted?'🔇 Som':'🔊 Som';});
+
+  function loop(){
+    let moved=false;
+    if(keys['a']||keys['arrowleft']){pos.x-=speed;moved=true;}
+    if(keys['d']||keys['arrowright']){pos.x+=speed;moved=true;}
+    if(keys['w']||keys['arrowup']){pos.y-=speed;moved=true;}
+    if(keys['s']||keys['arrowdown']){pos.y+=speed;moved=true;}
+    pos.x=clamp(pos.x,24,MAP_W-24);pos.y=clamp(pos.y,40,MAP_H-40);
+    playerSprite.src=moved?SPRITES.walk:SPRITES.idle;
+    updatePlayer();updateCamera();enterZone(detectZone());
+    requestAnimationFrame(loop);
+  }
+
+  updatePlayer();updateCamera();loop();
+})();
+</script>
 {% endblock %}
