@@ -32,7 +32,7 @@ def home():
 
     if 'usuario' in session:
         usuario = session['usuario']
-        return render_template('public/home.html', title='Home', year=current_year, current_user=usuario)
+        return render_template('public/inicial.html', title='Home', year=current_year, current_user=usuario)
 
     return render_template('public/home.html', title='Home', year=current_year)
 
