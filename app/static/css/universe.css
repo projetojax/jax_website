@@ -1,0 +1,342 @@
+/* Reset e Variáveis */
+:root {
+  --panel: #fff;
+  --accent: #2563eb;
+  --accent-educacional: #0b6efd;
+  --accent-empresarial: #1d4ed8;
+  --accent-entretenimento: #16a34a;
+  --bg-inicial: #000;
+  --bg-educacional: linear-gradient(180deg, #bfe0ff, #eaf6ff);
+  --bg-empresarial: linear-gradient(180deg, #dbeafe, #eff6ff);
+  --bg-entretenimento: linear-gradient(180deg, #a7f3d0, #dcfce7);
+  --map-w: 2000px;
+  --map-h: 1200px;
+  --campus-w: 2600px;
+  --campus-h: 1400px;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+/* Layout Base */
+.universe-container {
+  padding: 1rem;
+}
+
+.universe-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: .75rem;
+  padding: .4rem .8rem;
+  background: rgba(255,255,255,0.8);
+  border-radius: 10px;
+  backdrop-filter: blur(8px);
+}
+
+.universe-header h1 {
+  font-size: 1.3rem;
+  margin: 0;
+  color: rgba(0,0,255,0.8);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+}
+
+.ctrl-btn {
+  background: var(--panel);
+  border: 0;
+  border-radius: 8px;
+  padding: .45rem .7rem;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.hint {
+  font-size: .85rem;
+  color: #475569;
+}
+
+.universe-main {
+  display: flex;
+  gap: 1rem;
+}
+
+/* Viewport e Mapa */
+.viewport {
+  width: 1000px;
+  height: 600px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+}
+
+.map-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: transparent;
+  transform-origin: 0 0;
+}
+
+/* Mapa inicial é menor */
+.map-inicial {
+  width: var(--map-w);
+  height: var(--map-h);
+}
+
+/* Mapas campus são maiores */
+.map-campus {
+  width: var(--campus-w);
+  height: var(--campus-h);
+}
+
+.background {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+}
+
+/* Camadas de Parallax */
+.layer.bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  will-change: transform;
+}
+
+.layer.far {
+  filter: brightness(.95) saturate(.95);
+}
+
+.layer.mid {
+  opacity: .95;
+}
+
+/* Zonas Interativas */
+.zone {
+  position: absolute;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid rgba(255,255,255,0.5);
+  box-shadow: 0 16px 40px rgba(6,20,60,0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  cursor: pointer;
+  transition: transform .25s;
+  z-index: 2;
+}
+
+.zone:hover {
+  transform: scale(1.03);
+}
+
+.zone img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.zone-label {
+  background: linear-gradient(90deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85));
+  padding: .35rem .6rem;
+  border-radius: 10px;
+  margin: 8px;
+  font-weight: 700;
+  font-size: .9rem;
+  box-shadow: 0 6px 18px rgba(12,40,80,0.04);
+}
+
+/* Personagem */
+.player {
+  position: absolute;
+  width: 64px;
+  height: 80px;
+  z-index: 40;
+  outline: none;
+}
+
+.player img {
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* NPC */
+.npc {
+  position: absolute;
+  width: 110px;
+  height: 150px;
+  z-index: 30;
+  border-radius: 6px;
+  object-fit: cover;
+  box-shadow: 0 8px 30px rgba(6,20,60,0.06);
+}
+
+/* Painel Lateral */
+.side-panel {
+  width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: .7rem;
+}
+
+.panel-block {
+  background: var(--panel);
+  padding: .8rem;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+}
+
+.small {
+  font-size: .85rem;
+  color: #64748b;
+  margin-top: .4rem;
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  transition: opacity .3s ease;
+}
+
+.modal.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 14px;
+  max-width: 520px;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+  animation: popIn .4s ease;
+}
+
+.modal-content h2 {
+  margin-bottom: .5rem;
+  font-size: 1.5rem;
+}
+
+.modal-content p {
+  font-size: 1rem;
+  color: #334155;
+  margin-bottom: 1.2rem;
+}
+
+.modal-btn {
+  background: var(--accent);
+  color: #fff;
+  padding: .5rem 1rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+@keyframes popIn {
+  from { transform: scale(.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Fullscreen */
+:fullscreen .viewport {
+  width: 100vw;
+  height: 100vh;
+  border-radius: 0;
+}
+
+:fullscreen body {
+  background: #09121a;
+}
+
+/* Temas específicos por área */
+.theme-inicial .viewport {
+  background: var(--bg-inicial);
+}
+
+.theme-inicial .zone-label {
+  color: #1e3a8a;
+}
+
+.theme-educacional .viewport {
+  background: var(--bg-educacional);
+}
+
+.theme-educacional .modal-content h2 {
+  color: var(--accent-educacional);
+}
+
+.theme-educacional .modal-btn {
+  background: var(--accent-educacional);
+}
+
+.theme-empresarial .viewport {
+  background: var(--bg-empresarial);
+}
+
+.theme-empresarial .modal-content h2 {
+  color: var(--accent-empresarial);
+}
+
+.theme-empresarial .modal-btn {
+  background: var(--accent-empresarial);
+}
+
+.theme-entretenimento .viewport {
+  background: var(--bg-entretenimento);
+}
+
+.theme-entretenimento .modal-content h2 {
+  color: var(--accent-entretenimento);
+}
+
+.theme-entretenimento .modal-btn {
+  background: var(--accent-entretenimento);
+}
+
+/* Posições específicas para mapa inicial */
+.zone-jax { left: 150px; top: 500px; width: 400px; height: 250px; }
+.zone-educacional { left: 800px; top: 350px; width: 400px; height: 250px; }
+.zone-empresarial { left: 1300px; top: 350px; width: 400px; height: 250px; }
+.zone-entretenimento { left: 700px; top: 700px; width: 400px; height: 250px; }
+.zone-impacto { left: 1500px; top: 700px; width: 400px; height: 250px; }
+
+/* Posições específicas para campus educacional */
+.zone-park { left: 140px; top: 120px; width: 620px; height: 360px; }
+.zone-classroom { left: 820px; top: 110px; width: 640px; height: 360px; }
+.zone-mural { left: 140px; top: 520px; width: 640px; height: 360px; }
+.zone-director { left: 820px; top: 520px; width: 620px; height: 260px; }
+.zone-teachers { left: 1550px; top: 520px; width: 620px; height: 300px; }
+
+/* Posições específicas para empresa */
+.zone-recepcao { left: 140px; top: 120px; width: 620px; height: 360px; }
+.zone-coworking { left: 820px; top: 110px; width: 640px; height: 360px; }
+.zone-tecnica { left: 140px; top: 520px; width: 640px; height: 360px; }
+.zone-pessoas { left: 820px; top: 520px; width: 620px; height: 260px; }
+.zone-comercial { left: 1550px; top: 120px; width: 620px; height: 360px; }
+.zone-reunioes { left: 1550px; top: 520px; width: 620px; height: 300px; }
+
+/* Posições específicas para parque */
+.zone-entry { left: 140px; top: 120px; width: 620px; height: 360px; }
+.zone-lake { left: 820px; top: 110px; width: 640px; height: 360px; }
+.zone-sport { left: 140px; top: 520px; width: 640px; height: 360px; }
+.zone-culture { left: 820px; top: 520px; width: 620px; height: 260px; }
+.zone-nerd { left: 1550px; top: 520px; width: 620px; height: 300px; }

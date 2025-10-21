@@ -61,13 +61,6 @@
                     {% if current_user %}
                     <a href="/perfil" class="hero-btn">Meu Perfil</a>
                     
-                    {% if current_user.profile in ['admin', 'profissional'] %}
-                    <a href="/usuarios" class="hero-btn">Usuários</a>
-                    <a href="/admin/matriculas" class="hero-btn">Matrículas</a>
-                    <a href="/jaxresume/novo" class="hero-btn">Novo Resumo</a>
-                    <a href="/jaxaulas/novo" class="hero-btn">Nova Aula</a>
-                    {% endif %}
-                    <!-- NOVAS ABAS PRINCIPAIS -->
                     <a href="/educacional" class="hero-btn">Educacional</a>
                     <a href="/entretenimento" class="hero-btn">Entretenimento</a>
                     <a href="/empresarial" class="hero-btn">Empresarial</a>

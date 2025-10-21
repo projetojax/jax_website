@@ -3,6 +3,7 @@ import sqlite3
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+from app.models import get_user_avatar_data
 
 PATH_DB = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'static', 'data', 'jax.db')
 PATH_DB = os.path.normpath(PATH_DB)
@@ -45,23 +46,27 @@ def detalhar_usuario(user_id: int) -> dict:
         user_id = int(user_id)
     except ValueError:
         return None
+        
     conn = sqlite3.connect(PATH_DB)
     cursor = conn.cursor()
 
     cursor.execute("SELECT id, username, email, profile, date_created, nome_completo FROM users WHERE id = ?", (user_id,))
     user = cursor.fetchone()
-    conn.close()
-
+    
     if user:
-        return {
+        user_data = {
             "id": user[0],
             "username": user[1],
             "email": user[2],
             "profile": user[3],
             "date_created": user[4],
-            "nome_completo": user[5]
+            "nome_completo": user[5],
+            "avatar": get_user_avatar_data(user_id)  # Adicionar dados do avatar
         }
+        conn.close()
+        return user_data
 
+    conn.close()
     return None
 
 def criar_conta(username: str, nome_completo: str, email: str, password: str, profile: str = 'curioso') -> tuple[bool, str]:
