@@ -14,10 +14,10 @@ def usuario_tem_acesso(usuario, post):
 
     if vis == "aberta":
         return True
-    if not usuario:
+    if not usuario or not usuario.is_authenticated:  # Corrigido aqui
         return False
 
-    papel = usuario.get("papel", "").lower()  # ex: 'aluno', 'admin', 'funcionario', 'nativo'
+    papel = usuario.profile.lower()  # Agora usa o profile do User object
 
     if vis == "fechada_nativa":
         return True

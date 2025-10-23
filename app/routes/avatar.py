@@ -1,15 +1,16 @@
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
 from app.models import get_available_avatar_items, equip_avatar_item, get_user_avatar_data, init_avatar_tables
+from flask_login import current_user
 
 avatar_routes = Blueprint('avatar', __name__)
 
 @avatar_routes.route('/perfil/avatar')
 def avatar_editor():
     """Página de edição do avatar"""
-    if 'usuario' not in session:
+    if not current_user.is_authenticated:
         return redirect(url_for('auth.login'))
     
-    user_id = session['usuario']['id']
+    user_id = current_user.id
     
     # Inicializar tabelas se necessário
     init_avatar_tables()
@@ -31,15 +32,15 @@ def avatar_editor():
                          shoes_items=shoes_items,
                          accessory_items=accessory_items,
                          current_avatar=current_avatar,
-                         current_user=session['usuario'])
+                         current_user={ "id": current_user.id, "username": current_user.username, "email": current_user.email, "profile": current_user.profile })
 
 @avatar_routes.route('/api/avatar/equip', methods=['POST'])
 def equip_item():
     """API para equipar item de avatar"""
-    if 'usuario' not in session:
+    if not current_user.is_authenticated:
         return jsonify({'success': False, 'message': 'Não autenticado'})
     
-    user_id = session['usuario']['id']
+    user_id = current_user.id
     item_type = request.json.get('item_type')
     item_id = request.json.get('item_id')
     
@@ -50,18 +51,21 @@ def equip_item():
     
     if success:
         # Atualizar avatar na sessão
-        session['usuario']['avatar'] = get_user_avatar_data(user_id)
-        return jsonify({'success': True, 'message': 'Item equipado com sucesso!'})
+        try:
+            current_user.avatar = get_user_avatar_data(user_id)
+            return jsonify({'success': True, 'message': 'Item equipado com sucesso!'})
+        except:
+            return jsonify({'success': False, 'message': 'Item não localizado'})
     else:
         return jsonify({'success': False, 'message': 'Item não disponível'})
 
 @avatar_routes.route('/api/avatar/current')
 def get_current_avatar():
     """API para obter avatar atual"""
-    if 'usuario' not in session:
+    if not current_user.is_authenticated:
         return jsonify({'success': False})
     
-    user_id = session['usuario']['id']
+    user_id = current_user.id
     avatar_data = get_user_avatar_data(user_id)
     
     return jsonify({'success': True, 'avatar': avatar_data})

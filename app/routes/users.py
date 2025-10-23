@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, Flask, redirect, request, session, flash, url_for
+from flask import Blueprint, render_template, redirect, request, flash, url_for
+from flask_login import current_user, login_required
 from datetime import datetime
 from app.auth.utils import (
     detalhar_usuario,
@@ -11,61 +12,65 @@ from app.auth.utils import (
 user_routes = Blueprint("users", __name__)
 current_year = datetime.now().year
 
-from flask import session
-from datetime import timedelta
-
 @user_routes.route('/perfil', methods=['GET', 'POST'])
+@login_required
 def perfil():
-    user_id = session['usuario']['id']
-
     if request.method == 'POST':
         username = request.form.get('username')
         nome_completo = request.form.get('nome_completo')
         email = request.form.get('email')
         password = request.form.get('password')  # opcional
-        profile = detalhar_usuario(user_id).get('profile', 'curioso')  # Pega o perfil atual
-        sucesso, mensagem = atualizar_usuario(user_id, username, nome_completo, email, password, profile)
+        
+        sucesso, mensagem = atualizar_usuario(
+            current_user.id, 
+            username, 
+            nome_completo, 
+            email, 
+            password, 
+            current_user.profile  # Mantém o perfil atual
+        )
 
         if sucesso:
             flash(mensagem, 'success')
-            session['usuario']['username'] = username  # atualiza sessão
-            session['usuario']['email'] = email
+            # A sessão é automaticamente atualizada pelo Flask-Login
         else:
             flash(mensagem, 'danger')
 
-    usuario = detalhar_usuario(user_id)
-    user_name = session['usuario']
-    return render_template('users/perfil.html', usuario=usuario, year=current_year, current_user=user_name)
-
+    usuario = detalhar_usuario(current_user.id)
+    return render_template('users/perfil.html', usuario=usuario, year=current_year, current_user=current_user)
 
 @user_routes.route('/perfil/remover', methods=['POST'])
+@login_required
 def remover_proprio_usuario():
-    user_id = session['usuario']['id']
-    sucesso, mensagem = remover_usuario(user_id)
+    sucesso, mensagem = remover_usuario(current_user.id)
 
     if sucesso:
+        from flask_login import logout_user
+        logout_user()
         flash("Conta excluída com sucesso.", "info")
-        session.clear()
-        return render_template('public/home.html', title='Home', year=current_year)
+        return redirect(url_for('public.home'))
     else:
         flash(mensagem, "danger")
-        return redirect(url_for('perfil'))
-
+        return redirect(url_for('users.perfil'))
 
 @user_routes.route('/usuarios', methods=['GET'])
+@login_required
 def usuarios():
-
+    if current_user.profile != 'admin':
+        flash("Acesso restrito.", "danger")
+        return redirect(url_for('public.home'))
+    
     usuarios = listar_usuarios()
-    usuario = session['usuario']
-    return render_template('users/usuarios.html', usuarios=usuarios, year=current_year, current_user=usuario)
-
+    return render_template('users/usuarios.html', usuarios=usuarios, year=current_year, current_user=current_user)
 
 @user_routes.route('/<int:user_id>/editar', methods=['GET', 'POST'])
+@login_required
 def editar(user_id):
+    if current_user.profile != 'admin':
+        flash("Acesso restrito.", "danger")
+        return redirect(url_for('public.home'))
 
     if request.method == 'POST':
-        usuarios = listar_usuarios()
-        usuario = session['usuario']
         username = request.form.get('username')
         nome_completo = request.form.get('nome_completo')
         email = request.form.get('email')
@@ -79,29 +84,35 @@ def editar(user_id):
         else:
             flash(mensagem, 'danger')
 
-        return render_template('users/usuarios.html', usuarios=usuarios, year=current_year, current_user=usuario)
+        return redirect(url_for('users.usuarios'))
 
     usuario = detalhar_usuario(user_id)
     if not usuario:
         flash("Usuário não encontrado.", "danger")
-        return render_template('users/usuarios.html', usuarios=usuarios, year=current_year, current_user=usuario)
+        return redirect(url_for('users.usuarios'))
 
-    return render_template('users/editar_usuario.html', usuario=usuario)
-
+    return render_template('users/editar_usuario.html', usuario=usuario, year=current_year, current_user=current_user)
 
 @user_routes.route('/<int:user_id>/remover', methods=['POST'])
+@login_required
 def remover(user_id):
+    if current_user.profile != 'admin':
+        flash("Acesso restrito.", "danger")
+        return redirect(url_for('public.home'))
 
-    usuarios = listar_usuarios()
-    usuario = session['usuario']
+    # Impede que o admin se remova a si mesmo
+    if user_id == current_user.id:
+        flash("Você não pode remover sua própria conta.", "danger")
+        return redirect(url_for('users.usuarios'))
 
     sucesso, mensagem = remover_usuario(user_id)
     flash(mensagem, "success" if sucesso else "danger")
-    return render_template('users/usuarios.html', usuarios=usuarios, year=current_year, current_user=usuario)
+    return redirect(url_for('users.usuarios'))
 
 @user_routes.route('/usuarios/novo', methods=['GET', 'POST'])
+@login_required
 def novo_usuario():
-    if session.get("usuario", {}).get("profile") != "admin":
+    if current_user.profile != 'admin':
         flash("Acesso restrito.", "danger")
         return redirect(url_for('public.home'))
 
@@ -121,4 +132,4 @@ def novo_usuario():
         else:
             flash(mensagem, "danger")
 
-    return render_template('users/novo_usuario.html')
+    return render_template('users/novo_usuario.html', year=current_year, current_user=current_user)
