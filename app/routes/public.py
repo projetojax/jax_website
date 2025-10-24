@@ -1,6 +1,7 @@
-from flask import Blueprint, render_template, redirect, request, flash, url_for, session
-from flask_login import current_user
+from flask import Blueprint, render_template, redirect, request, flash, url_for, session, json
+from flask_login import current_user, login_required
 from datetime import datetime, timedelta
+from app.utils import usuario_tem_acesso
 
 public_routes = Blueprint("public", __name__)
 current_year = datetime.now().year
@@ -132,3 +133,118 @@ def empresarial():
         year=current_year, 
         current_user=current_user
     )
+
+@public_routes.route('/sala-professores/duvidas', methods=['GET', 'POST'])
+def sala_professores_duvidas():
+    if request.method == 'POST':
+        pergunta = request.form.get('pergunta')
+        autor = current_user.username if current_user else 'Anônimo'
+        
+        # Salvar no JSON (similar ao mural)
+        duvidas_file = 'app/data/duvidas_academicas.json'
+        try:
+            with open(duvidas_file, 'r', encoding='utf-8') as f:
+                duvidas = json.load(f)
+        except:
+            duvidas = []
+            
+        nova_duvida = {
+            'id': len(duvidas) + 1,
+            'pergunta': pergunta,
+            'autor': autor,
+            'data': datetime.now().strftime('%d/%m/%Y %H:%M'),
+            'resposta': None,
+            'respondido_por': None
+        }
+        
+        duvidas.append(nova_duvida)
+        
+        with open(duvidas_file, 'w', encoding='utf-8') as f:
+            json.dump(duvidas, f, ensure_ascii=False, indent=2)
+            
+        flash('Dúvida enviada com sucesso!', 'success')
+        return redirect(url_for('public.sala_professores_duvidas'))
+    
+    # Carregar dúvidas existentes
+    try:
+        with open('app/data/duvidas_academicas.json', 'r', encoding='utf-8') as f:
+            duvidas = json.load(f)
+    except:
+        duvidas = []
+        
+    return render_template('gamificada/sala_professores.html', 
+                         duvidas=duvidas,
+                         current_user=current_user,
+                         year=current_year)
+
+@public_routes.route('/sala-professores/responder', methods=['POST'])
+@login_required
+def responder_duvida():
+    if current_user.profile not in ['admin', 'funcionario']:
+        flash('Apenas funcionários podem responder dúvidas.', 'danger')
+        return redirect(url_for('public.sala_professores_duvidas'))
+    
+    duvida_id = request.form.get('duvida_id')
+    resposta = request.form.get('resposta')
+    
+    try:
+        with open('app/data/duvidas_academicas.json', 'r', encoding='utf-8') as f:
+            duvidas = json.load(f)
+            
+        for duvida in duvidas:
+            if duvida['id'] == int(duvida_id):
+                duvida['resposta'] = resposta
+                duvida['respondido_por'] = current_user.username
+                break
+                
+        with open('app/data/duvidas_academicas.json', 'w', encoding='utf-8') as f:
+            json.dump(duvidas, f, ensure_ascii=False, indent=2)
+            
+        flash('Resposta enviada com sucesso!', 'success')
+    except Exception as e:
+        flash(f'Erro ao responder: {str(e)}', 'danger')
+        
+    return redirect(url_for('public.sala_professores_duvidas'))
+
+@public_routes.route("/sala-aula/resumos")
+def sala_aula_resumos():
+    """Página principal de resumos na sala de aula"""
+    from app.utils import load_jaxresume
+    temas, posts_por_tema, todos_posts = load_jaxresume(public_routes)
+    
+    # Filtrar posts com base nas permissões
+    resumos_acessiveis = []
+    for post_id, post in todos_posts.items():
+        if usuario_tem_acesso(current_user, post):
+            resumos_acessiveis.append(post)
+    
+    return render_template(
+        "resumos/sala_aula.html",
+        resumos=resumos_acessiveis,
+        temas=temas,
+        pode_editar=current_user and current_user.profile in ['admin', 'funcionario'],
+        year=current_year,
+        current_user=current_user
+    )
+
+@public_routes.route("/sala-aula/novo-resumo", methods=['GET', 'POST'])
+@login_required
+def novo_resumo_sala_aula():
+    """Criar novo resumo - apenas admin/funcionários"""
+    if current_user.profile not in ['admin', 'funcionario']:
+        flash('Apenas administradores e funcionários podem criar resumos.', 'danger')
+        return redirect(url_for('resume.sala_aula_resumos'))
+    
+    from app.uploads.jax_resumos import salvar_json
+    
+    post = None
+
+    if request.method == 'POST':
+        try:
+            novo_id = salvar_json(request.form, request.files, current_user.username)
+            flash(f'Resumo criado com sucesso! ID: {novo_id}', 'success')
+            return redirect(url_for('resume.post', post_id=novo_id))
+        except Exception as e:
+            flash(f'Ocorreu um erro ao salvar o resumo: {e}', 'danger')
+
+    return render_template('resumos/editar_resumo.html', title="Novo Resumo", year=current_year, current_user=current_user, post=post)

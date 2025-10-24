@@ -206,6 +206,7 @@
 /* Modal */
 .modal {
   position: fixed;
+  overflow: auto;
   inset: 0;
   background: rgba(0,0,0,0.55);
   display: flex;
@@ -312,6 +313,18 @@
   background: var(--accent-entretenimento);
 }
 
+/* Estilo para a zona de saída */
+.zone-exit {
+    border: 2px solid #ef4444 !important;
+    z-index: 50; /* Garantir que fique acima */
+}
+
+.zone-exit .zone-label {
+    background: linear-gradient(90deg, #ef4444, #dc2626) !important;
+    color: white !important;
+}
+
+
 /* Posições específicas para mapa inicial */
 .zone-jax { left: 150px; top: 500px; width: 400px; height: 250px; }
 .zone-educacional { left: 800px; top: 350px; width: 400px; height: 250px; }
@@ -340,3 +353,479 @@
 .zone-sport { left: 140px; top: 520px; width: 640px; height: 360px; }
 .zone-culture { left: 820px; top: 520px; width: 620px; height: 260px; }
 .zone-nerd { left: 1550px; top: 520px; width: 620px; height: 300px; }
+
+/* Modal padrão */
+.modal.hidden {
+  display: none;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content.user-modal {
+  background: #fff;
+  color: #222;
+  padding: 25px 30px;
+  border-radius: 16px;
+  width: 300px;
+  max-width: 90%;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  text-align: center;
+  position: relative;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-content.user-modal h2 {
+  margin-bottom: 20px;
+  font-size: 1.2em;
+  color: #111;
+}
+
+.modal-links {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-btn {
+  display: inline-block;
+  padding: 10px 14px;
+  background: #2563eb;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.modal-btn:hover {
+  background: #1e40af;
+}
+
+.modal-btn.admin {
+  background: #059669;
+}
+
+.modal-btn.admin:hover {
+  background: #047857;
+}
+
+.modal-close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 22px;
+  cursor: pointer;
+  color: #555;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+#player {
+  position: absolute;
+  z-index: 5000; /* fica acima do mapa */
+  pointer-events: auto; /* permite clique */
+}
+
+#player img {
+  pointer-events: auto; /* garante que o clique passa pra imagem */
+  cursor: pointer; /* mostra que dá pra clicar */
+}
+
+.mural-item {
+  background: #f8fafc;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.mural-admin {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+}
+
+.modal-input {
+  width: 100%;
+  margin: 5px 0;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+
+.chat-box {
+  background: #fff;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  padding: 10px;
+  height: 300px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+
+.chat-msg {
+  margin-bottom: 6px;
+}
+
+.chat-input {
+  display: flex;
+  gap: 10px;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.chat-input button {
+  padding: 6px 12px;
+}
+
+/* Estilos para Sala dos Professores e Sala de Aula */
+.duvidas-container {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.duvida-item {
+  background: #f8fafc;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border-left: 4px solid #3b82f6;
+}
+
+.duvida-resposta {
+  background: #f0fdf4;
+  padding: 8px;
+  margin-top: 8px;
+  border-radius: 6px;
+  border-left: 3px solid #10b981;
+}
+
+.duvida-pendente {
+  background: #fffbeb;
+  padding: 8px;
+  margin-top: 8px;
+  border-radius: 6px;
+  border-left: 3px solid #f59e0b;
+}
+
+.resumo-item {
+  background: #f8fafc;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.resumo-meta {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0;
+  font-size: 0.85em;
+  color: #64748b;
+}
+
+.admin-actions {
+  margin-bottom: 15px;
+}
+
+.admin-actions .modal-btn {
+  margin: 5px;
+  display: inline-block;
+}
+
+/* Estilos melhorados para resumos */
+.resumo-item {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 12px 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border: 1px solid #e1e5e9;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.resumo-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.resumo-thumbnail {
+    width: 100%;
+    height: 160px;
+    overflow: hidden;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.resumo-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.resumo-content h4 {
+    margin: 0 0 8px 0;
+    color: #1e293b;
+    font-size: 1.1em;
+}
+
+.resumo-descricao {
+    color: #64748b;
+    margin: 0 0 12px 0;
+    line-height: 1.4;
+}
+
+.resumo-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 0.85em;
+}
+
+.meta-left, .meta-right {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.resumo-meta small {
+    color: #94a3b8;
+}
+
+.resumo-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-ler-resumo {
+    background: #3b82f6;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.9em;
+    transition: background 0.2s ease;
+}
+
+.btn-ler-resumo:hover {
+    background: #2563eb;
+}
+
+.admin-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-editar, .btn-remover {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85em;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-editar {
+    background: #f59e0b;
+    color: white;
+}
+
+.btn-remover {
+    background: #ef4444;
+    color: white;
+}
+
+.no-resumos, .error-message {
+    text-align: center;
+    padding: 40px 20px;
+    color: #64748b;
+}
+
+.loading {
+    text-align: center;
+    padding: 20px;
+    color: #64748b;
+}
+
+/* MODAL: SALA DE AULA - CORREÇÕES */
+#classroomModal .modal-content {
+  max-width: 800px;
+  max-height: 90vh; /* Altura máxima de 90% da tela */
+  width: 95%;
+  overflow: hidden; /* Remove scroll do container principal */
+  display: flex;
+  flex-direction: column;
+}
+
+.classroom-actions {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Importante para o scroll interno */
+}
+
+/* Container dos resumos com scroll */
+.modal-scroll {
+  max-height: 400px; /* Altura fixa para o conteúdo rolável */
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px;
+  margin-top: 10px;
+  background: #f8fafc;
+}
+
+/* Melhorias no scroll */
+.modal-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-scroll::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.modal-scroll::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.modal-scroll::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Header fixo no modal */
+.modal-content h2 {
+  margin-top: 0;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+/* Ações do admin */
+.admin-actions {
+  margin: 15px 0;
+  padding: 10px;
+  background: #f0f9ff;
+  border-radius: 8px;
+  border-left: 4px solid #0ea5e9;
+}
+
+/* Botão fechar fixo na parte inferior */
+#closeClassroom {
+  margin-top: 15px;
+  align-self: flex-end;
+}
+
+/* Melhorias nos itens de resumo */
+.resumo-item {
+  background: white;
+  margin: 10px 0;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Loading state */
+.loading {
+  text-align: center;
+  padding: 40px 20px;
+  color: #64748b;
+  font-style: italic;
+}
+
+/* Estados vazios e erro */
+.no-resumos, .error-message {
+  text-align: center;
+  padding: 30px 20px;
+  color: #64748b;
+  background: white;
+  border-radius: 8px;
+  margin: 10px 0;
+}
+
+/* Estilos para as salas de chat */
+.reuniao-info {
+  background: #f0f9ff;
+  padding: 10px;
+  border-radius: 8px;
+  margin: 10px 0;
+  border-left: 4px solid #0ea5e9;
+}
+
+.reuniao-info p {
+  margin: 5px 0;
+  font-size: 0.9em;
+}
+
+/* Melhorias nos inputs de chat */
+.chat-input {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.chat-input button {
+  padding: 8px 16px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.chat-input button:hover {
+  background: #2563eb;
+}
+
+/* Melhorias no chat box */
+.chat-box {
+  height: 300px;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 15px;
+  background: #fafafa;
+  margin: 15px 0;
+}
+
+.chat-msg {
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.chat-msg strong {
+  color: #1e40af;
+}

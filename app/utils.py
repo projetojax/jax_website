@@ -36,6 +36,8 @@ def create_app():
     from app.routes.jax_aulas import jax_aulas_routes
     from app.routes.users import user_routes
     from app.routes.avatar import avatar_routes
+    from app.routes.educacional_routes import educacional_routes
+    from app.routes.routes_mural import mural_pb
     from .models import User, db, init_avatar_tables  # 👈 adicione isso
     from config import Config
     from .auth.routes import auth
@@ -52,6 +54,8 @@ def create_app():
     app.register_blueprint(user_routes, url_prefix='')
     app.register_blueprint(auth, url_prefix='')
     app.register_blueprint(avatar_routes, url_prefix='')
+    app.register_blueprint(educacional_routes, url_prefix='')
+    app.register_blueprint(mural_pb, url_prefix='')
 
     # Cria as tabelas de usuário e avatar no banco
     with app.app_context():

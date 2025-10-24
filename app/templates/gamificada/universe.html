@@ -57,6 +57,12 @@
                         <div class="zone-label">Entrada</div>
                     </div>
 
+                    <!-- ZONA DE SAÍDA -->
+                    <div class="zone zone-exit" data-link="/home" data-name="Voltar ao Início" style="left: 50px; top: 50px; width: 120px; height: 80px;">
+                        <img src="{{ url_for('static', filename='img/inicial/saida.png') }}" alt="Voltar ao Início">
+                        <div class="zone-label">Sair</div>
+                    </div>
+
                     <div class="zone zone-classroom" data-zone="classroom" data-allowed="true" data-name="Sala de Aula">
                         <img src="{{ url_for('static', filename='img/campus/sala-aula.jpg') }}" alt="Sala de Aula">
                         <div class="zone-label">Sala de Aula</div>
@@ -87,6 +93,12 @@
                     <div class="zone zone-recepcao" data-zone="recepcao" data-allowed="true" data-name="Recepção">
                         <img src="{{ url_for('static', filename='img/empresa/recepcao.jpg') }}" alt="Recepção">
                         <div class="zone-label">Recepção</div>
+                    </div>
+
+                    <!-- ZONA DE SAÍDA -->
+                    <div class="zone zone-exit" data-link="/home" data-name="Voltar ao Início" style="left: 50px; top: 50px; width: 120px; height: 80px;">
+                        <img src="{{ url_for('static', filename='img/inicial/saida.png') }}" alt="Voltar ao Início">
+                        <div class="zone-label">Sair</div>
                     </div>
 
                     <div class="zone zone-coworking" data-zone="coworking" data-allowed="true" data-name="Coworking">
@@ -124,6 +136,12 @@
                     <div class="zone zone-entry" data-zone="entry" data-allowed="true" data-name="Entrada">
                         <img src="{{ url_for('static', filename='img/parque/entrada_parque-municipal.jpeg') }}" alt="Entrada do Parque">
                         <div class="zone-label">Entrada</div>
+                    </div>
+
+                    <!-- ZONAS DE SAÍDA -->
+                    <div class="zone zone-exit" data-link="/home" data-name="Voltar ao Início" style="left: 50px; top: 50px; width: 120px; height: 80px;">
+                        <img src="{{ url_for('static', filename='img/inicial/saida.png') }}" alt="Voltar ao Início">
+                        <div class="zone-label">Sair</div>
                     </div>
 
                     <div class="zone zone-lake" data-zone="lake" data-allowed="true" data-name="Lago Central">
@@ -176,13 +194,15 @@
             <div class="panel-block">
                 <h3>Ações Rápidas</h3>
                 {% if area_name == 'educacional' %}
-                    <button class="tele ctrl-btn" data-target="park">Ir ao Parque</button>
+                    <button class="tele ctrl-btn" data-target="park">Ir a Entrada</button>
+                    <button class="exit-btn ctrl-btn" style="background: #ef4444; color: white; margin-top: 10px;"> 🚪 Voltar ao Início </button>
                     <button class="tele ctrl-btn" data-target="classroom">Ir à Sala</button>
                     <button class="tele ctrl-btn" data-target="mural" data-allowed="{{ 'true' if (current_user and current_user.profile in ['aluno','admin','funcionario']) else 'false' }}">Ir ao Mural</button>
                     <button class="tele ctrl-btn" data-target="director" data-allowed="{{ 'true' if (current_user and current_user.profile in ['admin','funcionario']) else 'false' }}">Ir à Diretoria</button>
                     <button class="tele ctrl-btn" data-target="teachers" data-allowed="{{ 'true' if (current_user and current_user.profile in ['admin','funcionario']) else 'false' }}">Ir à Sala dos Professores</button>
                 {% elif area_name == 'empresarial' %}
                     <button class="tele ctrl-btn" data-target="recepcao">Ir à Recepção</button>
+                    <button class="exit-btn ctrl-btn" style="background: #ef4444; color: white; margin-top: 10px;"> 🚪 Voltar ao Início </button>
                     <button class="tele ctrl-btn" data-target="coworking">Ir ao Coworking</button>
                     <button class="tele ctrl-btn" data-target="tecnica" data-allowed="{{ 'true' if (current_user and current_user.profile in ['aluno','admin','funcionario']) else 'false' }}">Ir à Sala Técnica</button>
                     <button class="tele ctrl-btn" data-target="pessoas" data-allowed="{{ 'true' if (current_user and current_user.profile in ['admin','funcionario']) else 'false' }}">Ir à Sala de Pessoas</button>
@@ -190,6 +210,7 @@
                     <button class="tele ctrl-btn" data-target="reunioes" data-allowed="{{ 'true' if (current_user and current_user.profile in ['admin','funcionario']) else 'false' }}">Ir à Sala de Reuniões</button>
                 {% elif area_name == 'entretenimento' %}
                     <button class="tele ctrl-btn" data-target="entry">Ir à Entrada</button>
+                    <button class="exit-btn ctrl-btn" style="background: #ef4444; color: white; margin-top: 10px;"> 🚪 Voltar ao Início </button>
                     <button class="tele ctrl-btn" data-target="lake">Ir ao Lago Central</button>
                     <button class="tele ctrl-btn" data-target="sport">Ir ao Espaço Esporte</button>
                     <button class="tele ctrl-btn" data-target="culture">Ir ao Espaço Cultura</button>
@@ -221,9 +242,284 @@
         <button id="closeModal" class="modal-btn">Entrar</button>
     </div>
 </div>
+
+<!-- MODAL DE USUÁRIO GLOBAL -->
+<div id="userModal" class="modal hidden">
+  <div class="modal-content user-modal">
+    <span id="closeUserModal" class="modal-close">&times;</span>
+    <h2>Conta de {{ current_user.username if current_user else 'Visitante' }}</h2>
+
+    <div class="modal-links">
+      <a href="/perfil" class="modal-btn">👤 Meu Perfil</a>
+
+      {% if current_user and current_user.profile == 'admin' %}
+        <hr>
+        <a href="/usuarios" class="modal-btn admin">👥 Usuários</a>
+        <a href="/admin/matriculas" class="modal-btn admin">🎓 Matrículas</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: MURAL OFICIAL -->
+<div id="muralModal" class="modal hidden">
+  <div class="modal-content">
+    <h2>📰 Mural Oficial da Escola</h2>
+    <div id="muralContent" class="modal-scroll"></div>
+    <button id="closeMural" class="modal-btn">Fechar</button>
+  </div>
+</div>
+
+<!-- MODAL: SALA DA DIRETORIA -->
+<div id="diretoriaModal" class="modal hidden">
+  <div class="modal-content">
+    <h2>🏛️ Sala da Diretoria</h2>
+    <div id="chatContainer" class="chat-box"></div>
+    <div class="chat-input">
+      <input id="chatMessage" type="text" placeholder="Digite sua mensagem..." />
+      <button id="sendChat" class="modal-btn">Enviar</button>
+    </div>
+    <button id="closeDiretoria" class="modal-btn">Fechar</button>
+  </div>
+</div>
+
+<!-- MODAL: SALA DOS PROFESSORES -->
+<div id="teachersModal" class="modal hidden">
+  <div class="modal-content">
+    <h2>👨‍🏫 Sala dos Professores</h2>
+    <p><em>Espaço para tirar dúvidas acadêmicas</em></p>
+    
+    <div class="duvidas-container">
+      <h3>❓ Fazer uma Pergunta</h3>
+      <form id="formDuvida" method="POST" action="/sala-professores/duvidas">
+        <textarea name="pergunta" placeholder="Digite sua dúvida acadêmica..." required class="modal-input" rows="4"></textarea>
+        <button type="submit" class="modal-btn">Enviar Dúvida</button>
+      </form>
+      
+      <hr>
+      
+      <h3>📚 Dúvidas Recentes</h3>
+      <div id="listaDuvidas" class="modal-scroll">
+        {% for duvida in duvidas %}
+          <div class="duvida-item">
+            <div class="duvida-header">
+              <strong>{{ duvida.autor }}</strong> - <small>{{ duvida.data }}</small>
+            </div>
+            <div class="duvida-pergunta">
+              <strong>P:</strong> {{ duvida.pergunta }}
+            </div>
+            {% if duvida.resposta %}
+              <div class="duvida-resposta">
+                <strong>R ({{ duvida.respondido_por }}):</strong> {{ duvida.resposta }}
+              </div>
+            {% else %}
+              <div class="duvida-pendente">
+                <em>⌛ Aguardando resposta...</em>
+                {% if current_user and current_user.profile in ['admin','funcionario'] %}
+                <form method="POST" action="/sala-professores/responder" style="margin-top: 10px;">
+                  <input type="hidden" name="duvida_id" value="{{ duvida.id }}">
+                  <textarea name="resposta" placeholder="Digite a resposta..." class="modal-input" rows="2"></textarea>
+                  <button type="submit" class="modal-btn">Responder</button>
+                </form>
+                {% endif %}
+              </div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    
+    <button id="closeTeachers" class="modal-btn">Fechar</button>
+  </div>
+</div>
+
+<!-- MODAL: SALA DE AULA -->
+<div id="classroomModal" class="modal hidden">
+  <div class="modal-content">
+    <h2>🏫 Sala de Aula</h2>
+    
+    <div class="classroom-actions">
+      {% if current_user and current_user.profile in ['admin','funcionario'] %}
+        <div class="admin-actions">
+          <h3>📝 Gerenciar Resumos</h3>
+          <a href="/sala-aula/novo-resumo" class="modal-btn">➕ Novo Resumo</a>
+          <a href="/jaxresume/lista" class="modal-btn">📋 Listar Todos</a>
+        </div>
+        <hr>
+      {% endif %}
+      
+      <h3>📚 Resumos Disponíveis</h3>
+      <div id="listaResumos" class="modal-scroll">
+        <!-- Os resumos serão carregados via JavaScript -->
+        <div class="loading">Carregando resumos...</div>
+      </div>
+    </div>
+    
+    <button id="closeClassroom" class="modal-btn">Fechar</button>
+  </div>
+</div>
+
+<!-- MODAL: COWORKING -->
+<div id="coworkingModal" class="modal hidden">
+  <div class="modal-content">
+    <h2>💼 Área de Coworking</h2>
+    <p><em>Espaço livre para conversas empresariais</em></p>
+    
+    <div id="coworkingChat" class="chat-box"></div>
+    <div class="chat-input">
+      <input id="coworkingMessage" type="text" placeholder="Digite sua mensagem sobre negócios..." />
+      <button id="sendCoworking" class="modal-btn">Enviar</button>
+    </div>
+    
+    <button id="closeCoworking" class="modal-btn">Fechar</button>
+  </div>
+</div>
+
+<!-- MODAL: SALA TÉCNICA -->
+<div id="tecnicaModal" class="modal hidden">
+  <div class="modal-content">
+    <h2>🔧 Sala Técnica</h2>
+    <p><em>Discussões sobre TI, tecnologia e assuntos técnicos</em></p>
+    
+    <div id="tecnicaChat" class="chat-box"></div>
+    <div class="chat-input">
+      <input id="tecnicaMessage" type="text" placeholder="Digite sobre tecnologia, TI, desenvolvimento..." />
+      <button id="sendTecnica" class="modal-btn">Enviar</button>
+    </div>
+    
+    <button id="closeTecnica" class="modal-btn">Fechar</button>
+  </div>
+</div>
+
+<!-- MODAL: SALA DE PESSOAS -->
+<div id="pessoasModal" class="modal hidden">
+  <div class="modal-content">
+    <h2>👥 Sala de Pessoas</h2>
+    <p><em>Assuntos de RH, administração e gestão de pessoas</em></p>
+    
+    <div id="pessoasChat" class="chat-box"></div>
+    <div class="chat-input">
+      <input id="pessoasMessage" type="text" placeholder="Digite sobre RH, administração..." />
+      <button id="sendPessoas" class="modal-btn">Enviar</button>
+    </div>
+    
+    <button id="closePessoas" class="modal-btn">Fechar</button>
+  </div>
+</div>
+
+<!-- MODAL: SALA COMERCIAL -->
+<div id="comercialModal" class="modal hidden">
+  <div class="modal-content">
+    <h2>📊 Sala Comercial</h2>
+    <p><em>Vendas, negociações e estratégias comerciais</em></p>
+    
+    <div id="comercialChat" class="chat-box"></div>
+    <div class="chat-input">
+      <input id="comercialMessage" type="text" placeholder="Digite sobre vendas, negócios..." />
+      <button id="sendComercial" class="modal-btn">Enviar</button>
+    </div>
+    
+    <button id="closeComercial" class="modal-btn">Fechar</button>
+  </div>
+</div>
+
+<!-- MODAL: SALA DE REUNIÕES -->
+<div id="reunioesModal" class="modal hidden">
+  <div class="modal-content">
+    <h2>🤝 Sala de Reuniões</h2>
+    <p><em>Espaço para reuniões focadas (1 hora de duração)</em></p>
+    
+    <div class="reuniao-info">
+      <p><strong>⏰ Duração:</strong> 60 minutos</p>
+      <p><strong>👥 Acesso:</strong> Apenas membros específicos</p>
+    </div>
+    
+    <div id="reunioesChat" class="chat-box"></div>
+    <div class="chat-input">
+      <input id="reunioesMessage" type="text" placeholder="Mensagem para a reunião..." />
+      <button id="sendReunioes" class="modal-btn">Enviar</button>
+    </div>
+    
+    <button id="closeReunioes" class="modal-btn">Sair da Reunião</button>
+  </div>
+</div>
+
+<!-- MODAL: LAGO CENTRAL -->
+<div id="lakeModal" class="modal hidden">
+  <div class="modal-content">
+    <h2>🌊 Lago Central</h2>
+    <p><em>Área livre para conversas sobre entretenimento</em></p>
+    
+    <div id="lakeChat" class="chat-box"></div>
+    <div class="chat-input">
+      <input id="lakeMessage" type="text" placeholder="Converse sobre qualquer tema de entretenimento..." />
+      <button id="sendLake" class="modal-btn">Enviar</button>
+    </div>
+    
+    <button id="closeLake" class="modal-btn">Fechar</button>
+  </div>
+</div>
+
+<!-- MODAL: ESPAÇO ESPORTE -->
+<div id="sportModal" class="modal hidden">
+  <div class="modal-content">
+    <h2>⚽ Espaço Esporte</h2>
+    <p><em>Somente conversas sobre esportes</em></p>
+    
+    <div id="sportChat" class="chat-box"></div>
+    <div class="chat-input">
+      <input id="sportMessage" type="text" placeholder="Digite sobre futebol, basquete, F1..." />
+      <button id="sendSport" class="modal-btn">Enviar</button>
+    </div>
+    
+    <button id="closeSport" class="modal-btn">Fechar</button>
+  </div>
+</div>
+
+<!-- MODAL: ESPAÇO CULTURA -->
+<div id="cultureModal" class="modal hidden">
+  <div class="modal-content">
+    <h2>🎭 Espaço Cultura</h2>
+    <p><em>Eventos culturais, exposições, teatro, música</em></p>
+    
+    <div id="cultureChat" class="chat-box"></div>
+    <div class="chat-input">
+      <input id="cultureMessage" type="text" placeholder="Digite sobre eventos culturais..." />
+      <button id="sendCulture" class="modal-btn">Enviar</button>
+    </div>
+    
+    <button id="closeCulture" class="modal-btn">Fechar</button>
+  </div>
+</div>
+
+<!-- MODAL: ESPAÇO NERD -->
+<div id="nerdModal" class="modal hidden">
+  <div class="modal-content">
+    <h2>🎮 Espaço Nerd</h2>
+    <p><em>Games, animes, séries, tecnologia e cultura nerd</em></p>
+    
+    <div id="nerdChat" class="chat-box"></div>
+    <div class="chat-input">
+      <input id="nerdMessage" type="text" placeholder="Digite sobre games, animes, séries..." />
+      <button id="sendNerd" class="modal-btn">Enviar</button>
+    </div>
+    
+    <button id="closeNerd" class="modal-btn">Fechar</button>
+  </div>
+</div>
+
 {% endblock %}
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/universe-core.js') }}"></script>
+
+<script>
+const currentUser = {% if current_user %}{
+    username: '{{ current_user.username }}',
+    profile: '{{ current_user.profile }}',
+    is_authenticated: true
+}{% else %}null{% endif %};
+</script>
+
 <script>
     // Configurações
     {% if area_name == 'educacional' %}
@@ -249,10 +545,12 @@
         {% if area_name == 'inicial' %}
         mapSize: { width: 2000, height: 1200 },
         initialPos: { x: 400, y: 550 },
+        safePos: { x: 400, y: 550 },
         speed: 4
         {% else %}
         mapSize: { width: 2600, height: 1400 },
         initialPos: { x: 600, y: 400 },
+        safePos: { x: 600, y: 400 },
         speed: 3.6,
         defaultLocation: '{{ default_location }}',
         {% if area_name == 'educacional' %}
@@ -291,34 +589,504 @@
         {% endif %}
     };
 
-    // Inicialização
+    // Inicialização CORRIGIDA
     document.addEventListener('DOMContentLoaded', function() {
         console.log('Starting {{ area_name }} game with config:', config);
-        
-        {% if area_name == 'inicial' %}
-            const game = new InitialMapGame(config);
-        {% else %}
-            const game = new CampusMapGame(config);
+        window.game = window.initGame(config);
+    });
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const avatar = document.querySelector('#player img, .navbar-avatar, #avatar-btn'); // cobre possíveis seletores
+  const modal = document.getElementById('userModal');
+  const closeModal = document.getElementById('closeUserModal');
+
+  if (avatar && modal) {
+    avatar.style.cursor = 'pointer';
+    avatar.addEventListener('click', () => {
+      modal.classList.remove('hidden');
+    });
+  }
+
+  if (closeModal) {
+    closeModal.addEventListener('click', () => {
+      modal.classList.add('hidden');
+    });
+  }
+
+  // Fecha o modal se clicar fora
+  window.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.classList.add('hidden');
+    }
+  });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const muralModal = document.getElementById('muralModal');
+  const muralContent = document.getElementById('muralContent');
+  const closeMural = document.getElementById('closeMural');
+
+  // ---- FUNÇÃO ÚNICA DO MURAL ----
+  async function openMural() {
+    const res = await fetch('/mural-oficial');
+    const avisos = await res.json();
+
+    muralContent.innerHTML = avisos.map(a => `
+      <div class="mural-item" data-id="${a.id}">
+        <h4>${a.titulo}</h4>
+        <p>${a.texto}</p>
+        <small>${a.data}</small>
+        {% if current_user and current_user.profile == 'admin' %}
+        <div class="mural-admin">
+          <button class="edit-btn modal-btn">✏️ Editar</button>
+          <button class="delete-btn modal-btn" style="background:#ef4444;color:white;">🗑️ Excluir</button>
+        </div>
         {% endif %}
+      </div>
+    `).join('');
+
+    {% if current_user and current_user.profile == 'admin' %}
+    muralContent.insertAdjacentHTML('beforeend', `
+      <hr>
+      <h3>➕ Novo Aviso</h3>
+      <input id="newTitulo" placeholder="Título" class="modal-input">
+      <textarea id="newTexto" placeholder="Texto do aviso" class="modal-input"></textarea>
+      <button id="addAviso" class="modal-btn">Publicar</button>
+    `);
+
+    // CRIAR NOVO AVISO
+    document.getElementById('addAviso').addEventListener('click', async () => {
+      const titulo = document.getElementById('newTitulo').value.trim();
+      const texto = document.getElementById('newTexto').value.trim();
+      if (!titulo || !texto) return alert('Preencha título e texto.');
+      await fetch('/mural-oficial', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ titulo, texto })
+      });
+      openMural();
     });
 
-    async function loadCustomAvatar() {
-    try {
-        const response = await fetch('/api/avatar/current');
-        const result = await response.json();
-        
-        if (result.success && result.avatar) {
-            // Aqui você implementaria a lógica para renderizar
-            // o avatar customizado em vez da imagem fixa
-            console.log('Avatar customizado carregado:', result.avatar);
+    // DELETAR
+    muralContent.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const id = e.target.closest('.mural-item').dataset.id;
+        if (confirm('Deseja apagar este aviso?')) {
+          await fetch('/mural-oficial', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: parseInt(id) })
+          });
+          openMural();
         }
-    } catch (error) {
-        console.error('Erro ao carregar avatar:', error);
-    }
-}
+      });
+    });
 
-// Chamar após o carregamento da página
-document.addEventListener('DOMContentLoaded', loadCustomAvatar);
+    // EDITAR
+    muralContent.querySelectorAll('.edit-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const item = e.target.closest('.mural-item');
+        const id = item.dataset.id;
+        const titulo = prompt('Novo título:', item.querySelector('h4').innerText);
+        const texto = prompt('Novo texto:', item.querySelector('p').innerText);
+        if (!titulo || !texto) return;
+        await fetch('/mural-oficial', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: parseInt(id), titulo, texto })
+        });
+        openMural();
+      });
+    });
+    {% endif %}
 
+    muralModal.classList.remove('hidden');
+  }
+
+  closeMural.addEventListener('click', () => muralModal.classList.add('hidden'));
+
+  // ---- LIGAÇÃO DAS ZONAS ----
+  document.querySelectorAll('.zone-mural').forEach(z => {
+    z.addEventListener('click', openMural);
+  });
+});
 </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const diretoriaModal = document.getElementById('diretoriaModal');
+  const closeDiretoria = document.getElementById('closeDiretoria');
+  const chatContainer = document.getElementById('chatContainer');
+  const sendChat = document.getElementById('sendChat');
+  const chatMessage = document.getElementById('chatMessage');
+
+  // Exemplo de histórico inicial
+  let chatHistory = [
+    { user: 'Diretor', text: 'Bem-vindo à sala da diretoria!' },
+    { user: 'Assistente', text: 'Como posso ajudar hoje?' }
+  ];
+
+  // Renderizar mensagens
+  function renderChat() {
+    chatContainer.innerHTML = chatHistory.map(
+      msg => `<div class="chat-msg"><strong>${msg.user}:</strong> ${msg.text}</div>`
+    ).join('');
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+  }
+
+  // Enviar mensagem
+  sendChat.addEventListener('click', () => {
+    const text = chatMessage.value.trim();
+    if (!text) return;
+    chatHistory.push({ user: '{{ current_user.username if current_user else "Visitante" }}', text });
+    chatMessage.value = '';
+    renderChat();
+  });
+
+  // Fechar modal
+  closeDiretoria.addEventListener('click', () => {
+    diretoriaModal.classList.add('hidden');
+  });
+
+  // Abrir modal ao clicar na zona da diretoria
+  document.querySelectorAll('.zone-director').forEach(zone => {
+    zone.addEventListener('click', () => {
+      const allowed = zone.dataset.allowed === 'true';
+      if (!allowed) {
+        alert('🚫 Apenas administradores e funcionários podem entrar na diretoria.');
+        return;
+      }
+      renderChat();
+      diretoriaModal.classList.remove('hidden');
+    });
+  });
+});
+</script>
+
+<script>
+// SALA DOS PROFESSORES
+document.addEventListener('DOMContentLoaded', () => {
+  const teachersModal = document.getElementById('teachersModal');
+  const closeTeachers = document.getElementById('closeTeachers');
+
+  // Abrir modal da sala dos professores
+  document.querySelectorAll('.zone-teachers').forEach(zone => {
+    zone.addEventListener('click', () => {
+      const allowed = zone.dataset.allowed === 'true';
+      if (!allowed) {
+        alert('🚫 Apenas administradores e funcionários podem acessar a sala dos professores.');
+        return;
+      }
+      teachersModal.classList.remove('hidden');
+    });
+  });
+
+  closeTeachers.addEventListener('click', () => {
+    teachersModal.classList.add('hidden');
+  });
+});
+</script>
+
+<script>
+// SALA DE AULA - RESUMOS
+document.addEventListener('DOMContentLoaded', () => {
+  const classroomModal = document.getElementById('classroomModal');
+  const closeClassroom = document.getElementById('closeClassroom');
+  const listaResumos = document.getElementById('listaResumos');
+
+  // Carregar resumos ao abrir o modal
+    async function carregarResumos() {
+        try {
+            const response = await fetch('/api/jaxresume/resumos');
+            const data = await response.json();
+            
+            if (data.success) {
+                const userCanEdit = data.user_info && data.user_info.can_edit;
+                
+                if (data.resumos.length === 0) {
+                    listaResumos.innerHTML = `
+                        <div class="no-resumos">
+                            <p>📚 Nenhum resumo disponível no momento.</p>
+                            ${userCanEdit ? 
+                                '<a href="/jaxresume/novo" class="modal-btn">Criar Primeiro Resumo</a>' : 
+                                ''
+                            }
+                        </div>
+                    `;
+                    return;
+                }
+                
+                listaResumos.innerHTML = data.resumos.map(resumo => `
+                    <div class="resumo-item" data-id="${resumo.id}">
+                       
+                        <div class="resumo-content">
+                            <h4>${resumo.titulo}</h4>
+                            <p class="resumo-descricao">${resumo.descricao || 'Sem descrição'}</p>
+                            
+                            <div class="resumo-meta">
+                                <div class="meta-left">
+                                    <small>📁 ${resumo.tema}</small>
+                                    <small>👤 ${resumo.autor}</small>
+                                </div>
+                                <div class="meta-right">
+                                    <small>📅 ${resumo.data_publicacao || 'Data não informada'}</small>
+                                </div>
+                            </div>
+                            
+                            <div class="resumo-actions">
+                                <a href="/jaxresume/post/${resumo.id}" class="btn-ler-resumo">
+                                    👀 Ler Resumo Completo
+                                </a>
+                                
+                                ${userCanEdit ? `
+                                    <div class="admin-actions">
+                                        <a href="/jaxresume/editar/${resumo.id}" class="btn-editar">✏️ Editar</a>
+                                        <button class="btn-remover" onclick="removerResumo(${resumo.id})">🗑️ Remover</button>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+            } else {
+                listaResumos.innerHTML = `
+                    <div class="error-message">
+                        <p>❌ Erro ao carregar resumos: ${data.error}</p>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('Erro ao carregar resumos:', error);
+            listaResumos.innerHTML = `
+                <div class="error-message">
+                    <p>❌ Erro de conexão ao carregar resumos.</p>
+                </div>
+            `;
+        }
+    }
+
+    // Função para remover resumo (apenas admin/funcionários)
+    async function removerResumo(resumoId) {
+        if (!confirm('Tem certeza que deseja remover este resumo?')) return;
+        
+        try {
+            const response = await fetch(`/jaxresume/remover/${resumoId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            
+            if (response.ok) {
+                // Recarregar a lista
+                carregarResumos();
+            } else {
+                alert('Erro ao remover resumo.');
+            }
+        } catch (error) {
+            console.error('Erro ao remover resumo:', error);
+            alert('Erro ao remover resumo.');
+        }
+    }
+
+  // Abrir modal da sala de aula
+  document.querySelectorAll('.zone-classroom').forEach(zone => {
+    zone.addEventListener('click', () => {
+      classroomModal.classList.remove('hidden');
+      carregarResumos();
+    });
+  });
+
+  closeClassroom.addEventListener('click', () => {
+    classroomModal.classList.add('hidden');
+  });
+});
+</script>
+
+<script>
+// SALAS EMPRESARIAIS
+document.addEventListener('DOMContentLoaded', () => {
+  
+  // COWORKING
+  const setupChatModal = (modalId, chatId, inputId, sendId, closeId, welcomeMessage) => {
+    const modal = document.getElementById(modalId);
+    const chat = document.getElementById(chatId);
+    const input = document.getElementById(inputId);
+    const sendBtn = document.getElementById(sendId);
+    const closeBtn = document.getElementById(closeId);
+
+    let chatHistory = [
+      { user: 'Sistema', text: welcomeMessage }
+    ];
+
+    function renderChat() {
+      chat.innerHTML = chatHistory.map(
+        msg => `<div class="chat-msg"><strong>${msg.user}:</strong> ${msg.text}</div>`
+      ).join('');
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    sendBtn.addEventListener('click', () => {
+      const text = input.value.trim();
+      if (!text) return;
+      chatHistory.push({ 
+        user: '{{ current_user.username if current_user else "Visitante" }}', 
+        text 
+      });
+      input.value = '';
+      renderChat();
+    });
+
+    closeBtn.addEventListener('click', () => {
+      modal.classList.add('hidden');
+    });
+
+    return { modal, renderChat };
+  };
+
+  // Configurar todas as salas empresariais
+  const salasEmpresariais = {
+    coworking: setupChatModal(
+      'coworkingModal', 'coworkingChat', 'coworkingMessage', 'sendCoworking', 'closeCoworking',
+      'Bem-vindo ao Coworking! Converse sobre qualquer tema empresarial.'
+    ),
+    tecnica: setupChatModal(
+      'tecnicaModal', 'tecnicaChat', 'tecnicaMessage', 'sendTecnica', 'closeTecnica',
+      'Bem-vindo à Sala Técnica! Discussões sobre TI e tecnologia.'
+    ),
+    pessoas: setupChatModal(
+      'pessoasModal', 'pessoasChat', 'pessoasMessage', 'sendPessoas', 'closePessoas',
+      'Bem-vindo à Sala de Pessoas! Assuntos de RH e administração.'
+    ),
+    comercial: setupChatModal(
+      'comercialModal', 'comercialChat', 'comercialMessage', 'sendComercial', 'closeComercial',
+      'Bem-vindo à Sala Comercial! Vendas e negociações.'
+    ),
+    reunioes: setupChatModal(
+      'reunioesModal', 'reunioesChat', 'reunioesMessage', 'sendReunioes', 'closeReunioes',
+      'Bem-vindo à Sala de Reuniões! Reunião focada por 1 hora.'
+    )
+  };
+
+  // Configurar salas de entretenimento
+  const salasEntretenimento = {
+    lake: setupChatModal(
+      'lakeModal', 'lakeChat', 'lakeMessage', 'sendLake', 'closeLake',
+      'Bem-vindo ao Lago Central! Converse sobre qualquer tema de entretenimento.'
+    ),
+    sport: setupChatModal(
+      'sportModal', 'sportChat', 'sportMessage', 'sendSport', 'closeSport',
+      'Bem-vindo ao Espaço Esporte! Aqui só falamos sobre esportes.'
+    ),
+    culture: setupChatModal(
+      'cultureModal', 'cultureChat', 'cultureMessage', 'sendCulture', 'closeCulture',
+      'Bem-vindo ao Espaço Cultura! Eventos e manifestações culturais.'
+    ),
+    nerd: setupChatModal(
+      'nerdModal', 'nerdChat', 'nerdMessage', 'sendNerd', 'closeNerd',
+      'Bem-vindo ao Espaço Nerd! Games, animes, séries e cultura nerd.'
+    )
+  };
+
+  // Ligar zonas aos modais - EMPRESARIAL
+  document.querySelectorAll('.zone-coworking').forEach(zone => {
+    zone.addEventListener('click', () => {
+      salasEmpresariais.coworking.renderChat();
+      salasEmpresariais.coworking.modal.classList.remove('hidden');
+    });
+  });
+
+  document.querySelectorAll('.zone-tecnica').forEach(zone => {
+    zone.addEventListener('click', () => {
+      const allowed = zone.dataset.allowed === 'true';
+      if (!allowed) {
+        alert('🚫 Acesso não permitido à Sala Técnica.');
+        return;
+      }
+      salasEmpresariais.tecnica.renderChat();
+      salasEmpresariais.tecnica.modal.classList.remove('hidden');
+    });
+  });
+
+  document.querySelectorAll('.zone-pessoas').forEach(zone => {
+    zone.addEventListener('click', () => {
+      const allowed = zone.dataset.allowed === 'true';
+      if (!allowed) {
+        alert('🚫 Acesso não permitido à Sala de Pessoas.');
+        return;
+      }
+      salasEmpresariais.pessoas.renderChat();
+      salasEmpresariais.pessoas.modal.classList.remove('hidden');
+    });
+  });
+
+  document.querySelectorAll('.zone-comercial').forEach(zone => {
+    zone.addEventListener('click', () => {
+      const allowed = zone.dataset.allowed === 'true';
+      if (!allowed) {
+        alert('🚫 Acesso não permitido à Sala Comercial.');
+        return;
+      }
+      salasEmpresariais.comercial.renderChat();
+      salasEmpresariais.comercial.modal.classList.remove('hidden');
+    });
+  });
+
+  document.querySelectorAll('.zone-reunioes').forEach(zone => {
+    zone.addEventListener('click', () => {
+      const allowed = zone.dataset.allowed === 'true';
+      if (!allowed) {
+        alert('🚫 Acesso não permitido à Sala de Reuniões.');
+        return;
+      }
+      salasEmpresariais.reunioes.renderChat();
+      salasEmpresariais.reunioes.modal.classList.remove('hidden');
+    });
+  });
+
+  // Ligar zonas aos modais - ENTRETENIMENTO
+  document.querySelectorAll('.zone-lake').forEach(zone => {
+    zone.addEventListener('click', () => {
+      salasEntretenimento.lake.renderChat();
+      salasEntretenimento.lake.modal.classList.remove('hidden');
+    });
+  });
+
+  document.querySelectorAll('.zone-sport').forEach(zone => {
+    zone.addEventListener('click', () => {
+      salasEntretenimento.sport.renderChat();
+      salasEntretenimento.sport.modal.classList.remove('hidden');
+    });
+  });
+
+  document.querySelectorAll('.zone-culture').forEach(zone => {
+    zone.addEventListener('click', () => {
+      salasEntretenimento.culture.renderChat();
+      salasEntretenimento.culture.modal.classList.remove('hidden');
+    });
+  });
+
+  document.querySelectorAll('.zone-nerd').forEach(zone => {
+    zone.addEventListener('click', () => {
+      salasEntretenimento.nerd.renderChat();
+      salasEntretenimento.nerd.modal.classList.remove('hidden');
+    });
+  });
+
+  // Permitir enviar mensagem com Enter
+  document.querySelectorAll('.chat-input input').forEach(input => {
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.target.nextElementSibling.click();
+      }
+    });
+  });
+});
+</script>
+
 {% endblock %}

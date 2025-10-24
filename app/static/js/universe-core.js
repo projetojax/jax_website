@@ -23,46 +23,83 @@ class UniverseGame {
         this.viewSize = { width: 1000, height: 600 };
         this.speed = this.config.speed || 4;
         
-        // Estado do jogo
-        this.pos = { ...this.config.initialPos };
-        this.keys = {};
+        // Estado do jogo - CORREÇÃO: Inicializar posição corretamente
+        this.pos = { 
+            x: this.config.initialPos.x || 400, 
+            y: this.config.initialPos.y || 550 
+        };
+        
+        this.keys = {
+            left: false,
+            right: false, 
+            up: false,
+            down: false
+        };
+        
         this.muted = false;
         this.activeZone = null;
         this.confirming = false;
 
-        console.log('Game initialized:', this.config.areaName);
+        console.log('Game initialized:', this.config.areaName, 'Pos:', this.pos);
+        
+        // Posicionar personagem inicialmente
+        this.updateCamera();
     }
 
     setupControls() {
-        // Teclado - CORREÇÃO AQUI
+        // Teclado - CORREÇÃO COMPLETA
         const handleKeyDown = (e) => {
             const key = e.key.toLowerCase();
-            console.log('Key down:', key);
             
-            // Mapear teclas
-            if (key === 'a' || key === 'arrowleft') this.keys.left = true;
-            if (key === 'd' || key === 'arrowright') this.keys.right = true;
-            if (key === 'w' || key === 'arrowup') this.keys.up = true;
-            if (key === 's' || key === 'arrowdown') this.keys.down = true;
-            
-            // Prevenir comportamento padrão apenas para as teclas de movimento
-            if (['a', 'd', 'w', 's', 'arrowleft', 'arrowright', 'arrowup', 'arrowdown'].includes(key)) {
-                e.preventDefault();
+            switch(key) {
+                case 'a':
+                case 'arrowleft':
+                    this.keys.left = true;
+                    e.preventDefault();
+                    break;
+                case 'd':
+                case 'arrowright':
+                    this.keys.right = true;
+                    e.preventDefault();
+                    break;
+                case 'w':
+                case 'arrowup':
+                    this.keys.up = true;
+                    e.preventDefault();
+                    break;
+                case 's':
+                case 'arrowdown':
+                    this.keys.down = true;
+                    e.preventDefault();
+                    break;
             }
         };
 
         const handleKeyUp = (e) => {
             const key = e.key.toLowerCase();
-            console.log('Key up:', key);
             
-            if (key === 'a' || key === 'arrowleft') this.keys.left = false;
-            if (key === 'd' || key === 'arrowright') this.keys.right = false;
-            if (key === 'w' || key === 'arrowup') this.keys.up = false;
-            if (key === 's' || key === 'arrowdown') this.keys.down = false;
+            switch(key) {
+                case 'a':
+                case 'arrowleft':
+                    this.keys.left = false;
+                    break;
+                case 'd':
+                case 'arrowright':
+                    this.keys.right = false;
+                    break;
+                case 'w':
+                case 'arrowup':
+                    this.keys.up = false;
+                    break;
+                case 's':
+                case 'arrowdown':
+                    this.keys.down = false;
+                    break;
+            }
         };
 
-        window.addEventListener('keydown', handleKeyDown.bind(this));
-        window.addEventListener('keyup', handleKeyUp.bind(this));
+        document.addEventListener('keydown', handleKeyDown.bind(this));
+        document.addEventListener('keyup', handleKeyUp.bind(this));
 
         // Tela cheia
         const btnFull = document.getElementById('btnFull');
@@ -103,7 +140,9 @@ class UniverseGame {
         if (this.modal) {
             const hasSeenModal = sessionStorage.getItem(`${this.config.areaName}_modal_shown`);
             if (!hasSeenModal) {
-                this.modal.classList.remove('hidden');
+                setTimeout(() => {
+                    this.modal.classList.remove('hidden');
+                }, 500);
             }
         }
     }
@@ -115,37 +154,39 @@ class UniverseGame {
     movePlayer() {
         let moved = false;
 
-        // CORREÇÃO: Usar as chaves corretas
-        if (this.keys.left) {
-            this.pos.x -= this.speed;
-            moved = true;
-        }
-        if (this.keys.right) {
-            this.pos.x += this.speed;
-            moved = true;
-        }
-        if (this.keys.up) {
-            this.pos.y -= this.speed;
-            moved = true;
-        }
-        if (this.keys.down) {
-            this.pos.y += this.speed;
-            moved = true;
+        // Movimento com colisão prevenida durante confirmação
+        if (!this.confirming) {
+            if (this.keys.left) {
+                this.pos.x -= this.speed;
+                moved = true;
+            }
+            if (this.keys.right) {
+                this.pos.x += this.speed;
+                moved = true;
+            }
+            if (this.keys.up) {
+                this.pos.y -= this.speed;
+                moved = true;
+            }
+            if (this.keys.down) {
+                this.pos.y += this.speed;
+                moved = true;
+            }
         }
 
         // Limitar movimento aos limites do mapa
         this.pos.x = this.clamp(this.pos.x, 0, this.mapSize.width - 64);
         this.pos.y = this.clamp(this.pos.y, 0, this.mapSize.height - 80);
 
-        if (moved) {
-            console.log('Player moved to:', this.pos.x, this.pos.y);
-        }
+        return moved;
     }
 
     updateCamera() {
-        // Atualizar posição do player
-        this.player.style.left = `${this.pos.x}px`;
-        this.player.style.top = `${this.pos.y}px`;
+        // Atualizar posição do player IMEDIATAMENTE
+        if (this.player) {
+            this.player.style.left = `${this.pos.x}px`;
+            this.player.style.top = `${this.pos.y}px`;
+        }
 
         // Calcular offset da câmera (centralizar no player)
         const offsetX = this.clamp(
@@ -160,24 +201,29 @@ class UniverseGame {
         );
         
         // Aplicar transformação ao mapa
-        this.mapLayer.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+        if (this.mapLayer) {
+            this.mapLayer.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+        }
     }
 
     checkZoneCollision() {
+        if (!this.player) return null;
+
         const playerRect = this.player.getBoundingClientRect();
         let currentZone = null;
 
         this.zones.forEach(zone => {
             const zoneRect = zone.getBoundingClientRect();
             
-            const overlap = !(
-                zoneRect.right < playerRect.left ||
-                zoneRect.left > playerRect.right ||
-                zoneRect.bottom < playerRect.top ||
-                zoneRect.top > playerRect.bottom
+            // Verificar colisão mais precisa
+            const collision = !(
+                playerRect.right < zoneRect.left + 20 ||
+                playerRect.left > zoneRect.right - 20 ||
+                playerRect.bottom < zoneRect.top + 20 ||
+                playerRect.top > zoneRect.bottom - 20
             );
 
-            if (overlap) {
+            if (collision) {
                 currentZone = zone;
             }
         });
@@ -186,50 +232,97 @@ class UniverseGame {
     }
 
     handleZoneInteraction(zone) {
+        // Se não há zona, resetar estado
         if (!zone) {
-            this.activeZone = null;
-            this.confirming = false;
+            if (this.activeZone) {
+                this.activeZone = null;
+                this.confirming = false;
+            }
             return;
         }
 
-        if (zone !== this.activeZone && !this.confirming && zone.dataset.link) {
+        // Se já está confirmando, não fazer nada
+        if (this.confirming) {
+            return;
+        }
+
+        // Se é uma nova zona com link
+        if (zone !== this.activeZone && zone.dataset.link) {
             this.activeZone = zone;
             this.confirming = true;
 
             const areaName = zone.dataset.name || 'esta área';
-            const confirmed = confirm(`Você está entrando em ${areaName}. Deseja continuar?`);
+            const isExit = zone.dataset.link === '/home' || zone.classList.contains('zone-exit');
+            
+            const message = isExit 
+                ? `Deseja voltar ao mapa inicial?` 
+                : `Você está entrando em ${areaName}. Deseja continuar?`;
+
+            const confirmed = confirm(message);
 
             if (confirmed) {
+                // Redirecionar
                 window.location.href = zone.dataset.link;
             } else {
-                // Move o player para fora da zona
-                this.pos.y += 50;
-                setTimeout(() => {
-                    this.confirming = false;
-                }, 600);
+                // CANCELAR: Mover personagem para longe
+                this.handleCancelMovement(isExit);
             }
         }
     }
 
-    gameLoop() {
-        this.movePlayer();
+    handleCancelMovement(isExit) {
+        console.log('Cancelado - reposicionando personagem');
+        
+        if (isExit) {
+            // Para saída, mover para longe da porta
+            this.pos.x = this.config.initialPos.x + 150;
+            this.pos.y = this.config.initialPos.y + 100;
+        } else {
+            // Para outras zonas, usar posição segura
+            const safeX = this.config.safePos ? this.config.safePos.x : this.config.initialPos.x;
+            const safeY = this.config.safePos ? this.config.safePos.y : this.config.initialPos.y;
+            this.pos.x = safeX;
+            this.pos.y = safeY;
+        }
+        
+        // Forçar atualização IMEDIATA
         this.updateCamera();
         
-        const currentZone = this.checkZoneCollision();
-        this.handleZoneInteraction(currentZone);
+        // Resetar estados após breve delay
+        setTimeout(() => {
+            this.activeZone = null;
+            this.confirming = false;
+            console.log('Estado resetado após cancelamento');
+        }, 300);
+    }
+
+    gameLoop() {
+        const moved = this.movePlayer();
+        
+        if (moved || this.confirming) {
+            this.updateCamera();
+        }
+        
+        // Só verificar colisões se não estiver confirmando
+        if (!this.confirming) {
+            const currentZone = this.checkZoneCollision();
+            if (currentZone !== this.activeZone) {
+                this.handleZoneInteraction(currentZone);
+            }
+        }
 
         requestAnimationFrame(() => this.gameLoop());
     }
 }
 
-// Inicialização para mapa inicial (com redirecionamento)
+// Mapa Inicial
 class InitialMapGame extends UniverseGame {
     constructor(config) {
         super(config);
     }
 }
 
-// Inicialização para mapas campus (com zonas interativas)
+// Mapas das Áreas
 class CampusMapGame extends UniverseGame {
     constructor(config) {
         super(config);
@@ -242,14 +335,31 @@ class CampusMapGame extends UniverseGame {
     setupTeleport() {
         this.teleportButtons.forEach(btn => {
             btn.addEventListener('click', (e) => {
+                if (this.confirming) return; // Prevenir durante confirmação
+                
                 const target = e.target.dataset.target;
                 const allowed = e.target.dataset.allowed === 'true';
                 
                 if (allowed && this.config.zonePositions && this.config.zonePositions[target]) {
                     this.teleportToZone(target);
+                } else if (!allowed) {
+                    alert('Acesso não permitido a esta área.');
                 }
             });
         });
+
+        // Botão de saída no painel
+        const exitBtn = document.querySelector('.exit-btn');
+        if (exitBtn) {
+            exitBtn.addEventListener('click', () => {
+                if (this.confirming) return;
+                
+                const confirmed = confirm('Deseja voltar ao mapa inicial?');
+                if (confirmed) {
+                    window.location.href = '/home';
+                }
+            });
+        }
     }
 
     teleportToZone(zoneName) {
@@ -262,38 +372,31 @@ class CampusMapGame extends UniverseGame {
             if (this.statusBox) {
                 this.statusBox.textContent = `Teleportado para ${zoneName}.`;
             }
+            
+            if (this.locationBox) {
+                const zone = Array.from(this.zones).find(z => z.dataset.zone === zoneName);
+                this.locationBox.textContent = zone ? zone.dataset.name : zoneName;
+            }
         }
     }
 
     handleZoneInteraction(zone) {
-        if (!zone) {
-            if (this.locationBox) this.locationBox.textContent = this.config.defaultLocation;
-            this.activeZone = null;
-            return;
-        }
-
-        const zoneName = zone.dataset.zone;
-        const allowed = this.config.permissions && 
-                       (this.config.permissions[zoneName] === true || this.config.permissions[zoneName] === 'true');
-
-        if (this.locationBox) {
-            this.locationBox.textContent = zone.dataset.name || zoneName;
-        }
-
-        if (this.statusBox) {
-            if (allowed) {
-                this.statusBox.textContent = `Acesso permitido à ${zoneName}.`;
-                
-                // Trigger modal para zona específica
-                if (zoneName === this.config.triggerModalZone && this.modal) {
-                    const hasSeenModal = sessionStorage.getItem(`${this.config.areaName}_modal_shown`);
-                    if (!hasSeenModal) {
-                        this.modal.classList.remove('hidden');
-                    }
-                }
-            } else {
-                this.statusBox.textContent = `Acesso negado à ${zoneName}.`;
-            }
+        super.handleZoneInteraction(zone);
+        
+        // Atualizar interface para zonas internas
+        if (zone && this.locationBox) {
+            this.locationBox.textContent = zone.dataset.name || 'Localização';
+        } else if (this.locationBox) {
+            this.locationBox.textContent = this.config.defaultLocation || 'Explorando';
         }
     }
 }
+
+// Inicialização global para prevenir conflitos
+window.initGame = function(config) {
+    if (config.areaName === 'inicial') {
+        return new InitialMapGame(config);
+    } else {
+        return new CampusMapGame(config);
+    }
+};

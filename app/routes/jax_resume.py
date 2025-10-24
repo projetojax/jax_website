@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, request, flash, url_for
+from flask import Blueprint, render_template, redirect, request, flash, url_for, jsonify
 from flask_login import current_user, login_required
 from datetime import datetime, timedelta
 from app.utils import usuario_tem_acesso
@@ -128,3 +128,198 @@ def remover_resumo(id):
 
     resumos = listar_resumos()
     return render_template('resumos/lista_resumos.html', resumos=resumos, year=current_year, current_user=current_user)
+
+@resume_routes.route("/api/jaxresume/resumos")
+def api_lista_resumos():
+    """API: Lista todos os resumos com filtro de acesso - VERSÃO CORRIGIDA"""
+    try:
+        from app.utils import load_jaxresume, usuario_tem_acesso
+        
+        # Carrega os dados dos resumos
+        _, _, todos_posts = load_jaxresume(resume_routes)
+        
+        print(f"DEBUG: Total de posts carregados: {len(todos_posts)}")
+        
+        # Se não há posts, retorna array vazio
+        if not todos_posts:
+            return jsonify({
+                'success': True,
+                'count': 0,
+                'resumos': [],
+                'user_info': {
+                    'is_authenticated': current_user and current_user.is_authenticated,
+                    'profile': getattr(current_user, 'profile', 'visitante') if current_user and current_user.is_authenticated else 'visitante',
+                    'can_edit': current_user and current_user.is_authenticated and getattr(current_user, 'profile', '') in ['admin', 'funcionario']
+                }
+            })
+        
+        # Filtrar resumos baseado nas permissões do usuário
+        resumos_acessiveis = []
+        
+        for post_id, post in todos_posts.items():
+            try:
+                # Verifica se o usuário tem acesso ao post
+                tem_acesso = usuario_tem_acesso(current_user, post)
+                
+                if tem_acesso:
+                    # CORREÇÃO: Usa os campos em inglês que vêm da função load_jaxresume
+                    resumo_simplificado = {
+                        'id': post_id,
+                        'titulo': post.get('title', 'Sem título'),  # title em inglês
+                        'descricao': post.get('subtitle', 'Sem descrição'),  # subtitle em inglês
+                        'tema': post.get('theme', 'Geral'),  # theme em inglês
+                        'autor': post.get('author', 'Anônimo'),  # author em inglês
+                        'data_publicacao': post.get('date_published', ''),  # date_published em inglês
+                        'imagem_url': post.get('image', ''),  # image em inglês
+                        'acesso_liberado': True,
+                        'pode_editar': current_user and current_user.is_authenticated and getattr(current_user, 'profile', '') in ['admin', 'funcionario']
+                    }
+                    resumos_acessiveis.append(resumo_simplificado)
+                    print(f"DEBUG: Resumo {post_id} - Título: {resumo_simplificado['titulo']}")
+                    
+            except Exception as e:
+                print(f"DEBUG: Erro ao processar post {post_id}: {str(e)}")
+                continue
+        
+        print(f"DEBUG: Resumos acessíveis encontrados: {len(resumos_acessiveis)}")
+        
+        # Prepara informações do usuário
+        user_info = {
+            'is_authenticated': current_user and current_user.is_authenticated,
+            'profile': getattr(current_user, 'profile', 'visitante') if current_user and current_user.is_authenticated else 'visitante',
+            'can_edit': current_user and current_user.is_authenticated and getattr(current_user, 'profile', '') in ['admin', 'funcionario']
+        }
+        
+        response_data = {
+            'success': True,
+            'count': len(resumos_acessiveis),
+            'resumos': resumos_acessiveis,
+            'user_info': user_info
+        }
+        
+        return jsonify(response_data)
+        
+    except Exception as e:
+        print(f"DEBUG: Erro crítico na API: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        
+        # Retorna erro em formato JSON
+        return jsonify({
+            'success': False,
+            'error': f'Erro interno do servidor: {str(e)}',
+            'resumos': [],
+            'user_info': {
+                'is_authenticated': False,
+                'profile': 'visitante',
+                'can_edit': False
+            }
+        }), 500
+
+@resume_routes.route("/api/jaxresume/resumo/<int:post_id>")
+def api_resumo_detalhe(post_id):
+    """API: Detalhes completos de um resumo específico"""
+    from app.utils import load_jaxresume
+    
+    try:
+        resumo = load_jaxresume(resume_routes)[2].get(post_id)
+        
+        if resumo is None:
+            return jsonify({
+                'success': False,
+                'error': 'Resumo não encontrado'
+            }), 404
+
+        if not usuario_tem_acesso(current_user, resumo):
+            return jsonify({
+                'success': False,
+                'error': 'Acesso não autorizado a este resumo'
+            }), 403
+
+        # Retorna o resumo completo
+        return jsonify({
+            'success': True,
+            'resumo': resumo
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@resume_routes.route("/api/jaxresume/temas")
+def api_lista_temas():
+    """API: Lista todos os temas disponíveis"""
+    from app.utils import load_jaxresume
+    
+    try:
+        temas, posts_por_tema, _ = load_jaxresume(resume_routes)
+        
+        temas_com_contagem = []
+        for tema in temas:
+            posts_do_tema = posts_por_tema.get(tema, [])
+            # Filtrar apenas posts com acesso
+            posts_acessiveis = [p for p in posts_do_tema if usuario_tem_acesso(current_user, p)]
+            
+            temas_com_contagem.append({
+                'nome': tema,
+                'quantidade_resumos': len(posts_acessiveis),
+                'acessivel': len(posts_acessiveis) > 0
+            })
+        
+        return jsonify({
+            'success': True,
+            'temas': temas_com_contagem
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@resume_routes.route("/api/jaxresume/tema/<string:tema_nome>")
+def api_resumos_por_tema(tema_nome):
+    """API: Lista resumos por tema específico"""
+    from app.utils import load_jaxresume
+    
+    try:
+        tema_nome = tema_nome.capitalize()
+        _, posts_por_tema, _ = load_jaxresume(resume_routes)
+        
+        posts_do_tema = posts_por_tema.get(tema_nome, [])
+        
+        # Filtrar posts com acesso
+        resumos_acessiveis = []
+        for post in posts_do_tema:
+            resumo_completo = load_jaxresume(resume_routes)[2].get(post['id'])
+            if resumo_completo and usuario_tem_acesso(current_user, resumo_completo):
+                resumo_simplificado = {
+                    'id': post['id'],
+                    'titulo': post.get('titulo', 'Sem título'),
+                    'descricao': post.get('descricao', 'Sem descrição'),
+                    'autor': post.get('autor', 'Anônimo'),
+                    'data_publicacao': post.get('data_publicacao', '')
+                }
+                resumos_acessiveis.append(resumo_simplificado)
+        
+        return jsonify({
+            'success': True,
+            'tema': tema_nome,
+            'count': len(resumos_acessiveis),
+            'resumos': resumos_acessiveis
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@resume_routes.route("/sala-aula/resumos-data")
+def sala_aula_resumos_data():
+    """Rota específica para a sala de aula gamificada"""
+    return api_lista_resumos()
+
+
