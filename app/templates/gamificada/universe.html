@@ -2,18 +2,47 @@
 
 {% block styles %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/universe.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/universe-responsive.css') }}">
 {% endblock %}
 
 {% block content %}
 <div class="universe-container theme-{{ area_name }}">
     <header class="universe-header">
-        <h1>{{ area_title }}</h1>
+      <h1>{{ area_title }}</h1>
         <div class="controls">
             <button id="btnFull" class="ctrl-btn">🕹️ Tela Cheia</button>
             <button id="btnMute" class="ctrl-btn">🔊 Som</button>
             <span class="hint">Use WASD ou setas para se mover</span>
         </div>
     </header>
+
+    <!-- Controles Touch Mobile -->
+    <div class="mobile-controls">
+      <div class="control-pad">
+        <button class="control-btn control-up" data-action="up">↑</button>
+        <button class="control-btn control-left" data-action="left">←</button>
+        <button class="control-btn control-right" data-action="right">→</button>
+        <button class="control-btn control-down" data-action="down">↓</button>
+      </div>
+      
+      <div class="action-buttons">
+        <button class="action-btn" id="mobileInteract" title="Interagir">🎯</button>
+        <button class="action-btn" id="mobileMenu" title="Menu">⚙️</button>
+      </div>
+    </div>
+
+    <!-- Menu Mobile -->
+    <div id="mobileMenuModal" class="modal hidden">
+      <div class="modal-content">
+        <h2>Menu Mobile</h2>
+        <div class="mobile-menu-options">
+          <button class="modal-btn mobile-menu-btn" data-action="fullscreen">🕹️ Tela Cheia</button>
+          <button class="modal-btn mobile-menu-btn" data-action="mute">🔊 Som</button>
+          <button class="modal-btn mobile-menu-btn" data-action="help">❓ Ajuda</button>
+          <button class="modal-btn mobile-menu-btn" data-action="close">✖️ Fechar</button>
+        </div>
+      </div>
+    </div>
 
     <main class="universe-main">
         <div class="viewport" id="viewport">
@@ -615,6 +644,7 @@
 {% endblock %}
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/universe-core.js') }}"></script>
+
 
 <script>
 const currentUser = {% if current_user %}{

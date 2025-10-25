@@ -1,3 +1,223 @@
+// ===== CONTROLES MOBILE =====
+class MobileControls {
+    constructor(game) {
+        this.game = game;
+        this.setupTouchControls();
+        this.setupGestures();
+    }
+
+    setupTouchControls() {
+        // Controles direcionais
+        const controlButtons = document.querySelectorAll('.control-btn');
+        controlButtons.forEach(btn => {
+            // Touch start
+            btn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                const action = btn.dataset.action;
+                this.handleControlStart(action);
+            });
+
+            // Touch end
+            btn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                const action = btn.dataset.action;
+                this.handleControlEnd(action);
+            });
+
+            // Mouse support para debugging
+            btn.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                const action = btn.dataset.action;
+                this.handleControlStart(action);
+            });
+
+            btn.addEventListener('mouseup', (e) => {
+                e.preventDefault();
+                const action = btn.dataset.action;
+                this.handleControlEnd(action);
+            });
+
+            btn.addEventListener('mouseleave', (e) => {
+                e.preventDefault();
+                const action = btn.dataset.action;
+                this.handleControlEnd(action);
+            });
+        });
+
+        // Botão de interação
+        const interactBtn = document.getElementById('mobileInteract');
+        if (interactBtn) {
+            interactBtn.addEventListener('click', () => {
+                this.handleInteract();
+            });
+        }
+
+        // Menu mobile
+        const menuBtn = document.getElementById('mobileMenu');
+        const menuModal = document.getElementById('mobileMenuModal');
+        if (menuBtn && menuModal) {
+            menuBtn.addEventListener('click', () => {
+                menuModal.classList.remove('hidden');
+            });
+
+            // Fechar menu
+            menuModal.addEventListener('click', (e) => {
+                if (e.target === menuModal || e.target.dataset.action === 'close') {
+                    menuModal.classList.add('hidden');
+                }
+            });
+
+            // Ações do menu
+            const menuButtons = menuModal.querySelectorAll('.mobile-menu-btn');
+            menuButtons.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const action = e.target.dataset.action;
+                    this.handleMenuAction(action);
+                });
+            });
+        }
+    }
+
+    handleControlStart(action) {
+        switch(action) {
+            case 'up':
+                this.game.keys.up = true;
+                break;
+            case 'down':
+                this.game.keys.down = true;
+                break;
+            case 'left':
+                this.game.keys.left = true;
+                break;
+            case 'right':
+                this.game.keys.right = true;
+                break;
+        }
+    }
+
+    handleControlEnd(action) {
+        switch(action) {
+            case 'up':
+                this.game.keys.up = false;
+                break;
+            case 'down':
+                this.game.keys.down = false;
+                break;
+            case 'left':
+                this.game.keys.left = false;
+                break;
+            case 'right':
+                this.game.keys.right = false;
+                break;
+        }
+    }
+
+    handleInteract() {
+        // Simula Enter/E para interagir com zona atual
+        const currentZone = this.game.checkZoneCollision();
+        if (currentZone && currentZone.dataset.link) {
+            this.game.handleZoneInteraction(currentZone);
+        }
+        
+        // Verifica se está perto do NPC
+        if (this.game.checkNPCCollision()) {
+            this.game.handleNPCInteraction();
+        }
+    }
+
+    handleMenuAction(action) {
+        const menuModal = document.getElementById('mobileMenuModal');
+        
+        switch(action) {
+            case 'fullscreen':
+                this.toggleFullscreen();
+                break;
+            case 'mute':
+                this.toggleMute();
+                break;
+            case 'help':
+                this.showHelp();
+                break;
+            case 'close':
+                menuModal.classList.add('hidden');
+                break;
+        }
+    }
+
+    toggleFullscreen() {
+        if (document.fullscreenElement) {
+            document.exitFullscreen();
+        } else {
+            document.documentElement.requestFullscreen();
+        }
+    }
+
+    toggleMute() {
+        this.game.muted = !this.game.muted;
+        const muteBtn = document.getElementById('btnMute');
+        if (muteBtn) {
+            muteBtn.textContent = this.game.muted ? '🔇 Som' : '🔊 Som';
+        }
+    }
+
+    showHelp() {
+        alert(`🎮 CONTROLES MOBILE:\n\n• Use os botões direcionais para mover\n• Toque em "🎯" para interagir\n• Use "⚙️" para opções\n\n💡 DICA: Gire o celular para modo paisagem para mais espaço!`);
+    }
+
+    setupGestures() {
+        // Swipe gestures para movimento alternativo
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (!touchStartX || !touchStartY) return;
+
+            const touchEndX = e.touches[0].clientX;
+            const touchEndY = e.touches[0].clientY;
+
+            const diffX = touchStartX - touchEndX;
+            const diffY = touchStartY - touchEndY;
+
+            // Determina a direção do swipe
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                // Horizontal swipe
+                if (diffX > 50) {
+                    this.game.keys.left = true;
+                    this.game.keys.right = false;
+                } else if (diffX < -50) {
+                    this.game.keys.right = true;
+                    this.game.keys.left = false;
+                }
+            } else {
+                // Vertical swipe
+                if (diffY > 50) {
+                    this.game.keys.up = true;
+                    this.game.keys.down = false;
+                } else if (diffY < -50) {
+                    this.game.keys.down = true;
+                    this.game.keys.up = false;
+                }
+            }
+        });
+
+        document.addEventListener('touchend', () => {
+            this.game.keys.left = false;
+            this.game.keys.right = false;
+            this.game.keys.up = false;
+            this.game.keys.down = false;
+            touchStartX = 0;
+            touchStartY = 0;
+        });
+    }
+}
+
+// ===== INTEGRAÇÃO COM A CLASSE PRINCIPAL =====
+// Modifique o init da UniverseGame para incluir controles mobile
 class UniverseGame {
     constructor(config) {
         this.config = config;
@@ -8,7 +228,16 @@ class UniverseGame {
         this.setupElements();
         this.setupControls();
         this.setupModal();
+        this.setupMobileControls(); // NOVO
         this.gameLoop();
+    }
+
+    setupMobileControls() {
+        // Inicializa controles mobile se for dispositivo touch
+        if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+            this.mobileControls = new MobileControls(this);
+            console.log('Mobile controls initialized');
+        }
     }
 
     setupElements() {
