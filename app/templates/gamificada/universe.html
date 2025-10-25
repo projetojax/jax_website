@@ -22,6 +22,8 @@
                     <!-- MAPA INICIAL -->
                     <div class="background" style="background-image: url('{{ url_for('static', filename='img/inicial/mapa.jpg') }}');"></div>
 
+                    <img class="npc" src="{{ url_for('static', filename='img/avatar/npc.png') }}" alt="NPC Jonas" style="left: 500px; top: 550px; width: 80px; height: 120px;">
+
                     <div class="zone zone-jax" title="Universo JAX" data-name="Universo JAX">
                         <img src="{{ url_for('static', filename='img/inicial/arte_jax.jpg') }}" alt="Universo JAX">
                         <div class="zone-label">Universo JAX</div>
@@ -505,6 +507,108 @@
     </div>
     
     <button id="closeNerd" class="modal-btn">Fechar</button>
+  </div>
+</div>
+
+<!-- MODAL: NPC JONAS -->
+<div id="jonasModal" class="modal hidden">
+  <div class="modal-content">
+    <h2>🧙 Jonas - O Curioso</h2>
+    
+    <div class="dialog-container">
+      <!-- Diálogo 1: Apresentação do Jonas -->
+      <div id="dialog1" class="dialog-step">
+        <div class="npc-speech">
+          <p><strong>Jonas:</strong> "Eiiii seu doidinho, não tá me vendo aqui não?"</p>
+        </div>
+        <div class="player-options">
+          <button class="dialog-btn" data-next="dialog2a">"Desculpa, não vi"</button>
+          <button class="dialog-btn" data-next="dialog2b">"Você? Quem é?"</button>
+        </div>
+      </div>
+
+      <!-- Diálogo 2a: Resposta "Desculpa, não vi" -->
+      <div id="dialog2a" class="dialog-step hidden">
+        <div class="npc-speech">
+          <p><strong>Jonas:</strong> "Você é bem idiota, sabia? Inclusive, tava pensando aqui, você sabe como funciona universo JAX?"</p>
+        </div>
+        <div class="player-options">
+          <button class="dialog-btn" data-next="end">"Sim, eu conheço"</button>
+          <button class="dialog-btn" data-next="salas">"Não eu não conheço"</button>
+        </div>
+      </div>
+
+      <!-- Diálogo 2b: Resposta "Você? Quem é?" -->
+      <div id="dialog2b" class="dialog-step hidden">
+        <div class="npc-speech">
+          <p><strong>Jonas:</strong> "Eu sou Jonas um curioso do Universo JAX. Inclusive, tava pensando aqui, você sabe como funciona universo JAX?"</p>
+        </div>
+        <div class="player-options">
+          <button class="dialog-btn" data-next="end">"Sim, eu conheço"</button>
+          <button class="dialog-btn" data-next="salas">"Não eu não conheço"</button>
+        </div>
+      </div>
+
+      <!-- Diálogo 3: Lista de Salas -->
+      <div id="salas" class="dialog-step hidden">
+        <div class="npc-speech">
+          <p><strong>Jonas:</strong> "Não tem problema! Deixa eu te explicar as principais áreas do Universo JAX:"</p>
+        </div>
+        
+        <div class="salas-list">
+          <div class="sala-category">
+            <h4>🏠 Área Inicial</h4>
+            <ul>
+              <li><strong>Universo JAX</strong> - O coração do projeto</li>
+              <li><strong>Área Educacional</strong> - Cursos e aprendizado</li>
+              <li><strong>Área Empresarial</strong> - Oportunidades de trabalho</li>
+              <li><strong>Área Entretenimento</strong> - Diversão e lazer</li>
+              <li><strong>Como o JAX muda o Brasil?</strong> - Nosso impacto social</li>
+            </ul>
+          </div>
+
+          <div class="sala-category">
+            <h4>💼 Área Empresarial</h4>
+            <ul>
+              <li><strong>Recepção</strong> - Primeiro contato</li>
+              <li><strong>Coworking</strong> - Espaço colaborativo</li>
+              <li><strong>Sala Técnica</strong> - Tecnologia e inovação</li>
+              <li><strong>Sala de Pessoas</strong> - Recursos humanos</li>
+              <li><strong>Sala Comercial</strong> - Vendas e negócios</li>
+              <li><strong>Sala de Reuniões</strong> - Encontros profissionais</li>
+            </ul>
+          </div>
+
+          <div class="sala-category">
+            <h4>🎓 Área Educacional</h4>
+            <ul>
+              <li><strong>Entrada</strong> - Acesso principal</li>
+              <li><strong>Sala de Aula</strong> - Aprendizado</li>
+              <li><strong>Mural</strong> - Avisos e projetos</li>
+              <li><strong>Diretoria</strong> - Administração</li>
+              <li><strong>Sala dos Professores</strong> - Suporte educacional</li>
+            </ul>
+          </div>
+
+          <div class="sala-category">
+            <h4>🎮 Área Entretenimento</h4>
+            <ul>
+              <li><strong>Entrada</strong> - Acesso ao parque</li>
+              <li><strong>Lago Central</strong> - Conversas livres</li>
+              <li><strong>Espaço Esporte</strong> - Esportes e atividades</li>
+              <li><strong>Espaço Cultura</strong> - Arte e eventos</li>
+              <li><strong>Espaço Nerd</strong> - Games e cultura pop</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="player-options">
+          <button class="dialog-btn" data-next="end">"Obrigado, Jonas!"</button>
+        </div>
+      </div>
+    </div>
+
+    <button id="closeJonas" class="modal-btn" style="margin-top: 15px;">Fechar</button>
   </div>
 </div>
 
@@ -1086,6 +1190,68 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
+});
+</script>
+
+<script>
+// NPC JONAS - Sistema de Diálogo
+document.addEventListener('DOMContentLoaded', () => {
+  const jonasModal = document.getElementById('jonasModal');
+  const closeJonas = document.getElementById('closeJonas');
+  
+  // Sistema de diálogo
+  function setupNPCDialog() {
+    const dialogButtons = document.querySelectorAll('.dialog-btn');
+    
+    dialogButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const nextStep = e.target.dataset.next;
+        
+        if (nextStep === 'end') {
+          // Fechar modal se o usuário conhece o JAX
+          jonasModal.classList.add('hidden');
+          resetDialog();
+        } else {
+          // Avançar para próximo passo do diálogo
+          showDialogStep(nextStep);
+        }
+      });
+    });
+  }
+  
+  function showDialogStep(stepId) {
+    // Esconder todos os passos
+    document.querySelectorAll('.dialog-step').forEach(step => {
+      step.classList.add('hidden');
+    });
+    
+    // Mostrar passo atual
+    const currentStep = document.getElementById(stepId);
+    if (currentStep) {
+      currentStep.classList.remove('hidden');
+      currentStep.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+  
+  function resetDialog() {
+    // Resetar para primeiro diálogo
+    showDialogStep('dialog1');
+  }
+  
+  // Fechar modal
+  closeJonas.addEventListener('click', () => {
+    jonasModal.classList.add('hidden');
+    resetDialog();
+  });
+  
+  // Inicializar diálogo
+  setupNPCDialog();
+  
+  // Função para abrir modal do Jonas (será chamada pela colisão)
+  window.openJonasDialog = function() {
+    jonasModal.classList.remove('hidden');
+    resetDialog();
+  };
 });
 </script>
 

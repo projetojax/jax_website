@@ -67,6 +67,8 @@ def criar_matricula_api():
         flash("Acesso restrito.", "danger")
         return redirect(url_for('public.home'))
 
+    
+
     form = CriarMatriculaForm()
     if form.validate_on_submit():
         nome = form.nome_completo.data.strip()
@@ -83,19 +85,23 @@ def criar_matricula_api():
         if sucesso:
             flash(f"{mensagem} Número: {numero_matricula}", "success")
             registros = listar_matriculas()
-            return render_template('auth/admin_matriculas.html', form=form, matriculas=registros, year=current_year, current_user=usuario)
+            return render_template('auth/admin_matriculas.html', form=form, matriculas=registros, year=current_year, current_user=current_user)
         else:
             flash(mensagem, "danger")
 
     registros = listar_matriculas()
     usuario = { "id": current_user.id, "username": current_user.username, "email": current_user.email, "profile": current_user.profile }
-    return render_template('auth/admin_matriculas.html', form=form, matriculas=registros, year=current_year, current_user=usuario)
+    return render_template('auth/admin_matriculas.html', form=form, matriculas=registros, year=current_year, current_user=current_user)
 
 @auth.route('/admin/matriculas', methods=['GET', 'POST'])
+@login_required
 def gerenciar_matriculas():
     if not current_user.is_authenticated or current_user.profile != "admin":
         flash("Acesso restrito.", "danger")
         return redirect(url_for('public.home'))
+
+    print(current_user)
+    print(current_user.id)
 
     form = CriarMatriculaForm()
     form_valid = form.validate_on_submit()
@@ -115,7 +121,7 @@ def gerenciar_matriculas():
             flash(f"{mensagem} Número: {numero_matricula}", "success")
             registros = listar_matriculas()
             usuario = { "id": current_user.id, "username": current_user.username, "email": current_user.email, "profile": current_user.profile }
-            return render_template('auth/admin_matriculas.html', form=form, matriculas=registros, year=current_year, current_user=usuario)
+            return render_template('auth/admin_matriculas.html', form=form, matriculas=registros, year=current_year, current_user=current_user)
         else:
             flash(mensagem, "danger")
     else:
@@ -123,7 +129,7 @@ def gerenciar_matriculas():
 
     registros = listar_matriculas()
     usuario = { "id": current_user.id, "username": current_user.username, "email": current_user.email, "profile": current_user.profile }
-    return render_template('auth/admin_matriculas.html', form=form, matriculas=registros, year=current_year, current_user=usuario)
+    return render_template('auth/admin_matriculas.html', form=form, matriculas=registros, year=current_year, current_user=current_user)
 
 @auth.route('/admin/matriculas/delete/<int:matricula_id>', methods=['POST'])
 def deletar_matricula(matricula_id):

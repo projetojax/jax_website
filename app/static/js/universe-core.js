@@ -23,7 +23,7 @@ class UniverseGame {
         this.viewSize = { width: 1000, height: 600 };
         this.speed = this.config.speed || 4;
         
-        // Estado do jogo - CORREÇÃO: Inicializar posição corretamente
+        // Estado do jogo
         this.pos = { 
             x: this.config.initialPos.x || 400, 
             y: this.config.initialPos.y || 550 
@@ -39,6 +39,11 @@ class UniverseGame {
         this.muted = false;
         this.activeZone = null;
         this.confirming = false;
+        
+        // Estado do NPC - CORREÇÃO AQUI
+        this.npcCooldown = false;
+        this.npcInRange = false;
+        this.lastNPCPosition = null;
 
         console.log('Game initialized:', this.config.areaName, 'Pos:', this.pos);
         
@@ -47,7 +52,7 @@ class UniverseGame {
     }
 
     setupControls() {
-        // Teclado - CORREÇÃO COMPLETA
+        // Teclado
         const handleKeyDown = (e) => {
             const key = e.key.toLowerCase();
             
@@ -231,6 +236,56 @@ class UniverseGame {
         return currentZone;
     }
 
+    checkNPCCollision() {
+        if (!this.player) return false;
+        
+        const playerRect = this.player.getBoundingClientRect();
+        const npc = document.querySelector('.npc');
+        
+        if (!npc) return false;
+        
+        const npcRect = npc.getBoundingClientRect();
+        
+        // Verificar colisão com NPC
+        const collision = !(
+            playerRect.right < npcRect.left + 50 ||
+            playerRect.left > npcRect.right - 50 ||
+            playerRect.bottom < npcRect.top + 50 ||
+            playerRect.top > npcRect.bottom - 50
+        );
+        
+        return collision;
+    }
+
+    handleNPCInteraction() {
+        // Se já está em cooldown, não fazer nada
+        if (this.npcCooldown) return;
+        
+        const collision = this.checkNPCCollision();
+        
+        // CORREÇÃO PRINCIPAL: Só ativar quando o jogador ENTRA na área do NPC
+        if (collision && !this.npcInRange) {
+            this.npcInRange = true;
+            this.npcCooldown = true;
+            
+            console.log('NPC collision detected - opening dialog');
+            
+            if (window.openJonasDialog) {
+                window.openJonasDialog();
+            }
+            
+            // Cooldown de 5 segundos antes de poder interagir novamente
+            setTimeout(() => {
+                this.npcCooldown = false;
+                console.log('NPC cooldown ended');
+            }, 5000);
+            
+        } else if (!collision && this.npcInRange) {
+            // Jogador saiu da área do NPC
+            this.npcInRange = false;
+        }
+    }
+
     handleZoneInteraction(zone) {
         // Se não há zona, resetar estado
         if (!zone) {
@@ -303,7 +358,12 @@ class UniverseGame {
             this.updateCamera();
         }
         
-        // Só verificar colisões se não estiver confirmando
+        // Verificar interação com NPC - CORREÇÃO AQUI
+        if (!this.confirming) {
+            this.handleNPCInteraction();
+        }
+        
+        // Só verificar colisões com zonas se não estiver confirmando
         if (!this.confirming) {
             const currentZone = this.checkZoneCollision();
             if (currentZone !== this.activeZone) {
@@ -400,3 +460,90 @@ window.initGame = function(config) {
         return new CampusMapGame(config);
     }
 };
+
+// Sistema de Diálogo do NPC Jonas - CORRIGIDO
+document.addEventListener('DOMContentLoaded', () => {
+    const jonasModal = document.getElementById('jonasModal');
+    
+    if (!jonasModal) {
+        console.log('NPC Jonas modal not found');
+        return;
+    }
+    
+    const closeJonas = document.getElementById('closeJonas');
+    let currentDialogStep = 'dialog1';
+    
+    // Sistema de diálogo
+    function setupNPCDialog() {
+        const dialogButtons = document.querySelectorAll('.dialog-btn');
+        
+        dialogButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const nextStep = e.target.dataset.next;
+                currentDialogStep = nextStep;
+                
+                if (nextStep === 'end') {
+                    // Fechar modal se o usuário conhece o JAX
+                    closeJonasModal();
+                } else {
+                    // Avançar para próximo passo do diálogo
+                    showDialogStep(nextStep);
+                }
+            });
+        });
+    }
+    
+    function showDialogStep(stepId) {
+        // Esconder todos os passos
+        document.querySelectorAll('.dialog-step').forEach(step => {
+            step.classList.add('hidden');
+        });
+        
+        // Mostrar passo atual
+        const currentStep = document.getElementById(stepId);
+        if (currentStep) {
+            currentStep.classList.remove('hidden');
+            currentStep.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+    
+    function resetDialog() {
+        // Resetar para primeiro diálogo
+        currentDialogStep = 'dialog1';
+        showDialogStep('dialog1');
+    }
+    
+    function closeJonasModal() {
+        jonasModal.classList.add('hidden');
+        resetDialog();
+    }
+    
+    // Fechar modal
+    if (closeJonas) {
+        closeJonas.addEventListener('click', closeJonasModal);
+    }
+    
+    // Fechar modal ao clicar fora
+    jonasModal.addEventListener('click', (e) => {
+        if (e.target === jonasModal) {
+            closeJonasModal();
+        }
+    });
+    
+    // Inicializar diálogo
+    setupNPCDialog();
+    
+    // Função global para abrir modal do Jonas
+    window.openJonasDialog = function() {
+        if (jonasModal) {
+            console.log('Opening Jonas dialog');
+            jonasModal.classList.remove('hidden');
+            resetDialog();
+            
+            // Focar no modal para capturar eventos de teclado
+            jonasModal.focus();
+        }
+    };
+    
+    console.log('NPC Jonas system initialized');
+});
