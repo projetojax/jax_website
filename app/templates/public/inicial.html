@@ -1,0 +1,312 @@
+{% extends 'base.html' %}
+{% block title %}Universo JAX{% endblock %}
+
+{% block content %}
+<div class="universe-container">
+  <header class="universe-header">
+    <h1>🌍 Universo JAX — Escolha sua Jornada</h1>
+    <div class="controls">
+      <button id="btnFull" class="ctrl-btn">🕹️ Tela Cheia</button>
+      <button id="btnMute" class="ctrl-btn">🔊 Som</button>
+      <span class="hint">Use WASD ou setas para se mover</span>
+    </div>
+  </header>
+
+  <main class="universe-main">
+    <div class="viewport" id="viewport">
+      <div class="map-layer" id="mapLayer">
+        <div
+          class="background"
+          style="background-image: url('{{ url_for('static', filename='img/inicial/mapa.jpg') }}');">
+        </div>
+
+        <!-- Áreas interativas -->
+        <div class="zone zone-jax" title="Universo JAX">
+          <img src="{{ url_for('static', filename='img/inicial/arte_jax.jpg') }}" alt="Universo JAX">
+          <div class="zone-label">Universo JAX</div>
+        </div>
+
+        <div class="zone zone-educacional" data-link="/educacional" data-name="Área Educacional">
+          <img src="{{ url_for('static', filename='img/inicial/escola.jpg') }}" alt="Área Educacional">
+          <div class="zone-label">Área Educacional</div>
+        </div>
+
+        <div class="zone zone-empresarial" data-link="/empresarial" data-name="Área Empresarial">
+          <img src="{{ url_for('static', filename='img/inicial/empresa.jpg') }}" alt="Área Empresarial">
+          <div class="zone-label">Área Empresarial</div>
+        </div>
+
+        <div class="zone zone-entretenimento" data-link="/entretenimento" data-name="Área de Entretenimento">
+          <img src="{{ url_for('static', filename='img/inicial/entretenimento.jpg') }}" alt="Área de Entretenimento">
+          <div class="zone-label">Área de Entretenimento</div>
+        </div>
+
+        <div class="zone zone-impacto" data-link="/jax_jornada" data-name="Impacto Social">
+          <img src="{{ url_for('static', filename='img/inicial/brasil.jpg') }}" alt="Impacto Social">
+          <div class="zone-label">Como o JAX muda o Brasil?</div>
+        </div>
+
+        <!-- Personagem dentro do mapa -->
+        <div id="player" class="player">
+          <img src="{{ url_for('static', filename='img/inicial/personagem.jpg') }}" alt="Personagem">
+        </div>
+      </div>
+    </div>
+
+    <!-- Painel lateral -->
+    <aside class="side-panel">
+      <div class="panel-block">
+        <h3>Bem-vindo</h3>
+        {% if current_user %}
+          <p>Olá, {{ current_user.username }}!</p>
+        {% else %}
+          <p>Explore o Universo JAX e descubra novas oportunidades.</p>
+          <a href="/login" class="hero-btn">Entrar</a>
+        {% endif %}
+      </div>
+    </aside>
+  </main>
+</div>
+
+<!-- Modal -->
+{% if current_user %}
+<div id="modalBoasVindas" class="modal">
+  <div class="modal-content">
+    <h2>🚀 Bem-vindo ao Universo JAX!</h2>
+    <p>Explore o futuro da educação, do trabalho e do entretenimento.</p>
+    <button id="closeModal" class="modal-btn">Entrar</button>
+  </div>
+</div>
+{% endif %}
+
+<style>
+{% raw %}
+:root {
+  --panel: #fff;
+  --accent: #2563eb;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.universe-container { padding: 1rem; }
+.universe-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: .75rem;
+  padding: .4rem .8rem;
+  background: rgba(255,255,255,0.8);
+  border-radius: 10px;
+  backdrop-filter: blur(8px);
+}
+.universe-header h1 { font-size: 1.3rem; margin: 0; color: rgba(0,0,255,0.8); }
+.controls { display: flex; align-items: center; gap: .4rem; }
+.ctrl-btn {
+  background: var(--panel);
+  border: 0;
+  border-radius: 8px;
+  padding: .45rem .7rem;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+.hint { font-size: .85rem; color: #475569; }
+.universe-main { display: flex; gap: 1rem; }
+
+/* Viewport e mapa */
+.viewport {
+  width: 1000px;
+  height: 600px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  background: #000;
+}
+
+.map-layer {
+  position: absolute;
+  top: 0; left: 0;
+  width: 2000px;
+  height: 1200px;
+  background: transparent;
+  z-index: 1;
+}
+
+.background {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+}
+
+/* Zonas interativas */
+.zone {
+  position: absolute;
+  border: 2px solid rgba(255,255,255,0.5);
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform .25s;
+  z-index: 2;
+}
+.zone:hover { transform: scale(1.03); }
+.zone img { width: 100%; height: 100%; object-fit: cover; }
+.zone-label {
+  background: rgba(255,255,255,0.9);
+  padding: .3rem .6rem;
+  border-radius: 8px;
+  position: absolute;
+  bottom: 8px; left: 8px;
+  font-weight: 700;
+  color: #1e3a8a;
+}
+
+/* Posições */
+.zone-jax { left: 150px; top: 500px; width: 400px; height: 250px; }
+.zone-educacional { left: 800px; top: 350px; width: 400px; height: 250px; }
+.zone-empresarial { left: 1300px; top: 350px; width: 400px; height: 250px; }
+.zone-entretenimento { left: 700px; top: 700px; width: 400px; height: 250px; }
+.zone-impacto { left: 1500px; top: 700px; width: 400px; height: 250px; }
+
+/* Personagem real dentro do mapa */
+.player {
+  position: absolute;
+  width: 64px;
+  height: 80px;
+  z-index: 3;
+}
+.player img { width: 100%; height: 100%; pointer-events: none; }
+
+.side-panel { width: 280px; display: flex; flex-direction: column; gap: .7rem; }
+.panel-block {
+  background: var(--panel);
+  padding: .8rem;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+}
+
+/* Modal */
+.modal {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+}
+.modal-content {
+  background: #fff; padding: 2rem; border-radius: 14px;
+  text-align: center; max-width: 500px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+}
+.modal-btn {
+  background: var(--accent); color: #fff;
+  padding: .5rem 1rem; border-radius: 8px;
+  border: none; cursor: pointer; font-weight: 600;
+}
+{% endraw %}
+</style>
+
+<script>
+(function() {
+  const mapLayer = document.getElementById('mapLayer');
+  const player = document.getElementById('player');
+  const zones = document.querySelectorAll('.zone');
+  const modal = document.getElementById('modalBoasVindas');
+  const btnFull = document.getElementById('btnFull');
+  const btnMute = document.getElementById('btnMute');
+
+  const mapSize = { width: 2000, height: 1200 };
+  const viewSize = { width: 1000, height: 600 };
+  const speed = 4;
+  let pos = { x: 400, y: 550 };
+  let keys = {};
+  let muted = false;
+  let activeZone = null;
+  let confirming = false;
+
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+  // Controles de tela cheia e som
+  btnFull.addEventListener('click', () => {
+    document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+  });
+  btnMute.addEventListener('click', () => {
+    muted = !muted;
+    btnMute.textContent = muted ? '🔇 Som' : '🔊 Som';
+  });
+
+  if (modal) document.getElementById('closeModal').addEventListener('click', () => modal.remove());
+
+  // Movimento real do player
+  function movePlayer() {
+    if (keys['a'] || keys['arrowleft']) pos.x -= speed;
+    if (keys['d'] || keys['arrowright']) pos.x += speed;
+    if (keys['w'] || keys['arrowup']) pos.y -= speed;
+    if (keys['s'] || keys['arrowdown']) pos.y += speed;
+    pos.x = clamp(pos.x, 0, mapSize.width - 64);
+    pos.y = clamp(pos.y, 0, mapSize.height - 80);
+  }
+
+  // Atualiza posição do player e câmera
+  function updateCamera() {
+    player.style.left = `${pos.x}px`;
+    player.style.top = `${pos.y}px`;
+
+    const offsetX = clamp(-(pos.x - viewSize.width / 2), -(mapSize.width - viewSize.width), 0);
+    const offsetY = clamp(-(pos.y - viewSize.height / 2), -(mapSize.height - viewSize.height), 0);
+    mapLayer.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+  }
+
+  // Verifica colisão com zonas
+  function checkZone() {
+    const playerRect = player.getBoundingClientRect();
+    let inZone = null;
+
+    for (const zone of zones) {
+      const rect = zone.getBoundingClientRect();
+      const overlap = !(
+        rect.right < playerRect.left ||
+        rect.left > playerRect.right ||
+        rect.bottom < playerRect.top ||
+        rect.top > playerRect.bottom
+      );
+      if (overlap) {
+        inZone = zone;
+        break;
+      }
+    }
+
+    if (inZone && inZone !== activeZone && !confirming && inZone.dataset.link) {
+      activeZone = inZone;
+      confirming = true;
+
+      const area = inZone.dataset.name || 'esta área';
+      const confirmed = confirm(`Você está entrando em ${area}. Deseja continuar?`);
+
+      if (confirmed) {
+        window.location.href = inZone.dataset.link;
+      } else {
+        pos.y += 30;
+        setTimeout(() => confirming = false, 600);
+      }
+    }
+
+    if (!inZone) {
+      activeZone = null;
+      confirming = false;
+    }
+  }
+
+  function loop() {
+    movePlayer();
+    updateCamera();
+    checkZone();
+    requestAnimationFrame(loop);
+  }
+
+  window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+  window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+
+  loop();
+})();
+</script>
+{% endblock %}

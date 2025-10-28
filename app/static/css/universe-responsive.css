@@ -1,0 +1,479 @@
+/* ===== RESPONSIVIDADE MOBILE FIRST ===== */
+
+/* Dispositivos móveis (até 768px) */
+@media (max-width: 768px) {
+/* Layout Principal */
+.universe-container {
+padding: 0.5rem;
+height: 100vh;
+display: flex;
+flex-direction: column;
+}
+
+.universe-header {
+flex-direction: column;
+gap: 0.5rem;
+padding: 0.5rem;
+margin-bottom: 0.5rem;
+}
+
+.universe-header h1 {
+font-size: 1.1rem;
+text-align: center;
+}
+
+.controls {
+justify-content: center;
+flex-wrap: wrap;
+gap: 0.3rem;
+}
+
+.ctrl-btn {
+padding: 0.4rem 0.6rem;
+font-size: 0.8rem;
+}
+
+.hint {
+display: none; /* Esconde dica de teclado no mobile */
+}
+
+/* Layout Principal Mobile */
+.universe-main {
+flex-direction: column;
+gap: 0.5rem;
+flex: 1;
+min-height: 0; /* Importante para flexbox */
+}
+
+/* Viewport Mobile - ESCALA CORRIGIDA */
+.viewport {
+width: 100%;
+height: 50vh !important;
+min-height: 300px;
+border-radius: 8px;
+order: 2; /* Mapa fica embaixo no mobile */
+}
+
+/* Ajustes do Mapa para Mobile - ESCALA CORRIGIDA */
+.map-layer {
+transform-origin: center;
+}
+
+.map-inicial {
+transform: scale(0.3) !important; /* Escala menor para mobile */
+}
+
+.map-campus {
+transform: scale(0.25) !important; /* Escala menor para mobile */
+}
+
+/* Zonas Interativas - Tamanhos Reduzidos */
+.zone {
+border-width: 1px;
+}
+
+.zone-label {
+font-size: 0.7rem;
+padding: 0.2rem 0.4rem;
+margin: 4px;
+}
+
+/* Personagem Mobile */
+.player {
+width: 48px;
+height: 60px;
+}
+
+/* NPC Mobile */
+.npc {
+width: 80px;
+height: 110px;
+}
+
+/* Painel Lateral Mobile */
+.side-panel {
+width: 100%;
+order: 1; /* Painel fica em cima no mobile */
+max-height: 30vh;
+overflow-y: auto;
+}
+
+.panel-block {
+padding: 0.6rem;
+}
+
+.panel-block h3 {
+font-size: 0.9rem;
+margin-bottom: 0.3rem;
+}
+
+/* Botões de Teleporte Mobile */
+.tele, .exit-btn {
+width: 100%;
+padding: 0.5rem;
+font-size: 0.8rem;
+margin: 0.2rem 0;
+}
+
+/* Modais Mobile */
+.modal-content {
+margin: 1rem;
+padding: 1.5rem;
+max-width: 95%;
+max-height: 85vh;
+}
+
+.modal-content h2 {
+font-size: 1.2rem;
+}
+
+/* Diálogo NPC Mobile */
+.dialog-container {
+max-height: 40vh;
+}
+
+.player-options {
+gap: 0.5rem;
+}
+
+.dialog-btn {
+padding: 0.8rem 1rem;
+font-size: 0.9rem;
+}
+
+.salas-list {
+grid-template-columns: 1fr;
+gap: 0.8rem;
+}
+
+.sala-category {
+padding: 0.8rem;
+}
+
+.sala-category h4 {
+font-size: 0.9rem;
+}
+
+.sala-category li {
+font-size: 0.8rem;
+}
+
+/* Chat Mobile */
+.chat-box {
+height: 200px;
+padding: 0.8rem;
+}
+
+.chat-input {
+flex-direction: column;
+gap: 0.5rem;
+}
+
+.chat-input input {
+padding: 0.8rem;
+}
+
+/* Resumos Mobile */
+.resumo-item {
+padding: 0.8rem;
+margin: 0.5rem 0;
+}
+
+.resumo-actions {
+flex-direction: column;
+gap: 0.5rem;
+}
+
+.btn-ler-resumo, .btn-editar, .btn-remover {
+width: 100%;
+text-align: center;
+}
+}
+
+/* Tablets (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+.universe-main {
+flex-direction: column;
+}
+
+.viewport {
+width: 100%;
+height: 60vh;
+}
+
+.side-panel {
+width: 100%;
+flex-direction: row;
+flex-wrap: wrap;
+gap: 1rem;
+}
+
+.panel-block {
+flex: 1;
+min-width: 200px;
+}
+
+/* Escala para tablets */
+.map-inicial {
+transform: scale(0.4) !important;
+}
+
+.map-campus {
+transform: scale(0.32) !important;
+}
+}
+
+/* Telas grandes (acima de 1920px) */
+@media (min-width: 1920px) {
+.map-inicial {
+transform: scale(0.6) !important;
+}
+
+.map-campus {
+transform: scale(0.45) !important;
+}
+}
+
+
+
+/* ===== CONTROLES TOUCH PARA MOBILE - CORREÇÃO: SEMPRE VISÍVEIS ===== */
+
+.mobile-controls {
+  display: block !important; /* FORÇAR VISIBILIDADE */
+  position: fixed;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  padding: 0 20px;
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.mobile-controls.active {
+  display: block !important;
+}
+
+.control-pad {
+  display: grid;
+  grid-template-areas:
+    ". up ."
+    "left . right"
+    ". down .";
+  gap: 10px;
+  max-width: 150px;
+  margin: 0 auto;
+  pointer-events: all;
+}
+
+.control-btn {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid #2563eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: all 0.1s ease;
+}
+
+.control-btn:active {
+  background: #2563eb;
+  color: white;
+  transform: scale(0.95);
+}
+
+.control-up { grid-area: up; }
+.control-left { grid-area: left; }
+.control-right { grid-area: right; }
+.control-down { grid-area: down; }
+
+.action-buttons {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: all;
+}
+
+.action-btn {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid #059669;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: all 0.1s ease;
+}
+
+.action-btn:active {
+  background: #059669;
+  color: white;
+  transform: scale(0.95);
+}
+
+/* Desktop com controles visíveis */
+@media (min-width: 769px) {
+  .mobile-controls {
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+  }
+  
+  .mobile-controls:hover {
+    opacity: 1;
+  }
+  
+  .control-btn, .action-btn {
+    opacity: 0.8;
+  }
+  
+  .control-btn:hover, .action-btn:hover {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+/* ===== DETECÇÃO DE DISPOSITIVO TOUCH ===== */
+@media (hover: none) and (pointer: coarse) {
+  .mobile-controls {
+    display: block !important;
+  }
+  
+  /* Melhorias para touch */
+  .zone {
+    min-width: 60px;
+    min-height: 60px;
+  }
+  
+  .ctrl-btn, .modal-btn, .dialog-btn {
+    min-height: 44px; /* Tamanho mínimo para touch */
+  }
+  
+  /* Remove hover effects em dispositivos touch */
+  .zone:hover {
+    transform: none;
+  }
+}
+
+/* ===== ORIENTAÇÃO LANDSCAPE ===== */
+@media (max-width: 768px) and (orientation: landscape) {
+  .universe-main {
+    flex-direction: row;
+  }
+  
+  .viewport {
+    height: 70vh !important;
+    order: 1;
+  }
+  
+  .side-panel {
+    width: 200px;
+    order: 2;
+    max-height: 70vh;
+  }
+  
+  .mobile-controls {
+    bottom: 10px;
+  }
+}
+
+/* ===== MELHORIAS DE ACESSIBILIDADE MOBILE ===== */
+@media (max-width: 768px) {
+  /* Textos legíveis */
+  body {
+    font-size: 16px; /* Previne zoom em iOS */
+    -webkit-text-size-adjust: 100%;
+  }
+  
+  /* Botões com área de toque adequada */
+  button, .ctrl-btn, .modal-btn, .dialog-btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Scroll suave */
+  .modal-scroll, .chat-box {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Previne highlight azul em iOS */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* ===== UTILITÁRIOS RESPONSIVOS ===== */
+.mobile-only {
+  display: none;
+}
+
+.desktop-only {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .mobile-only {
+    display: block;
+  }
+  
+  .desktop-only {
+    display: none;
+  }
+}
+
+/* ===== ANIMAÇÕES MOBILE OTIMIZADAS ===== */
+@media (max-width: 768px) {
+  .modal-content {
+    animation: slideUp 0.3s ease-out;
+  }
+  
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Performance: reduz animações pesadas */
+  .zone, .player, .npc {
+    will-change: transform;
+  }
+}
+
+/* ===== CORREÇÕES ESPECÍFICAS PARA MAPAS ===== */
+@media (max-width: 768px) {
+  /* Ajusta posições das zonas para mobile */
+  .zone-jax { left: 50px; top: 400px; width: 200px; height: 150px; }
+  .zone-educacional { left: 300px; top: 250px; width: 200px; height: 150px; }
+  .zone-empresarial { left: 550px; top: 250px; width: 200px; height: 150px; }
+  .zone-entretenimento { left: 250px; top: 500px; width: 200px; height: 150px; }
+  .zone-impacto { left: 500px; top: 500px; width: 200px; height: 150px; }
+  
+  /* Ajusta NPC para mobile */
+  .npc {
+    left: 400px !important;
+    top: 350px !important;
+    width: 60px;
+    height: 90px;
+  }
+}

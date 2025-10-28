@@ -2,6 +2,8 @@ from datetime import datetime
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session, jsonify
 from .forms import LoginForm, RegisterForm, CriarMatriculaForm
 from .utils import realizar_login, realizar_logout, criar_conta, criar_matricula, validar_matricula, confirmar_matricula, gerar_matricula_personalizada, listar_matriculas, detalhar_usuario, excluir_matricula
+from flask_login import login_user, logout_user, current_user, login_required
+from ..models import User
 
 auth = Blueprint('auth', __name__)
 current_year = datetime.now().year
@@ -12,14 +14,22 @@ def login():
     if form.validate_on_submit():
         dados_usuario = realizar_login(form.username.data, form.password.data)
         if dados_usuario:
-            session.permanent = True  # ativa controle por tempo
-            session['usuario'] = dados_usuario  # guarda dados básicos
-            flash(f"Bem-vindo(a), {dados_usuario['username']}!", "success")
-            return redirect(url_for('public.home'))
-        else:
-            flash("Credenciais inválidas. Tente novamente.", "danger")
+            # Busca o objeto User do SQLAlchemy
+            user_obj = User.query.get(dados_usuario['id'])
+            if user_obj:
+                login_user(user_obj)  # Usa Flask-Login
+                flash(f"Bem-vindo(a), {dados_usuario['username']}!", "success")
+                return redirect(url_for('public.home'))
+        flash("Credenciais inválidas. Tente novamente.", "danger")
     return render_template('auth/login.html', form=form, year=current_year)
 
+@auth.route('/logout')
+@login_required
+def logout():
+    nome = current_user.username
+    logout_user()  # Usa Flask-Login
+    flash(f"Logout realizado com sucesso, {nome}.", "info")
+    return redirect(url_for('public.home'))
 
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
@@ -51,19 +61,13 @@ def register():
 
     return render_template('auth/register.html', form=form, year=current_year)
 
-@auth.route('/logout')
-def logout():
-    if 'usuario' in session:
-        nome = session['usuario'].get('username', 'usuário')
-        realizar_logout(session)
-        flash(f"Logout realizado com sucesso, {nome}.", "info")
-    return redirect(url_for('public.home'))
-
 @auth.route('/matricula', methods=['POST'])
 def criar_matricula_api():
-    if session.get("usuario", {}).get("profile") != "admin":
+    if not current_user.is_authenticated or current_user.profile != "admin":
         flash("Acesso restrito.", "danger")
         return redirect(url_for('public.home'))
+
+    
 
     form = CriarMatriculaForm()
     if form.validate_on_submit():
@@ -81,19 +85,23 @@ def criar_matricula_api():
         if sucesso:
             flash(f"{mensagem} Número: {numero_matricula}", "success")
             registros = listar_matriculas()
-            return render_template('auth/admin_matriculas.html', form=form, matriculas=registros, year=current_year, current_user=usuario)
+            return render_template('auth/admin_matriculas.html', form=form, matriculas=registros, year=current_year, current_user=current_user)
         else:
             flash(mensagem, "danger")
 
     registros = listar_matriculas()
-    usuario = session['usuario']
-    return render_template('auth/admin_matriculas.html', form=form, matriculas=registros, year=current_year, current_user=usuario)
+    usuario = { "id": current_user.id, "username": current_user.username, "email": current_user.email, "profile": current_user.profile }
+    return render_template('auth/admin_matriculas.html', form=form, matriculas=registros, year=current_year, current_user=current_user)
 
 @auth.route('/admin/matriculas', methods=['GET', 'POST'])
+@login_required
 def gerenciar_matriculas():
-    if session.get("usuario", {}).get("profile") != "admin":
+    if not current_user.is_authenticated or current_user.profile != "admin":
         flash("Acesso restrito.", "danger")
         return redirect(url_for('public.home'))
+
+    print(current_user)
+    print(current_user.id)
 
     form = CriarMatriculaForm()
     form_valid = form.validate_on_submit()
@@ -112,20 +120,20 @@ def gerenciar_matriculas():
         if sucesso:
             flash(f"{mensagem} Número: {numero_matricula}", "success")
             registros = listar_matriculas()
-            usuario = session['usuario']
-            return render_template('auth/admin_matriculas.html', form=form, matriculas=registros, year=current_year, current_user=usuario)
+            usuario = { "id": current_user.id, "username": current_user.username, "email": current_user.email, "profile": current_user.profile }
+            return render_template('auth/admin_matriculas.html', form=form, matriculas=registros, year=current_year, current_user=current_user)
         else:
             flash(mensagem, "danger")
     else:
         flash("Erro ao validar o formulário. Verifique os dados inseridos.", "danger")
 
     registros = listar_matriculas()
-    usuario = session['usuario']
-    return render_template('auth/admin_matriculas.html', form=form, matriculas=registros, year=current_year, current_user=usuario)
+    usuario = { "id": current_user.id, "username": current_user.username, "email": current_user.email, "profile": current_user.profile }
+    return render_template('auth/admin_matriculas.html', form=form, matriculas=registros, year=current_year, current_user=current_user)
 
 @auth.route('/admin/matriculas/delete/<int:matricula_id>', methods=['POST'])
 def deletar_matricula(matricula_id):
-    if session.get("usuario", {}).get("profile") != "admin":
+    if not current_user.is_authenticated or current_user.profile != "admin":
         flash("Acesso restrito.", "danger")
         return redirect(url_for('public.home'))
 

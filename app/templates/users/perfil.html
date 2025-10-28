@@ -17,6 +17,9 @@
     {% endwith %}
 
     <form method="POST" action="/perfil">
+
+        <a href="/perfil/avatar" class="profile-btn">🎨 Editar Avatar</a>
+
         <div>
             <label for="username">Nome de usuário</label>
             <input type="text" name="username" id="username" value="{{ usuario.username }}" required />

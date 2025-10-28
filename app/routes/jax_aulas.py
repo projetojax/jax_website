@@ -6,6 +6,7 @@ current_year = datetime.now().year
 
 from flask import session
 from datetime import timedelta
+from flask_login import current_user
 
 
 @jax_aulas_routes.route('/jaxaulas')
@@ -16,8 +17,8 @@ def jaxaulas():
     tutorials = load_jaxaulas(jax_aulas_routes)
     themes = {tutorial['theme'] for tutorial in tutorials}  # Obter temas únicos
 
-    if 'usuario' in session:
-        usuario = session['usuario']
+    if current_user.is_authenticated:
+        usuario = { "id": current_user.id, "username": current_user.username, "email": current_user.email, "profile": current_user.profile }
         return render_template('aulas/jaxaulas.html', themes=themes, year=current_year, current_user=usuario)
 
     return render_template('aulas/jaxaulas.html', themes=themes, year=current_year)
@@ -31,8 +32,8 @@ def jaxaulas_theme(theme):
     if not tutorials:
         return render_template("public/error.html", title="ERROR", error="Tutorial nao existe", year=current_year), 404
 
-    if 'usuario' in session:
-        usuario = session['usuario']
+    if current_user.is_authenticated:
+        usuario = { "id": current_user.id, "username": current_user.username, "email": current_user.email, "profile": current_user.profile }
         return render_template('aulas/jaxaulas_topicos.html', theme=theme, tutorials=tutorials, year=current_year, current_user=usuario)
 
     return render_template('aulas/jaxaulas_topicos.html', theme=theme, tutorials=tutorials, year=current_year)
@@ -46,8 +47,8 @@ def jaxaulas_watch(tutorial_id):
     if not tutorial:
         return render_template("error.html", title="ERROR", error="Tutorial nao existe", year=current_year), 404
 
-    if 'usuario' in session:
-        usuario = session['usuario']
+    if current_user.is_authenticated:
+        usuario = { "id": current_user.id, "username": current_user.username, "email": current_user.email, "profile": current_user.profile }
         return render_template('aulas/jaxaulas_assistir.html', tutorial=tutorial, year=current_year, current_user=usuario)
 
     return render_template('aulas/jaxaulas_assistir.html', tutorial=tutorial, year=current_year)
@@ -77,11 +78,11 @@ def add_comment_jaxaulas(tutorial_id):
 def nova_aula():
     from app.uploads.jax_aulas import aulas_novo_id, salvar_json_jaxaulas
 
-    if 'usuario' not in session:
+    if not current_user.is_authenticated:
         flash('Você precisa estar logado para criar um resumo.', 'warning')
         return redirect(url_for('auth.login'))
 
-    current_user = session['usuario']
+    current_user = { "id": current_user.id, "username": current_user.username, "email": current_user.email, "profile": current_user.profile }
 
     if request.method == 'POST':
         try:
@@ -97,11 +98,11 @@ def nova_aula():
 
 @jax_aulas_routes.route('/jaxaulas/listar')
 def listar_aulas():
-    if 'usuario' not in session:
+    if not current_user.is_authenticated:
         flash('Você precisa estar logado para acessar as aulas.', 'warning')
         return redirect(url_for('auth.login'))
 
-    current_user = session['usuario']
+    current_user = { "id": current_user.id, "username": current_user.username, "email": current_user.email, "profile": current_user.profile }
     aulas = []
 
     from app.uploads.variables import path_app_static_json_jaxaulas as jaxaulas_json_path
@@ -119,11 +120,11 @@ def listar_aulas():
 
 @jax_aulas_routes.route('/jaxaulas/editar/<int:aula_id>', methods=['GET', 'POST'])
 def editar_aula(aula_id):
-    if 'usuario' not in session:
+    if not current_user.is_authenticated:
         flash('Você precisa estar logado para editar aulas.', 'warning')
         return redirect(url_for('auth.login'))
 
-    current_user = session['usuario']
+    current_user = { "id": current_user.id, "username": current_user.username, "email": current_user.email, "profile": current_user.profile }
     import os, json
     from app.uploads.variables import path_app_static_json_jaxaulas as jaxaulas_json_path
 
@@ -155,11 +156,11 @@ def editar_aula(aula_id):
 
 @jax_aulas_routes.route('/jaxaulas/remover/<int:aula_id>', methods=['POST'])
 def remover_aula(aula_id):
-    if 'usuario' not in session:
+    if not current_user.is_authenticated:
         flash('Você precisa estar logado para remover aulas.', 'warning')
         return redirect(url_for('auth.login'))
 
-    current_user = session['usuario']
+    current_user = { "id": current_user.id, "username": current_user.username, "email": current_user.email, "profile": current_user.profile }
     import os
     from app.uploads.variables import path_app_static_json_jaxaulas as jaxaulas_json_path
 

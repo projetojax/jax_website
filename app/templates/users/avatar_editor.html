@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/avatar_editor.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="avatar-editor-container">
+    <header class="editor-header">
+        <h1>👤 Editor de Avatar</h1>
+        <p>Personalize seu personagem no Universo JAX</p>
+        <a href="/perfil" class="back-btn">← Voltar ao Perfil</a>
+    </header>
+
+    <div class="editor-main">
+        <!-- Visualização do Avatar -->
+        <div class="avatar-preview-section">
+            <div class="avatar-display">
+                <div id="avatarPreview" class="avatar-preview">
+                    <!-- Avatar será renderizado aqui via JavaScript -->
+                </div>
+            </div>
+            <div class="avatar-actions">
+                <button id="btnRandom" class="action-btn">🎲 Aleatório</button>
+                <button id="btnReset" class="action-btn">🔄 Resetar</button>
+                <button id="btnSave" class="action-btn primary">💾 Salvar Avatar</button>
+            </div>
+        </div>
+
+        <!-- Customização -->
+        <div class="customization-section">
+            <div class="category-tabs">
+                <button class="tab-btn active" data-category="hair">Cabelo</button>
+                <button class="tab-btn" data-category="shirt">Roupas</button>
+                <button class="tab-btn" data-category="pants">Calças</button>
+                <button class="tab-btn" data-category="shoes">Calçados</button>
+                <button class="tab-btn" data-category="accessory">Acessórios</button>
+            </div>
+
+            <div class="items-grid" id="itemsGrid">
+                <!-- Itens serão carregados aqui via JavaScript -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmação -->
+<div id="saveModal" class="modal hidden">
+    <div class="modal-content">
+        <h2>Avatar Salvo! ✅</h2>
+        <p>Seu avatar foi atualizado com sucesso.</p>
+        <p>Ele já está visível no Universo JAX!</p>
+        <button id="closeSaveModal" class="modal-btn">Continuar</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/avatar_editor.js') }}"></script>
+<script>
+    // Passar dados do avatar atual para o JavaScript
+    const currentAvatar = {{ current_avatar | tojson }};
+    const availableItems = {
+        hair: {{ hair_items | tojson }},
+        shirt: {{ shirt_items | tojson }},
+        pants: {{ pants_items | tojson }},
+        shoes: {{ shoes_items | tojson }},
+        accessory: {{ accessory_items | tojson }}
+    };
+    
+    // Inicializar editor
+    document.addEventListener('DOMContentLoaded', function() {
+        const editor = new AvatarEditor(currentAvatar, availableItems);
+    });
+</script>
+{% endblock %}

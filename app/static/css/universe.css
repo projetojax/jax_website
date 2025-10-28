@@ -1,0 +1,940 @@
+/* Reset e Variáveis */
+:root {
+  --panel: #fff;
+  --accent: #2563eb;
+  --accent-educacional: #0b6efd;
+  --accent-empresarial: #1d4ed8;
+  --accent-entretenimento: #16a34a;
+  --bg-inicial: #000;
+  --bg-educacional: linear-gradient(180deg, #bfe0ff, #eaf6ff);
+  --bg-empresarial: linear-gradient(180deg, #dbeafe, #eff6ff);
+  --bg-entretenimento: linear-gradient(180deg, #a7f3d0, #dcfce7);
+  --map-w: 2000px;
+  --map-h: 1200px;
+  --campus-w: 2600px;
+  --campus-h: 1400px;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+/* Layout Base */
+.universe-container {
+  padding: 1rem;
+}
+
+.universe-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: .75rem;
+  padding: .4rem .8rem;
+  background: rgba(255,255,255,0.8);
+  border-radius: 10px;
+  backdrop-filter: blur(8px);
+}
+
+.universe-header h1 {
+  font-size: 1.3rem;
+  margin: 0;
+  color: rgba(0,0,255,0.8);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+}
+
+.ctrl-btn {
+  background: var(--panel);
+  border: 0;
+  border-radius: 8px;
+  padding: .45rem .7rem;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.hint {
+  font-size: .85rem;
+  color: #475569;
+}
+
+.universe-main {
+  display: flex;
+  gap: 1rem;
+}
+
+/* Viewport e Mapa - CORREÇÃO DA ESCALA */
+.viewport {
+  width: 1000px;
+  height: 600px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+}
+
+.map-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: transparent;
+  transform-origin: 0 0;
+  transition: transform 0.1s ease-out;
+}
+
+/* Mapa inicial é menor - ESCALA CORRIGIDA */
+.map-inicial {
+  width: var(--map-w);
+  height: var(--map-h);
+  transform: scale(0.5);
+}
+
+/* Mapas campus são maiores - ESCALA CORRIGIDA */
+.map-campus {
+  width: var(--campus-w);
+  height: var(--campus-h);
+  transform: scale(0.38);
+}
+
+.background {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+}
+
+/* Camadas de Parallax */
+.layer.bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  will-change: transform;
+}
+
+.layer.far {
+  filter: brightness(.95) saturate(.95);
+}
+
+.layer.mid {
+  opacity: .95;
+}
+
+/* Zonas Interativas */
+.zone {
+  position: absolute;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid rgba(255,255,255,0.5);
+  box-shadow: 0 16px 40px rgba(6,20,60,0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  cursor: pointer;
+  transition: transform .25s;
+  z-index: 2;
+}
+
+.zone:hover {
+  transform: scale(1.03);
+}
+
+.zone img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.zone-label {
+  background: linear-gradient(90deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85));
+  padding: .35rem .6rem;
+  border-radius: 10px;
+  margin: 8px;
+  font-weight: 700;
+  font-size: .9rem;
+  box-shadow: 0 6px 18px rgba(12,40,80,0.04);
+}
+
+/* Personagem */
+.player {
+  position: absolute;
+  width: 64px;
+  height: 80px;
+  z-index: 40;
+  outline: none;
+}
+
+.player img {
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* NPC */
+.npc {
+  position: absolute;
+  width: 110px;
+  height: 150px;
+  z-index: 30;
+  border-radius: 6px;
+  object-fit: cover;
+  box-shadow: 0 8px 30px rgba(6,20,60,0.06);
+}
+
+/* Painel Lateral */
+.side-panel {
+  width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: .7rem;
+}
+
+.panel-block {
+  background: var(--panel);
+  padding: .8rem;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+}
+
+.small {
+  font-size: .85rem;
+  color: #64748b;
+  margin-top: .4rem;
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  overflow: auto;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  transition: opacity .3s ease;
+}
+
+.modal.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 14px;
+  max-width: 520px;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+  animation: popIn .4s ease;
+}
+
+.modal-content h2 {
+  margin-bottom: .5rem;
+  font-size: 1.5rem;
+}
+
+.modal-content p {
+  font-size: 1rem;
+  color: #334155;
+  margin-bottom: 1.2rem;
+}
+
+.modal-btn {
+  background: var(--accent);
+  color: #fff;
+  padding: .5rem 1rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+@keyframes popIn {
+  from { transform: scale(.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Fullscreen */
+:fullscreen .viewport {
+  width: 100vw;
+  height: 100vh;
+  border-radius: 0;
+}
+
+:fullscreen body {
+  background: #09121a;
+}
+
+/* Temas específicos por área */
+.theme-inicial .viewport {
+  background: var(--bg-inicial);
+}
+
+.theme-inicial .zone-label {
+  color: #1e3a8a;
+}
+
+.theme-educacional .viewport {
+  background: var(--bg-educacional);
+}
+
+.theme-educacional .modal-content h2 {
+  color: var(--accent-educacional);
+}
+
+.theme-educacional .modal-btn {
+  background: var(--accent-educacional);
+}
+
+.theme-empresarial .viewport {
+  background: var(--bg-empresarial);
+}
+
+.theme-empresarial .modal-content h2 {
+  color: var(--accent-empresarial);
+}
+
+.theme-empresarial .modal-btn {
+  background: var(--accent-empresarial);
+}
+
+.theme-entretenimento .viewport {
+  background: var(--bg-entretenimento);
+}
+
+.theme-entretenimento .modal-content h2 {
+  color: var(--accent-entretenimento);
+}
+
+.theme-entretenimento .modal-btn {
+  background: var(--accent-entretenimento);
+}
+
+/* Estilo para a zona de saída */
+.zone-exit {
+    border: 2px solid #ef4444 !important;
+    z-index: 50; /* Garantir que fique acima */
+}
+
+.zone-exit .zone-label {
+    background: linear-gradient(90deg, #ef4444, #dc2626) !important;
+    color: white !important;
+}
+
+
+/* Posições específicas para mapa inicial */
+.zone-jax { left: 150px; top: 500px; width: 400px; height: 250px; }
+.zone-educacional { left: 800px; top: 350px; width: 400px; height: 250px; }
+.zone-empresarial { left: 1300px; top: 350px; width: 400px; height: 250px; }
+.zone-entretenimento { left: 700px; top: 700px; width: 400px; height: 250px; }
+.zone-impacto { left: 1500px; top: 700px; width: 400px; height: 250px; }
+
+/* Posições específicas para campus educacional */
+.zone-park { left: 140px; top: 120px; width: 620px; height: 360px; }
+.zone-classroom { left: 820px; top: 110px; width: 640px; height: 360px; }
+.zone-mural { left: 140px; top: 520px; width: 640px; height: 360px; }
+.zone-director { left: 820px; top: 520px; width: 620px; height: 260px; }
+.zone-teachers { left: 1550px; top: 520px; width: 620px; height: 300px; }
+
+/* Posições específicas para empresa */
+.zone-recepcao { left: 140px; top: 120px; width: 620px; height: 360px; }
+.zone-coworking { left: 820px; top: 110px; width: 640px; height: 360px; }
+.zone-tecnica { left: 140px; top: 520px; width: 640px; height: 360px; }
+.zone-pessoas { left: 820px; top: 520px; width: 620px; height: 260px; }
+.zone-comercial { left: 1550px; top: 120px; width: 620px; height: 360px; }
+.zone-reunioes { left: 1550px; top: 520px; width: 620px; height: 300px; }
+
+/* Posições específicas para parque */
+.zone-entry { left: 140px; top: 120px; width: 620px; height: 360px; }
+.zone-lake { left: 820px; top: 110px; width: 640px; height: 360px; }
+.zone-sport { left: 140px; top: 520px; width: 640px; height: 360px; }
+.zone-culture { left: 820px; top: 520px; width: 620px; height: 260px; }
+.zone-nerd { left: 1550px; top: 520px; width: 620px; height: 300px; }
+
+/* Modal padrão */
+.modal.hidden {
+  display: none;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content.user-modal {
+  background: #fff;
+  color: #222;
+  padding: 25px 30px;
+  border-radius: 16px;
+  width: 300px;
+  max-width: 90%;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  text-align: center;
+  position: relative;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-content.user-modal h2 {
+  margin-bottom: 20px;
+  font-size: 1.2em;
+  color: #111;
+}
+
+.modal-links {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-btn {
+  display: inline-block;
+  padding: 10px 14px;
+  background: #2563eb;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.modal-btn:hover {
+  background: #1e40af;
+}
+
+.modal-btn.admin {
+  background: #059669;
+}
+
+.modal-btn.admin:hover {
+  background: #047857;
+}
+
+.modal-close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 22px;
+  cursor: pointer;
+  color: #555;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+#player {
+  position: absolute;
+  z-index: 5000; /* fica acima do mapa */
+  pointer-events: auto; /* permite clique */
+}
+
+#player img {
+  pointer-events: auto; /* garante que o clique passa pra imagem */
+  cursor: pointer; /* mostra que dá pra clicar */
+}
+
+.mural-item {
+  background: #f8fafc;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.mural-admin {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+}
+
+.modal-input {
+  width: 100%;
+  margin: 5px 0;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+
+.chat-box {
+  background: #fff;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  padding: 10px;
+  height: 300px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+
+.chat-msg {
+  margin-bottom: 6px;
+}
+
+.chat-input {
+  display: flex;
+  gap: 10px;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.chat-input button {
+  padding: 6px 12px;
+}
+
+/* Estilos para Sala dos Professores e Sala de Aula */
+.duvidas-container {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.duvida-item {
+  background: #f8fafc;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border-left: 4px solid #3b82f6;
+}
+
+.duvida-resposta {
+  background: #f0fdf4;
+  padding: 8px;
+  margin-top: 8px;
+  border-radius: 6px;
+  border-left: 3px solid #10b981;
+}
+
+.duvida-pendente {
+  background: #fffbeb;
+  padding: 8px;
+  margin-top: 8px;
+  border-radius: 6px;
+  border-left: 3px solid #f59e0b;
+}
+
+.resumo-item {
+  background: #f8fafc;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.resumo-meta {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0;
+  font-size: 0.85em;
+  color: #64748b;
+}
+
+.admin-actions {
+  margin-bottom: 15px;
+}
+
+.admin-actions .modal-btn {
+  margin: 5px;
+  display: inline-block;
+}
+
+/* Estilos melhorados para resumos */
+.resumo-item {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 12px 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border: 1px solid #e1e5e9;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.resumo-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.resumo-thumbnail {
+    width: 100%;
+    height: 160px;
+    overflow: hidden;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.resumo-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.resumo-content h4 {
+    margin: 0 0 8px 0;
+    color: #1e293b;
+    font-size: 1.1em;
+}
+
+.resumo-descricao {
+    color: #64748b;
+    margin: 0 0 12px 0;
+    line-height: 1.4;
+}
+
+.resumo-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 0.85em;
+}
+
+.meta-left, .meta-right {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.resumo-meta small {
+    color: #94a3b8;
+}
+
+.resumo-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-ler-resumo {
+    background: #3b82f6;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.9em;
+    transition: background 0.2s ease;
+}
+
+.btn-ler-resumo:hover {
+    background: #2563eb;
+}
+
+.admin-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-editar, .btn-remover {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85em;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-editar {
+    background: #f59e0b;
+    color: white;
+}
+
+.btn-remover {
+    background: #ef4444;
+    color: white;
+}
+
+.no-resumos, .error-message {
+    text-align: center;
+    padding: 40px 20px;
+    color: #64748b;
+}
+
+.loading {
+    text-align: center;
+    padding: 20px;
+    color: #64748b;
+}
+
+/* MODAL: SALA DE AULA - CORREÇÕES */
+#classroomModal .modal-content {
+  max-width: 800px;
+  max-height: 90vh; /* Altura máxima de 90% da tela */
+  width: 95%;
+  overflow: hidden; /* Remove scroll do container principal */
+  display: flex;
+  flex-direction: column;
+}
+
+.classroom-actions {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Importante para o scroll interno */
+}
+
+/* Container dos resumos com scroll */
+.modal-scroll {
+  max-height: 400px; /* Altura fixa para o conteúdo rolável */
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px;
+  margin-top: 10px;
+  background: #f8fafc;
+}
+
+/* Melhorias no scroll */
+.modal-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-scroll::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.modal-scroll::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.modal-scroll::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Header fixo no modal */
+.modal-content h2 {
+  margin-top: 0;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+/* Ações do admin */
+.admin-actions {
+  margin: 15px 0;
+  padding: 10px;
+  background: #f0f9ff;
+  border-radius: 8px;
+  border-left: 4px solid #0ea5e9;
+}
+
+/* Botão fechar fixo na parte inferior */
+#closeClassroom {
+  margin-top: 15px;
+  align-self: flex-end;
+}
+
+/* Melhorias nos itens de resumo */
+.resumo-item {
+  background: white;
+  margin: 10px 0;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Loading state */
+.loading {
+  text-align: center;
+  padding: 40px 20px;
+  color: #64748b;
+  font-style: italic;
+}
+
+/* Estados vazios e erro */
+.no-resumos, .error-message {
+  text-align: center;
+  padding: 30px 20px;
+  color: #64748b;
+  background: white;
+  border-radius: 8px;
+  margin: 10px 0;
+}
+
+/* Estilos para as salas de chat */
+.reuniao-info {
+  background: #f0f9ff;
+  padding: 10px;
+  border-radius: 8px;
+  margin: 10px 0;
+  border-left: 4px solid #0ea5e9;
+}
+
+.reuniao-info p {
+  margin: 5px 0;
+  font-size: 0.9em;
+}
+
+/* Melhorias nos inputs de chat */
+.chat-input {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.chat-input button {
+  padding: 8px 16px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.chat-input button:hover {
+  background: #2563eb;
+}
+
+/* Melhorias no chat box */
+.chat-box {
+  height: 300px;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 15px;
+  background: #fafafa;
+  margin: 15px 0;
+}
+
+.chat-msg {
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.chat-msg strong {
+  color: #1e40af;
+}
+
+/* Estilos para o NPC Jonas */
+.dialog-container {
+  max-height: 500px;
+  overflow-y: auto;
+  margin: 15px 0;
+  padding: 10px;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 2px solid #e2e8f0;
+}
+
+.dialog-step {
+  animation: fadeIn 0.3s ease-in;
+}
+
+.dialog-step.hidden {
+  display: none;
+}
+
+.npc-speech {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  border-left: 4px solid #3b82f6;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.npc-speech p {
+  margin: 0;
+  font-size: 1.1em;
+  line-height: 1.4;
+}
+
+.player-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.dialog-btn {
+  background: #4f46e5;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.dialog-btn:hover {
+  background: #4338ca;
+  transform: translateY(-2px);
+}
+
+.salas-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin: 15px 0;
+}
+
+.sala-category {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.sala-category h4 {
+  margin: 0 0 10px 0;
+  color: #1e40af;
+  font-size: 1em;
+}
+
+.sala-category ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.sala-category li {
+  margin: 5px 0;
+  font-size: 0.9em;
+  line-height: 1.3;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .salas-list {
+    grid-template-columns: 1fr;
+  }
+  
+  .dialog-btn {
+    padding: 10px 15px;
+    font-size: 0.9em;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
