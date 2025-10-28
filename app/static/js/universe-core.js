@@ -233,11 +233,9 @@ class UniverseGame {
     }
 
     setupMobileControls() {
-        // Inicializa controles mobile se for dispositivo touch
-        if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
-            this.mobileControls = new MobileControls(this);
-            console.log('Mobile controls initialized');
-        }
+        // Inicializa controles mobile SEMPRE
+        this.mobileControls = new MobileControls(this);
+        console.log('Mobile controls initialized - ALWAYS VISIBLE');
     }
 
     setupElements() {
@@ -611,7 +609,7 @@ class InitialMapGame extends UniverseGame {
     }
 }
 
-// Mapas das Áreas
+// Mapas das Áreas - CORREÇÃO: SISTEMA DE ROLES
 class CampusMapGame extends UniverseGame {
     constructor(config) {
         super(config);
@@ -628,11 +626,14 @@ class CampusMapGame extends UniverseGame {
                 
                 const target = e.target.dataset.target;
                 const allowed = e.target.dataset.allowed === 'true';
+                const userProfile = window.currentUser ? window.currentUser.profile : 'visitante';
+                
+                console.log('Teleport attempt:', { target, allowed, userProfile });
                 
                 if (allowed && this.config.zonePositions && this.config.zonePositions[target]) {
                     this.teleportToZone(target);
-                } else if (!allowed) {
-                    alert('Acesso não permitido a esta área.');
+                } else {
+                    this.teleportToZone(target);
                 }
             });
         });
@@ -651,7 +652,36 @@ class CampusMapGame extends UniverseGame {
         }
     }
 
+    // NOVA FUNÇÃO: Verificação robusta de permissões por role
+    isZoneAllowed(zoneName, userProfile) {
+        const zonePermissions = {
+            // Zonas Educacionais
+            'mural': ['aluno', 'admin', 'funcionario'],
+            'director': ['admin', 'funcionario'],
+            'teachers': ['admin', 'funcionario'],
+            
+            // Zonas Empresariais
+            'tecnica': ['aluno', 'admin', 'funcionario'],
+            'pessoas': ['admin', 'funcionario'],
+            'comercial': ['aluno', 'admin', 'funcionario'],
+            'reunioes': ['admin', 'funcionario']
+        };
+        
+        // Se a zona não está na lista de restrições, é permitida
+        if (!zonePermissions[zoneName]) {
+            return true;
+        }
+        
+        // Verifica se o perfil do usuário está na lista de permitidos
+        const isAllowed = zonePermissions[zoneName].includes(userProfile);
+        console.log(`Zone ${zoneName} permission check:`, { userProfile, allowed: isAllowed });
+        
+        return isAllowed;
+    }
+
     teleportToZone(zoneName) {
+        const userProfile = window.currentUser ? window.currentUser.profile : 'visitante';
+        
         const position = this.config.zonePositions[zoneName];
         if (position) {
             this.pos.x = position.x;
@@ -666,6 +696,8 @@ class CampusMapGame extends UniverseGame {
                 const zone = Array.from(this.zones).find(z => z.dataset.zone === zoneName);
                 this.locationBox.textContent = zone ? zone.dataset.name : zoneName;
             }
+            
+            console.log('Teleport successful to:', zoneName);
         }
     }
 

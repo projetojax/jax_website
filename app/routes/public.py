@@ -1,7 +1,24 @@
 from flask import Blueprint, render_template, redirect, request, flash, url_for, session, json
 from flask_login import current_user, login_required
 from datetime import datetime, timedelta
-from app.utils import usuario_tem_acesso
+
+def usuario_tem_acesso(perfis_permitidos):
+    """
+    Verifica se o usuário atual tem acesso baseado nos perfis permitidos
+    """
+    if not current_user or not current_user.is_authenticated:
+        return 'visitante' in perfis_permitidos
+    
+    perfil_usuario = getattr(current_user, 'profile', 'visitante')
+    return perfil_usuario in perfis_permitidos
+
+def obter_perfil_usuario():
+    """
+    Retorna o perfil do usuário atual
+    """
+    if current_user and current_user.is_authenticated:
+        return getattr(current_user, 'profile', 'visitante')
+    return 'visitante'
 
 public_routes = Blueprint("public", __name__)
 current_year = datetime.now().year
@@ -24,26 +41,6 @@ def jax_services(path):
         if '.html' in str(e):
             return render_template('public/error.html', title="ERROR", error=f"Página ( {str(e)} ) não encontrada", year=current_year, current_user=current_user)
         return render_template('public/error.html', title="ERROR", error=str(e), year=current_year, current_user=current_user)
-
-@public_routes.route('/')
-@public_routes.route('/home')
-def home():
-    if current_user.is_authenticated:
-        return render_template(
-            'gamificada/universe.html', 
-            title='Home', 
-            year=current_year, 
-            current_user=current_user, 
-            area_name='inicial', 
-            area_title='🌍 Universo JAX — Escolha sua Jornada', 
-            player_sprite=url_for('static', filename='img/avatar/personagem.png'), 
-            default_location='Centro', 
-            welcome_message='Explore o Universo JAX e descubra novas oportunidades.', 
-            modal_title='🚀 Bem-vindo ao Universo JAX!', 
-            modal_message='Explore o futuro da educação, do trabalho e do entretenimento.'
-        )
-
-    return render_template('public/home.html', title='Home', year=current_year, current_user=current_user)
 
 @public_routes.route('/google-site-verification=<token>.html')
 def google_verification():
@@ -86,53 +83,7 @@ def documento():
 def jax_jornada():
     return render_template('public/jax_jornada.html', title='Jornada', year=current_year, current_user=current_user)
 
-@public_routes.route('/educacional')
-def educacional():
-    return render_template(
-        'gamificada/universe.html', 
-        area_name='educacional', 
-        area_title='Campus JAX — Mundo Educacional', 
-        player_sprite=url_for('static', filename='img/avatar/personagem.png'), 
-        default_location='Pátio', 
-        welcome_message='Bem-vindo ao campus.', 
-        modal_title='🎓 Bem-vindo!', 
-        modal_message='Seja bem-vindo ao Universo Educacional do JAX! Aqui você irá aprender tudo para se capacitar ao mercado e à cidadania contemporânea.', 
-        title='Educacional', 
-        year=current_year, 
-        current_user=current_user
-    )
 
-@public_routes.route('/entretenimento')
-def entretenimento():
-    return render_template(
-        'gamificada/universe.html', 
-        area_name='entretenimento', 
-        area_title='Parque Municipal — Universo Entretenimento JAX', 
-        player_sprite=url_for('static', filename='img/avatar/personagem.png'), 
-        default_location='Entrada', 
-        welcome_message='Bem-vindo ao parque.', 
-        modal_title='🎡 Bem-vindo!', 
-        modal_message='Seja bem-vindo ao Universo Entretenimento do JAX! Aqui você irá descontrair e lidar com sua saúde mental.', 
-        title='Entretenimento', 
-        year=current_year, 
-        current_user=current_user
-    )
-
-@public_routes.route('/empresarial')
-def empresarial():
-    return render_template(
-        'gamificada/universe.html', 
-        area_name='empresarial', 
-        area_title='🏢 Universo Empresarial JAX', 
-        player_sprite=url_for('static', filename='img/avatar/personagem.png'), 
-        default_location='Recepção', 
-        welcome_message='Bem-vindo ao universo empresarial.', 
-        modal_title='🏢 Bem-vindo!', 
-        modal_message='Seja bem-vindo ao Universo Empresarial do JAX! Aqui você irá entender como funciona o mercado de trabalho e estar pronto pra lidar com ele.', 
-        title='Empresarial', 
-        year=current_year, 
-        current_user=current_user
-    )
 
 @public_routes.route('/sala-professores/duvidas', methods=['GET', 'POST'])
 def sala_professores_duvidas():
@@ -248,3 +199,92 @@ def novo_resumo_sala_aula():
             flash(f'Ocorreu um erro ao salvar o resumo: {e}', 'danger')
 
     return render_template('resumos/editar_resumo.html', title="Novo Resumo", year=current_year, current_user=current_user, post=post)
+
+@public_routes.route('/')
+@public_routes.route('/home')
+def home():
+    if current_user.is_authenticated:
+        return render_template(
+            'gamificada/universe.html', 
+            title='Home', 
+            year=current_year, 
+            current_user=current_user, 
+            area_name='inicial', 
+            area_title='🌍 Universo JAX — Escolha sua Jornada', 
+            player_sprite=url_for('static', filename='img/avatar/personagem.png'), 
+            default_location='Centro', 
+            welcome_message='Explore o Universo JAX e descubra novas oportunidades.', 
+            modal_title='🚀 Bem-vindo ao Universo JAX!', 
+            modal_message='Explore o futuro da educação, do trabalho e do entretenimento.'
+        )
+
+    return render_template('public/home.html', title='Home', year=current_year, current_user=current_user)
+
+@public_routes.route('/educacional')
+def educacional():
+    # Obter perfil do usuário atual
+    perfil_usuario = obter_perfil_usuario()
+    
+    return render_template(
+        'gamificada/universe.html', 
+        area_name='educacional', 
+        area_title='Campus JAX — Mundo Educacional', 
+        player_sprite=url_for('static', filename='img/avatar/personagem.png'), 
+        default_location='Pátio', 
+        welcome_message='Bem-vindo ao campus.', 
+        modal_title='🎓 Bem-vindo!', 
+        modal_message='Seja bem-vindo ao Universo Educacional do JAX! Aqui você irá aprender tudo para se capacitar ao mercado e à cidadania contemporânea.', 
+        title='Educacional', 
+        year=current_year, 
+        current_user=current_user,
+        # PASSANDO AS PERMISSÕES CORRETAMENTE PARA O TEMPLATE - MANTENDO COMPATIBILIDADE
+        tem_acesso_mural=usuario_tem_acesso(['aluno', 'admin', 'funcionario']),
+        tem_acesso_diretoria=usuario_tem_acesso(['admin', 'funcionario']),
+        tem_acesso_professores=usuario_tem_acesso(['admin', 'funcionario'])
+    )
+
+@public_routes.route('/entretenimento')
+def entretenimento():
+    # Para entretenimento, todas as áreas são públicas
+    return render_template(
+        'gamificada/universe.html', 
+        area_name='entretenimento', 
+        area_title='Parque Municipal — Universo Entretenimento JAX', 
+        player_sprite=url_for('static', filename='img/avatar/personagem.png'), 
+        default_location='Entrada', 
+        welcome_message='Bem-vindo ao parque.', 
+        modal_title='🎡 Bem-vindo!', 
+        modal_message='Seja bem-vindo ao Universo Entretenimento do JAX! Aqui você irá descontrair e lidar com sua saúde mental.', 
+        title='Entretenimento', 
+        year=current_year, 
+        current_user=current_user,
+        # Todas as áreas de entretenimento são públicas
+        tem_acesso_lago=True,
+        tem_acesso_esporte=True,
+        tem_acesso_cultura=True,
+        tem_acesso_nerd=True
+    )
+
+@public_routes.route('/empresarial')
+def empresarial():
+    # Obter perfil do usuário atual
+    perfil_usuario = obter_perfil_usuario()
+    
+    return render_template(
+        'gamificada/universe.html', 
+        area_name='empresarial', 
+        area_title='🏢 Universo Empresarial JAX', 
+        player_sprite=url_for('static', filename='img/avatar/personagem.png'), 
+        default_location='Recepção', 
+        welcome_message='Bem-vindo ao universo empresarial.', 
+        modal_title='🏢 Bem-vindo!', 
+        modal_message='Seja bem-vindo ao Universo Empresarial do JAX! Aqui você irá entender como funciona o mercado de trabalho e estar pronto pra lidar com ele.', 
+        title='Empresarial', 
+        year=current_year, 
+        current_user=current_user,
+        # PASSANDO AS PERMISSÕES CORRETAMENTE
+        tem_acesso_tecnica=usuario_tem_acesso(['aluno', 'admin', 'funcionario']),
+        tem_acesso_pessoas=usuario_tem_acesso(['admin', 'funcionario']),
+        tem_acesso_comercial=usuario_tem_acesso(['aluno', 'admin', 'funcionario']),
+        tem_acesso_reunioes=usuario_tem_acesso(['admin', 'funcionario'])
+    )

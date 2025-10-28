@@ -63,7 +63,7 @@
   gap: 1rem;
 }
 
-/* Viewport e Mapa */
+/* Viewport e Mapa - CORREÇÃO DA ESCALA */
 .viewport {
   width: 1000px;
   height: 600px;
@@ -79,18 +79,21 @@
   left: 0;
   background: transparent;
   transform-origin: 0 0;
+  transition: transform 0.1s ease-out;
 }
 
-/* Mapa inicial é menor */
+/* Mapa inicial é menor - ESCALA CORRIGIDA */
 .map-inicial {
   width: var(--map-w);
   height: var(--map-h);
+  transform: scale(0.5);
 }
 
-/* Mapas campus são maiores */
+/* Mapas campus são maiores - ESCALA CORRIGIDA */
 .map-campus {
   width: var(--campus-w);
   height: var(--campus-h);
+  transform: scale(0.38);
 }
 
 .background {

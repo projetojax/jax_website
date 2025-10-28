@@ -16,8 +16,8 @@
         </div>
     </header>
 
-    <!-- Controles Touch Mobile -->
-    <div class="mobile-controls">
+    <!-- Controles Touch Mobile - SEMPRE ATIVOS -->
+    <div class="mobile-controls active" id="mobileControls">
       <div class="control-pad">
         <button class="control-btn control-up" data-action="up">↑</button>
         <button class="control-btn control-left" data-action="left">←</button>
@@ -645,7 +645,6 @@
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/universe-core.js') }}"></script>
 
-
 <script>
 const currentUser = {% if current_user %}{
     username: '{{ current_user.username }}',
@@ -1138,10 +1137,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.zone-tecnica').forEach(zone => {
     zone.addEventListener('click', () => {
       const allowed = zone.dataset.allowed === 'true';
-      if (!allowed) {
-        alert('🚫 Acesso não permitido à Sala Técnica.');
-        return;
-      }
       salasEmpresariais.tecnica.renderChat();
       salasEmpresariais.tecnica.modal.classList.remove('hidden');
     });
@@ -1150,10 +1145,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.zone-pessoas').forEach(zone => {
     zone.addEventListener('click', () => {
       const allowed = zone.dataset.allowed === 'true';
-      if (!allowed) {
-        alert('🚫 Acesso não permitido à Sala de Pessoas.');
-        return;
-      }
       salasEmpresariais.pessoas.renderChat();
       salasEmpresariais.pessoas.modal.classList.remove('hidden');
     });
@@ -1162,10 +1153,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.zone-comercial').forEach(zone => {
     zone.addEventListener('click', () => {
       const allowed = zone.dataset.allowed === 'true';
-      if (!allowed) {
-        alert('🚫 Acesso não permitido à Sala Comercial.');
-        return;
-      }
       salasEmpresariais.comercial.renderChat();
       salasEmpresariais.comercial.modal.classList.remove('hidden');
     });
@@ -1175,8 +1162,8 @@ document.addEventListener('DOMContentLoaded', () => {
     zone.addEventListener('click', () => {
       const allowed = zone.dataset.allowed === 'true';
       if (!allowed) {
-        alert('🚫 Acesso não permitido à Sala de Reuniões.');
-        return;
+      salasEmpresariais.reunioes.renderChat();
+      salasEmpresariais.reunioes.modal.classList.remove('hidden');
       }
       salasEmpresariais.reunioes.renderChat();
       salasEmpresariais.reunioes.modal.classList.remove('hidden');

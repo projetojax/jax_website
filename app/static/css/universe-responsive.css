@@ -45,7 +45,7 @@ flex: 1;
 min-height: 0; /* Importante para flexbox */
 }
 
-/* Viewport Mobile */
+/* Viewport Mobile - ESCALA CORRIGIDA */
 .viewport {
 width: 100%;
 height: 50vh !important;
@@ -54,9 +54,17 @@ border-radius: 8px;
 order: 2; /* Mapa fica embaixo no mobile */
 }
 
-/* Ajustes do Mapa para Mobile */
+/* Ajustes do Mapa para Mobile - ESCALA CORRIGIDA */
 .map-layer {
 transform-origin: center;
+}
+
+.map-inicial {
+transform: scale(0.3) !important; /* Escala menor para mobile */
+}
+
+.map-campus {
+transform: scale(0.25) !important; /* Escala menor para mobile */
 }
 
 /* Zonas Interativas - Tamanhos Reduzidos */
@@ -204,14 +212,34 @@ gap: 1rem;
 flex: 1;
 min-width: 200px;
 }
+
+/* Escala para tablets */
+.map-inicial {
+transform: scale(0.4) !important;
+}
+
+.map-campus {
+transform: scale(0.32) !important;
+}
+}
+
+/* Telas grandes (acima de 1920px) */
+@media (min-width: 1920px) {
+.map-inicial {
+transform: scale(0.6) !important;
+}
+
+.map-campus {
+transform: scale(0.45) !important;
+}
 }
 
 
 
-/* ===== CONTROLES TOUCH PARA MOBILE ===== */
+/* ===== CONTROLES TOUCH PARA MOBILE - CORREÇÃO: SEMPRE VISÍVEIS ===== */
 
 .mobile-controls {
-  display: none;
+  display: block !important; /* FORÇAR VISIBILIDADE */
   position: fixed;
   bottom: 20px;
   left: 0;
@@ -219,10 +247,12 @@ min-width: 200px;
   padding: 0 20px;
   z-index: 1000;
   pointer-events: none;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 .mobile-controls.active {
-  display: block;
+  display: block !important;
 }
 
 .control-pad {
@@ -241,7 +271,7 @@ min-width: 200px;
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   border: 2px solid #2563eb;
   display: flex;
   align-items: center;
@@ -250,7 +280,8 @@ min-width: 200px;
   cursor: pointer;
   user-select: none;
   touch-action: manipulation;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: all 0.1s ease;
 }
 
 .control-btn:active {
@@ -278,7 +309,7 @@ min-width: 200px;
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   border: 2px solid #059669;
   display: flex;
   align-items: center;
@@ -287,7 +318,8 @@ min-width: 200px;
   cursor: pointer;
   user-select: none;
   touch-action: manipulation;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: all 0.1s ease;
 }
 
 .action-btn:active {
@@ -296,10 +328,31 @@ min-width: 200px;
   transform: scale(0.95);
 }
 
+/* Desktop com controles visíveis */
+@media (min-width: 769px) {
+  .mobile-controls {
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+  }
+  
+  .mobile-controls:hover {
+    opacity: 1;
+  }
+  
+  .control-btn, .action-btn {
+    opacity: 0.8;
+  }
+  
+  .control-btn:hover, .action-btn:hover {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
 /* ===== DETECÇÃO DE DISPOSITIVO TOUCH ===== */
 @media (hover: none) and (pointer: coarse) {
   .mobile-controls {
-    display: block;
+    display: block !important;
   }
   
   /* Melhorias para touch */
