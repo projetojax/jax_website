@@ -4,79 +4,85 @@ from datetime import datetime
 from werkzeug.security import generate_password_hash
 import os
 
-BASE_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static', 'data', 'jax.db')
-PATH_DB = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), 'app')), 'static', 'data', 'jax.db')
+# Caminho correto para o banco REAL
+PATH_DB = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'app', 'static', 'data', 'jax.db')
 
 def importar_usuarios():
-    # Configurações
-    DATABASE_URI = f'sqlite:///{PATH_DB}'  # Ajuste para seu banco
     CSV_FILE = 'backup_users.csv'
-    
-    # Conectar ao banco
-    if 'sqlite' in DATABASE_URI:
-        conn = sqlite3.connect(DATABASE_URI.replace('sqlite:///', ''))
-    else:
-        # Para PostgreSQL/MySQL, ajuste a conexão
-        import psycopg2
-        conn = psycopg2.connect(DATABASE_URI)
-    
+
+    if not os.path.exists(PATH_DB):
+        print("❌ Banco de dados não encontrado em:", PATH_DB)
+        return
+
+    if not os.path.exists(CSV_FILE):
+        print("❌ CSV não encontrado:", CSV_FILE)
+        return
+
+    # Conectar ao banco real
+    conn = sqlite3.connect(PATH_DB)
     cursor = conn.cursor()
-    
+
     try:
-        # Ler o CSV
         df = pd.read_csv(CSV_FILE)
-        
+
         print(f"Encontrados {len(df)} usuários no backup")
-        
-        # Para cada usuário no backup
+
         for index, row in df.iterrows():
-            user_id = row['ID']
+            user_id = int(row['ID'])
             username = row['Usuário']
-            nome_completo = row['Nome Completo']
             email = row['E-mail']
             profile = row['Perfil']
-            data_criacao = row['Criado em']
-            
+
+            # Nome completo — se não tiver, usa o username como fallback
+            nome_completo = row.get('Nome Completo', None)
+            if pd.isna(nome_completo) or nome_completo == "" or nome_completo is None:
+                nome_completo = username
+
+            # Converter data corretamente
+            try:
+                data_criacao = datetime.fromisoformat(row['Criado em'])
+            except:
+                data_criacao = datetime.utcnow()
+
             print(f"Processando: {username} ({email})")
-            
-            # Verificar se o usuário já existe
-            cursor.execute("SELECT id FROM users WHERE id = ? OR email = ? OR username = ?", 
-                         (user_id, email, username))
+
+            # Verifica se já existe
+            cursor.execute(
+                "SELECT id FROM users WHERE id = ? OR email = ? OR username = ?",
+                (user_id, email, username)
+            )
             existing = cursor.fetchone()
-            
+
             if existing:
-                print(f"⚠️  Usuário {username} já existe. Atualizando...")
-                
-                # Atualizar usuário existente
+                print(f"⚠️ Usuário {username} já existe. Atualizando...")
+
                 cursor.execute("""
-                    UPDATE users SET 
-                    username = ?, 
-                    email = ?, 
-                    profile = ?, 
-                    date_created = ?
+                    UPDATE users SET
+                        username = ?,
+                        email = ?,
+                        profile = ?,
+                        date_created = ?,
+                        nome_completo = ?
                     WHERE id = ?
-                """, (username, email, profile, data_criacao, user_id))
-                
+                """, (username, email, profile, data_criacao, nome_completo, user_id))
+
             else:
                 print(f"➕ Adicionando novo usuário: {username}")
-                
-                # Gerar senha padrão (usuário precisará resetar)
-                senha_padrao = generate_password_hash('senha_temp_123')
-                
-                # Inserir novo usuário
+
+                senha_padrao = generate_password_hash('123456')
+
                 cursor.execute("""
-                    INSERT INTO users (id, username, email, password_hash, profile, date_created)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                """, (user_id, username, email, senha_padrao, profile, data_criacao))
-        
-        # Commit das mudanças
+                    INSERT INTO users (id, username, email, password_hash, profile, date_created, nome_completo)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                """, (user_id, username, email, senha_padrao, profile, data_criacao, nome_completo))
+
         conn.commit()
         print("✅ Importação concluída com sucesso!")
-        
+
     except Exception as e:
         print(f"❌ Erro durante a importação: {e}")
         conn.rollback()
-        
+
     finally:
         conn.close()
 

@@ -22,9 +22,26 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
-    profile = db.Column(db.String(20), default='curioso')  # curioso, aluno, admin, funcionario
+    nome_completo = db.Column(db.String(150))   # <<< ADICIONADO
+    profile = db.Column(db.String(20), default='curioso')
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
 
+
+# ======================================
+# MODELO DE MATRÍCULAS (SQLAlchemy)
+# ======================================
+
+class Matricula(db.Model):
+    __tablename__ = 'matriculas'
+    
+    id = db.Column(db.Integer, primary_key=True)  # Nº da matrícula
+    nome_completo = db.Column(db.String(150), nullable=False)
+    email = db.Column(db.String(120), nullable=False)
+    status = db.Column(db.String(50), default='pendente')  # pendente, ativo, cancelado
+    data_criacao = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<Matricula {self.id} - {self.nome_completo}>"
 
 # ======================================
 # SISTEMA DE AVATARES (sqlite3)
