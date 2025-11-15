@@ -265,35 +265,58 @@ def gerar_matricula_personalizada(tipo: str) -> str:
     novo_num = ultimo_num + 1
     return f"{prefixo}{novo_num:03d}"
 
-
-def criar_matricula(nome_completo: str, email: str, matricula_id: str) -> tuple[bool, str]:
+def criar_matricula(nome_completo: str, email: str, matricula_id: str):
+    garantir_tabela_matriculas()
     conn = sqlite3.connect(PATH_DB)
     cursor = conn.cursor()
     try:
+        # verificar duplicidade
         cursor.execute("SELECT 1 FROM matriculas WHERE email = ? OR id = ?", (email, matricula_id))
         if cursor.fetchone():
             return False, "Já existe uma matrícula com esse e-mail ou número."
 
         data_criacao = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+
         cursor.execute("""
             INSERT INTO matriculas (id, nome_completo, email, status, data_criacao)
-            VALUES (?, ?, ?, ?, ?)
-        """, (matricula_id, nome_completo, email, 'pendente', data_criacao))
+            VALUES (?, ?, ?, 'pendente', ?)
+        """, (matricula_id, nome_completo, email, data_criacao))
+
         conn.commit()
         return True, "Matrícula criada com sucesso."
+
     except sqlite3.Error as e:
         return False, f"Erro ao criar matrícula: {str(e)}"
+
     finally:
         conn.close()
 
 def excluir_matricula(matricula_id):
     try:
+        garantir_tabela_matriculas()
         conn = sqlite3.connect(PATH_DB)
         cursor = conn.cursor()
+
         cursor.execute("DELETE FROM matriculas WHERE id = ?", (matricula_id,))
         conn.commit()
         conn.close()
         return True, None
+
     except Exception as e:
         return False, str(e)
 
+
+def garantir_tabela_matriculas():
+    conn = sqlite3.connect(PATH_DB)
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS matriculas (
+            id TEXT PRIMARY KEY,
+            nome_completo TEXT NOT NULL,
+            email TEXT NOT NULL,
+            status TEXT DEFAULT 'pendente',
+            data_criacao TEXT
+        )
+    """)
+    conn.commit()
+    conn.close()
